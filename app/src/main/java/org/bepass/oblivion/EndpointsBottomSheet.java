@@ -9,12 +9,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.FrameLayout;
+import android.app.Dialog;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import org.bepass.oblivion.utils.FileManager;
 
@@ -41,6 +45,9 @@ public class EndpointsBottomSheet extends BottomSheetDialogFragment {
 
         endpointsList = new ArrayList<>();
         loadEndpoints();
+
+        // Ensure initial focus starts at the first input for Android TV DPAD navigation
+        titleEditText.requestFocus();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new EndpointsAdapter(endpointsList, this::onEndpointSelected);
@@ -71,6 +78,26 @@ public class EndpointsBottomSheet extends BottomSheetDialogFragment {
         return view;
     }
 
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        BottomSheetDialog dialog = (BottomSheetDialog) super.onCreateDialog(savedInstanceState);
+        dialog.setOnShowListener(d -> {
+            BottomSheetDialog bsd = (BottomSheetDialog) d;
+            FrameLayout bottomSheet = bsd.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            if (bottomSheet != null) {
+                BottomSheetBehavior<FrameLayout> behavior = BottomSheetBehavior.from(bottomSheet);
+                behavior.setSkipCollapsed(true);
+                behavior.setFitToContents(true);
+                behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                try {
+                    behavior.setDraggable(false);
+                } catch (Throwable ignored) {
+                    // Older Material versions may not support setDraggable
+                }
+            }
+        });
+        return dialog;
+    }
 
     private void loadEndpoints() {
         Set<String> savedEndpoints = FileManager.getStringSet("saved_endpoints", new HashSet<>());

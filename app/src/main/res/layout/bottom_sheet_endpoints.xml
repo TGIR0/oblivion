@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:fillViewport="true"
     android:background="@drawable/rounded_bottom_sheet">
 
@@ -31,7 +31,8 @@
             android:text="@string/editSheetEndpoint"
             android:textColor="@color/text_color"
             android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:focusable="false" />
 
         <!-- Title Field -->
         <TextView
@@ -55,7 +56,8 @@
             android:hint="@string/title"
             android:textColorHint="@color/text_color"
             android:textColor="@color/text_color"
-            android:singleLine="true" />
+            android:singleLine="true"
+            android:nextFocusDown="@+id/contentEditText" />
 
         <!-- Content Field -->
         <TextView
@@ -81,7 +83,8 @@
             android:textColor="@color/text_color"
             android:textAlignment="viewStart"
             android:inputType="text"
-            android:singleLine="true" />
+            android:singleLine="true"
+            android:nextFocusDown="@+id/saveButton" />
 
         <!-- Save Button -->
         <Button
@@ -93,7 +96,8 @@
             android:fontFamily="@font/shabnambold"
             android:text="@string/save"
             android:textColor="@color/white"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:nextFocusDown="@+id/resetDefaultButton" />
 
         <!-- Reset Button -->
         <Button
@@ -105,7 +109,8 @@
             android:fontFamily="@font/shabnambold"
             android:text="@string/reset_to_default_endpoint"
             android:textColor="@color/white"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:nextFocusDown="@+id/recyclerView" />
 
         <!-- Saved endpoints title -->
         <TextView
@@ -123,6 +128,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="@color/background" />
+            android:background="@color/background"
+            android:focusable="true"
+            android:focusableInTouchMode="true" />
     </LinearLayout>
 </ScrollView>
