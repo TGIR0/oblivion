@@ -11,7 +11,8 @@ require (
 	github.com/eycorsican/go-tun2socks v1.16.11
 	github.com/songgao/water v0.0.0-20200317203138-2b4b6d7c09d8
 	github.com/xjasonlyu/tun2socks/v2 v2.5.2
-	golang.org/x/mobile v0.0.0-20240604190613-2782386b8afd
+	golang.org/x/mobile v0.0.0-20240604190613-2782386b8afd // Revert to known good version
+	golang.org/x/tools v0.26.0 // indirect; Try newer version for Go 1.25 fix
 )
 
 require (
@@ -115,13 +116,12 @@ require (
 	go4.org/netipx v0.0.0-20230824141953-6213f710f925 // indirect
 	golang.org/x/crypto v0.32.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
-	golang.org/x/mod v0.18.0 // indirect
+	golang.org/x/mod v0.21.0 // indirect
 	golang.org/x/net v0.34.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/time v0.7.0 // indirect
-	golang.org/x/tools v0.22.0 // indirect
 	golang.zx2c4.com/wireguard v0.0.0-20230325221338-052af4a8072b // indirect
 	golang.zx2c4.com/wireguard/windows v0.5.3 // indirect
 	google.golang.org/protobuf v1.32.0 // indirect

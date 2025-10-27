@@ -15,12 +15,11 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      CGO_ENABLED: 0
+      CGO_ENABLED: 1
 
     steps:
       - name: Checkout codebase
         uses: actions/checkout@v5
-
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
@@ -35,32 +34,33 @@ jobs:
           distribution: "zulu"
           cache: "gradle"
 
-      - name: Install NDK
-        uses: nttld/setup-ndk@v1
+      - name: Set up Android SDK + NDK
+        uses: android-actions/setup-android@v3
         with:
-          ndk-version: r26b
-          link-to-sdk: true
+          api-level: 34
+          ndk: r26b
+          build-tools: 34.0.0
 
       - name: Change wrapper permissions
         run: chmod +x ./gradlew
 
       - name: Build Tun2Socks AAR
-        run: ./gradlew buildTun2SocksAar
+        run: ./gradlew :app:buildTun2SocksAar --stacktrace
 
-      # Run Build Project
-      - name: Build gradle project
-        run: ./gradlew build
-
-      # Build APKs
-      - name: Build Release APK
-        run: ./gradlew assembleRelease
-
-      # Upload build aar to Artifacts
+      # Upload build aar to Artifacts ASAP
       - name: Upload build aar to Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: "tun2socks"
           path: app/libs/tun2socks.aar
+
+      # Run Build Project
+      - name: Build gradle project
+        run: ./gradlew build
+
+      # Build APKs (may fail independently from AAR)
+      - name: Build Release APK
+        run: ./gradlew assembleRelease --stacktrace
 
       # Upload APK artifact
       - name: Upload files to Artifacts

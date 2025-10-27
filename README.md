@@ -26,10 +26,27 @@ It's leveraging `bepass-sdk` and a custom Go implementation of WireGuard, it's d
 ## Building the Project
 
 ### Prerequisites
+- JDK 17
 - NDK r26b (26.1.10909125)
-- Go 1.22
+- Go 1.22.x
 
-### Follow the steps below to build the Oblivion:
+### Build Tun2Socks AAR (cross‑platform)
+
+You can build the AAR via Gradle without installing gomobile globally. The Gradle task wraps `go run golang.org/x/mobile/cmd/gomobile` and pins NDK r26b.
+
+Linux/macOS:
+```bash
+./gradlew :app:buildTun2SocksAar
+```
+
+Windows (PowerShell):
+```powershell
+.\gradlew.bat :app:buildTun2SocksAar
+```
+
+Output: `app/libs/tun2socks.aar`
+
+### Follow the steps below to build the Oblivion APK:
 - In Android Studio, navigate to "Build" in the menu bar.
 - Select "Generate Signed Bundle/APK..."
 - Choose "APK" and proceed.

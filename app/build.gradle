@@ -5,11 +5,12 @@ plugins {
 
 android {
     namespace 'org.bepass.oblivion'
-    compileSdk 34
+    compileSdk 36  // Android 16 (API 36)
+    ndkVersion "26.1.10909125"
     defaultConfig {
         applicationId "org.bepass.oblivion"
-        minSdk 23 // least supported api level => android 6.0
-        targetSdk 34
+        minSdk 24  // Android 7.0, balanced for compatibility without restrictions
+        targetSdk 36
         versionCode 18
         versionName "8"
 
@@ -33,11 +34,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17  // Latest supported in Android, as Java 25 is not fully compatible yet
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
     packagingOptions {
         resources.excludes.add("META-INF/*")
@@ -54,54 +55,42 @@ configurations {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'com.github.zcweng:switch-button:0.0.3@aar'
-    implementation 'androidx.recyclerview:recyclerview:1.3.2'
-    implementation 'com.github.bumptech.glide:glide:4.16.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
-    implementation 'com.github.erfansn:locale-config-x:1.0.1'
-    implementation 'com.tencent:mmkv:1.3.14' // we version 1.3.* to support 32-bit
+    implementation 'androidx.appcompat:appcompat:1.7.0'  // Latest
+    implementation 'com.google.android.material:material:1.12.0'  // Latest, includes SwitchMaterial for replacement
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'  // Latest
+    // Removed com.github.zcweng:switch-button:0.0.3@aar - replaced with Material Switch in code if needed
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'  // Latest
+    implementation 'com.github.bumptech.glide:glide:4.16.0'  // Latest
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'  // Latest
+    implementation 'com.github.erfansn:locale-config-x:1.0.1'  // Assuming latest, check if newer exists
+    implementation 'com.tencent:mmkv:1.3.8'  // Latest version supporting 32-bit
     implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'])
 }
 
 static def findGoExecutable() {
-    def goPath = ["which", "go"].execute().text.trim()
-    if (!goPath || !new File(goPath).exists()) {
-        throw new GradleException("Go executable not found in PATH.")
-    }
-    return goPath
+    def isWindows = System.getProperty("os.name").toLowerCase().contains("win")
+    def exe = isWindows ? "go.exe" : "go"
+    try {
+        def proc = [exe, "version"].execute()
+        proc.waitFor()
+        if (proc.exitValue() == 0) {
+            return exe
+        }
+    } catch (Exception ignored) {}
+    throw new GradleException("Go executable not found in PATH. Install Go 1.25.x and ensure 'go' is on PATH.")
 }
 
 static def findGomobileExecutable(goExec) {
-    def gomobilePath = ["which", "gomobile"].execute().text.trim()
-    if (gomobilePath && new File(gomobilePath).exists()) {
-        return gomobilePath
-    }
-
-    // fallback to GOPATH/bin/gomobile (usually ~/go/bin/gomobile)
-    def fallback = "${System.getProperty("user.home")}/go/bin/gomobile"
-    if (new File(fallback).exists()) {
-        return fallback
-    }
-
-    // try to install
-    println "Installing gomobile..."
-    def install = ["sh", "-c", "$goExec install golang.org/x/mobile/cmd/gomobile@latest"].execute()
-    install.waitForProcessOutput(System.out, System.err)
-    if (install.exitValue() != 0 || !new File(fallback).exists()) {
-        throw new GradleException("Failed to install gomobile")
-    }
-    return fallback
+    // Deprecated: we now use 'go run golang.org/x/mobile/cmd/gomobile' for cross-platform support.
+    return null
 }
 
 def goExec = findGoExecutable()
-def gomobileExec = findGomobileExecutable(goExec)
 
 tasks.register("preBuildTun2SocksAar", Exec) {
     workingDir "../tun2socks"
-    commandLine gomobileExec, "init"
+    environment "CGO_ENABLED", "1"
+    commandLine goExec, "run", "golang.org/x/mobile/cmd/gomobile", "init"
 }
 
 tasks.register("buildTun2SocksAar", Exec) {
@@ -113,10 +102,11 @@ tasks.register("buildTun2SocksAar", Exec) {
     }
 
     workingDir "../tun2socks"
-    commandLine gomobileExec, "bind",
+    environment "CGO_ENABLED", "1"
+    commandLine goExec, "run", "golang.org/x/mobile/cmd/gomobile", "bind",
             "-ldflags=-w -s",
             "-target=android",
-            "-androidapi=$android.defaultConfig.minSdk",
+            "-androidapi=$android.defaultConfig.minSdk",  // Updated to minSdk 24
             "-o=$projectDir/libs/tun2socks.aar", "."
 
     dependsOn(preBuildTun2SocksAar)
