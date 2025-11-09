@@ -29,7 +29,7 @@
             android:layout_marginTop="16dp"
             android:fontFamily="@font/shabnam"
             android:text="@string/editSheetEndpoint"
-            android:textColor="@color/text_color"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="20sp"
             android:textStyle="bold"
             android:focusable="false" />
@@ -41,23 +41,25 @@
             android:layout_marginTop="24dp"
             android:layout_marginBottom="5dp"
             android:text="@string/title"
-            android:textColor="@color/text_color"
+            android:textColor="?attr/colorOnSurface"
             android:fontFamily="@font/shabnam"
             android:textSize="14sp" />
 
-        <EditText
-            android:id="@+id/titleEditText"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.FilledBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/edittext_back"
-            android:fontFamily="@font/shabnam"
-            android:padding="10dp"
-            android:textSize="14sp"
-            android:hint="@string/title"
-            android:textColorHint="@color/text_color"
-            android:textColor="@color/text_color"
-            android:singleLine="true"
-            android:nextFocusDown="@+id/contentEditText" />
+            android:hint="@string/title">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/titleEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/shabnam"
+                android:padding="10dp"
+                android:textSize="14sp"
+                android:singleLine="true"
+                android:nextFocusDown="@+id/contentEditText" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Content Field -->
         <TextView
@@ -66,49 +68,50 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="5dp"
             android:text="@string/content"
-            android:textColor="@color/text_color"
+            android:textColor="?attr/colorOnSurface"
             android:fontFamily="@font/shabnam"
             android:textSize="14sp" />
 
-        <EditText
-            android:id="@+id/contentEditText"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.FilledBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/edittext_back"
-            android:fontFamily="@font/shabnam"
-            android:padding="10dp"
-            android:textSize="14sp"
-            android:hint="@string/content"
-            android:textColorHint="@color/text_color"
-            android:textColor="@color/text_color"
-            android:textAlignment="viewStart"
-            android:inputType="text"
-            android:singleLine="true"
-            android:nextFocusDown="@+id/saveButton" />
+            android:hint="@string/content">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/contentEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/shabnam"
+                android:padding="10dp"
+                android:textSize="14sp"
+                android:textAlignment="viewStart"
+                android:inputType="text"
+                android:singleLine="true"
+                android:nextFocusDown="@+id/saveButton" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Save Button -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/saveButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:background="@drawable/button"
-            android:fontFamily="@font/shabnambold"
+            style="@style/Widget.Material3.Button"
             android:text="@string/save"
-            android:textColor="@color/white"
+            app:backgroundTint="?attr/colorPrimary"
+            android:textColor="?attr/colorOnPrimary"
             android:textSize="16sp"
             android:nextFocusDown="@+id/resetDefaultButton" />
 
         <!-- Reset Button -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/resetDefaultButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="@drawable/button_op"
-            android:fontFamily="@font/shabnambold"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:text="@string/reset_to_default_endpoint"
-            android:textColor="@color/white"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="16sp"
             android:nextFocusDown="@+id/recyclerView" />
 
@@ -119,7 +122,7 @@
             android:layout_marginTop="24dp"
             android:fontFamily="@font/shabnam"
             android:text="@string/saved_endpoints"
-            android:textColor="@color/text_color"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -128,7 +131,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="@color/background"
+            android:background="?attr/colorSurface"
             android:focusable="true"
             android:focusableInTouchMode="true" />
     </LinearLayout>

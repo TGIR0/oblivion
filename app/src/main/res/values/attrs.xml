@@ -3,6 +3,6 @@
 
 
     <declare-styleable name="Icon">
-        <attr name="icon_color" format="color" />
+        <attr name="icon_color" format="reference|color" />
     </declare-styleable>
 </resources>

@@ -194,14 +194,14 @@ public class MainActivity extends StateAwareBaseActivity<ActivityMainBinding> {
         binding.stateText.setText(R.string.notConnected);
         binding.ipProgressBar.setVisibility(View.GONE);
         binding.switchButton.setEnabled(true);
-        binding.switchButton.setChecked(false, false);
+        binding.switchButton.setChecked(false);
     }
 
     private void updateUIForConnectingState() {
         binding.stateText.setText(R.string.connecting);
         binding.publicIP.setVisibility(View.GONE);
         binding.ipProgressBar.setVisibility(View.VISIBLE);
-        binding.switchButton.setChecked(true, false);
+        binding.switchButton.setChecked(true);
         binding.switchButton.setEnabled(true);
     }
 
@@ -222,7 +222,7 @@ public class MainActivity extends StateAwareBaseActivity<ActivityMainBinding> {
         } else {
             binding.stateText.setText(R.string.connected);
         }
-        binding.switchButton.setChecked(true, false);
+        binding.switchButton.setChecked(true);
         binding.ipProgressBar.setVisibility(View.GONE);
         PublicIPUtils.getInstance().getIPDetails((details) -> runOnUiThread(() -> { // Ensure UI updates are done on the main thread
             if (details.ip != null) {

@@ -4,9 +4,9 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 
-import com.suke.widget.SwitchButton;
+import com.google.android.material.materialswitch.MaterialSwitch;
 
-public class TouchAwareSwitch extends SwitchButton {
+public class TouchAwareSwitch extends MaterialSwitch {
 
     public TouchAwareSwitch(Context context) {
         super(context);
@@ -35,10 +35,5 @@ public class TouchAwareSwitch extends SwitchButton {
             }
             listener.onCheckedChanged(view, isChecked);
         });
-    }
-
-    public void setChecked(boolean checked, boolean notify) {
-        if (!notify) setTag("TAG");
-        setChecked(checked);
     }
 }

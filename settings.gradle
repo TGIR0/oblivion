@@ -10,6 +10,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url = 'https://jitpack.io' }  // For GitHub libs like locale-config-x
     }
 }
 

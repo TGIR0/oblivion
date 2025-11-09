@@ -9,7 +9,7 @@ import android.widget.RadioButton;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.android.material.materialswitch.MaterialSwitch;
 
 import org.bepass.oblivion.enums.SplitTunnelMode;
 import org.bepass.oblivion.utils.FileManager;
@@ -70,7 +70,7 @@ public class SplitTunnelOptionsAdapter extends RecyclerView.Adapter<SplitTunnelO
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        SwitchMaterial showSystemApps;
+        MaterialSwitch showSystemApps;
         RadioButton disabled;
         RadioButton blacklist;
 

@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 
 import androidx.appcompat.app.AppCompatDelegate;
+import com.google.android.material.color.DynamicColors;
 
 import org.bepass.oblivion.utils.FileManager;
 import org.bepass.oblivion.utils.ThemeHelper;
@@ -19,13 +20,12 @@ public class ApplicationLoader extends Application {
 
     /**
      * This method is called when the application is starting, before any activity, service, or receiver objects (excluding content providers) have been created.
-     *
-     * @see android.app.Application#onCreate()
      */
     @Override
     public void onCreate() {
         super.onCreate();
-        FileManager.initialize(this); // Initialize FileManager with Application context
+        FileManager.initialize(this);
+        DynamicColors.applyToActivitiesIfAvailable(this);
         ThemeHelper.getInstance().init();
         ThemeHelper.getInstance().applyTheme();
     }

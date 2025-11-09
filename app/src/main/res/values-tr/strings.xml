@@ -59,6 +59,12 @@
     <string name="proxy_mode">Proxy Modu</string>
     <string name="running_in_proxy_mode_not_vpn">Proxy modunda çalışıyor, VPN değil</string>
     <string name="reset_to_default_endpoint">Varsayılan Uç Noktaya Sıfırla</string>
+    <string name="delete">Sil</string>
+    <string name="github_title">Github</string>
+    <string name="bepass_repo">Bepass/Oblivion</string>
+    <string name="start_logging_here">Günlüğü burada başlatın…</string>
+    <string name="getting_isp">ISP alınıyor…</string>
+    <string name="back">Geri</string>
     <string-array name="countries">
         <item>Avustralya</item>
         <item>Avusturya</item>

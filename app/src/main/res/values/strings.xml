@@ -59,6 +59,12 @@
   <string name="proxy_mode">Proxy Mode</string>
   <string name="running_in_proxy_mode_not_vpn">Running in proxy mode, not VPN</string>
   <string name="reset_to_default_endpoint">Reset to Default Endpoint</string>
+  <string name="delete">Delete</string>
+  <string name="github_title">Github</string>
+  <string name="bepass_repo">Bepass/Oblivion</string>
+  <string name="start_logging_here">Start logging here…</string>
+  <string name="getting_isp">Getting ISP…</string>
+  <string name="back">Back</string>
     <string-array name="countries">
     <item>Australia</item>
     <item>Austria</item>

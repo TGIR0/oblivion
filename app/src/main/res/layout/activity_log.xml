@@ -10,7 +10,7 @@
   <androidx.constraintlayout.widget.ConstraintLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:background="@color/background"
+      android:background="?attr/colorSurface"
       tools:context="org.bepass.oblivion.ui.LogActivity"
       android:fitsSystemWindows="true">
 
@@ -31,7 +31,8 @@
           android:layout_alignParentStart="true"
           android:layout_centerVertical="true"
           android:layout_marginStart="16dp"
-          app:icon_color="@color/icon_color"
+          android:contentDescription="@string/back"
+          app:icon_color="?attr/colorOnSurface"
           android:src="@drawable/ic_back"
           android:focusable="true"
           android:nextFocusDown="@id/logScrollView" />
@@ -42,10 +43,9 @@
           android:layout_alignParentEnd="true"
           android:layout_centerVertical="true"
           android:layout_marginEnd="16dp"
-          android:fontFamily="@font/shabnamlight"
+          android:textAppearance="@style/TextAppearance.Oblivion.TitleMedium"
           android:text="@string/logApp"
-          android:textColor="@color/text_color"
-          android:textSize="32dp"
+          android:textColor="?attr/colorOnSurface"
           tools:ignore="RelativeOverlap" />
     </RelativeLayout>
 
@@ -67,20 +67,19 @@
           android:id="@+id/logs"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:textColor="@color/subtitle_color"
-          android:text="Start Logging Here.."
-          android:textSize="11dp" />
+          android:textAppearance="@style/TextAppearance.Oblivion.LabelLarge"
+          android:textColor="?attr/colorOnSurfaceVariant"
+          android:text="@string/start_logging_here" />
     </ScrollView>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/copytoclip"
+        style="@style/Widget.Material3.Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary"
-        android:fontFamily="@font/shabnam"
         android:text="@string/copytoclip"
-        android:textColor="@color/white"
-        android:textSize="18dp"
+        app:backgroundTint="?attr/colorPrimary"
+        android:textColor="?attr/colorOnPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -99,22 +98,24 @@
         app:layout_constraintHorizontal_bias="0.5"
         android:visibility="gone">
 
-      <ProgressBar
+      <com.google.android.material.progressindicator.CircularProgressIndicator
           android:id="@+id/progressBar"
           android:layout_width="100dp"
           android:layout_height="100dp"
           android:indeterminate="true"
-          android:layout_gravity="center"
-          style="@style/CustomProgressBar"/>
+          app:indicatorSize="100dp"
+          app:trackThickness="6dp"
+          android:layout_gravity="center"/>
 
       <TextView
           android:id="@+id/loadingText"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_gravity="center"
-          android:text="Getting ISP..."
-          android:textColor="@android:color/white"
-          android:textSize="16dp"
+          android:text="@string/getting_isp"
+          android:textAppearance="@style/TextAppearance.Oblivion.BodyLarge"
+          android:textColor="?attr/colorOnSurface"
+          android:textSize="16sp"
           android:padding="8dp"/>
     </FrameLayout>
 

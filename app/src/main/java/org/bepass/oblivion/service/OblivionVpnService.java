@@ -422,11 +422,7 @@ public class OblivionVpnService extends VpnService {
             Log.i(TAG, "Configuring VPN service");
             try {
                 createNotification();
-                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU) {
-                    startForeground(1, notification);
-                } else {
-                    startForeground(1, notification, FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED);
-                }
+                startForeground(1, notification);
                 configure();
 
             } catch (Exception e) {
@@ -463,10 +459,12 @@ public class OblivionVpnService extends VpnService {
         return START_STICKY;
     }
 
+    private volatile boolean logPollingStarted = false;
+
     @Override
     public void onCreate() {
         super.onCreate();
-        handler.post(logRunnable);
+        // Defer starting log polling until after Tun2socks.start(so)
         createNotificationChannel(); // Create the notification channel here
     }
 
@@ -610,9 +608,8 @@ public class OblivionVpnService extends VpnService {
                 .setAutoCancel(true)
                 .setShowWhen(false)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setDefaults(NotificationCompat.FLAG_ONLY_ALERT_ONCE)
                 .setContentIntent(contentPendingIntent)
-                .addAction(0, "Disconnect", disconnectPendingIntent)
+                .addAction(R.drawable.vpn_off, getString(R.string.cancel), disconnectPendingIntent)
                 .build();
     }
 
@@ -647,8 +644,35 @@ public class OblivionVpnService extends VpnService {
                             so.setGool(true);
                         }
 
+                        // Runtime verification logs (PROXY mode)
+                        {
+                            String endpointEffective = getEndpoint();
+                            String endpointLog = endpointEffective.isEmpty() ? "AUTO_SCAN" : endpointEffective;
+                            int endpointType = serviceIntent.getIntExtra("USERSETTING_endpoint_type", 0);
+                            boolean psiphon = serviceIntent.getBooleanExtra("USERSETTING_psiphon", false);
+                            boolean gool = serviceIntent.getBooleanExtra("USERSETTING_gool", false);
+                            String licenseVal = Objects.requireNonNull(serviceIntent.getStringExtra("USERSETTING_license")).trim();
+                            String licenseLog = licenseVal.isEmpty() ? "(empty)" : ("len=" + licenseVal.length());
+                            String countryVal = Objects.requireNonNull(serviceIntent.getStringExtra("USERSETTING_country"), "").trim();
+                            Log.i(TAG, "StartOptions {mode=PROXY, bindAddress=" + bindAddress
+                                    + ", endpoint=" + endpointLog
+                                    + ", endpointType=" + endpointType
+                                    + ", psiphon=" + psiphon
+                                    + ", country=" + countryVal
+                                    + ", gool=" + gool
+                                    + ", dns=1.1.1.1"
+                                    + ", license=" + licenseLog
+                                    + ", path=" + getApplicationContext().getFilesDir().getAbsolutePath()
+                                    + ", tunFd=-1}"
+                            );
+                        }
+
                         // Start tun2socks in proxy mode
                         Tun2socks.start(so);
+                        if (!logPollingStarted) {
+                            handler.post(logRunnable);
+                            logPollingStarted = true;
+                        }
 
                     } else {
                         // VPN mode logic
@@ -677,8 +701,35 @@ public class OblivionVpnService extends VpnService {
                             so.setGool(true);
                         }
 
+                        // Runtime verification logs (VPN mode)
+                        {
+                            String endpointEffective = getEndpoint();
+                            String endpointLog = endpointEffective.isEmpty() ? "AUTO_SCAN" : endpointEffective;
+                            int endpointType = serviceIntent.getIntExtra("USERSETTING_endpoint_type", 0);
+                            boolean psiphon = serviceIntent.getBooleanExtra("USERSETTING_psiphon", false);
+                            boolean gool = serviceIntent.getBooleanExtra("USERSETTING_gool", false);
+                            String licenseVal = Objects.requireNonNull(serviceIntent.getStringExtra("USERSETTING_license")).trim();
+                            String licenseLog = licenseVal.isEmpty() ? "(empty)" : ("len=" + licenseVal.length());
+                            String countryVal = Objects.requireNonNull(serviceIntent.getStringExtra("USERSETTING_country"), "").trim();
+                            Log.i(TAG, "StartOptions {mode=VPN, bindAddress=" + bindAddress
+                                    + ", endpoint=" + endpointLog
+                                    + ", endpointType=" + endpointType
+                                    + ", psiphon=" + psiphon
+                                    + ", country=" + countryVal
+                                    + ", gool=" + gool
+                                    + ", dns=1.1.1.1"
+                                    + ", license=" + licenseLog
+                                    + ", path=" + getApplicationContext().getFilesDir().getAbsolutePath()
+                                    + ", tunFd=" + mInterface.getFd() + "}"
+                            );
+                        }
+
                         // Start tun2socks with VPN
                         Tun2socks.start(so);
+                        if (!logPollingStarted) {
+                            handler.post(logRunnable);
+                            logPollingStarted = true;
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -716,7 +767,12 @@ public class OblivionVpnService extends VpnService {
 
     private String getEndpoint() {
         String endpoint = Objects.requireNonNull(serviceIntent.getStringExtra("USERSETTING_endpoint")).trim();
-        return endpoint.equals("engage.cloudflareclient.com:2408") ? "" : endpoint;
+        if (endpoint.isEmpty() ||
+                endpoint.equals("engage.cloudflareclient.com:2408") ||
+                endpoint.equalsIgnoreCase("auto")) {
+            return ""; // Let core scan and choose proper endpoint
+        }
+        return endpoint;
     }
 
     private static class IncomingHandler extends Handler {

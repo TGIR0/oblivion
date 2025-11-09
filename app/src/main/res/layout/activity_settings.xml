@@ -10,7 +10,7 @@
   <androidx.constraintlayout.widget.ConstraintLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:background="@color/background"
+      android:background="?attr/colorSurface"
       tools:context="org.bepass.oblivion.ui.SettingsActivity"
       android:fitsSystemWindows="true">
 
@@ -32,7 +32,8 @@
           android:layout_centerVertical="true"
           android:layout_marginStart="16dp"
           android:src="@drawable/ic_back"
-          app:tint="@color/icon_color"
+          android:contentDescription="@string/back"
+          app:tint="?attr/colorOnSurface"
           android:focusable="true"
           android:nextFocusDown="@id/endpoint_type_layout" />
 
@@ -42,10 +43,9 @@
           android:layout_alignParentEnd="true"
           android:layout_centerVertical="true"
           android:layout_marginEnd="16dp"
-          android:fontFamily="@font/shabnamlight"
+          android:textAppearance="@style/TextAppearance.Oblivion.TitleMedium"
           android:text="@string/settingsText"
-          android:textColor="@color/text_color"
-          android:textSize="24dp"
+          android:textColor="?attr/colorOnSurface"
           tools:ignore="RelativeOverlap"
           android:focusable="true"
           android:nextFocusDown="@id/battery_optimization_layout"/>
@@ -70,7 +70,7 @@
               android:id="@+id/battery_optimization_layout"
               android:layout_width="match_parent"
               android:layout_height="80dp"
-              android:background="?android:selectableItemBackground"
+              android:background="?selectableItemBackground"
               android:gravity="center"
               android:paddingHorizontal="16dp"
               android:orientation="vertical"
@@ -89,8 +89,8 @@
                   android:minWidth="100dp"
                   android:text="@string/batteryOpL"
                   android:textAlignment="viewEnd"
-                  android:textColor="@color/text_color"
-                  android:textSize="20dp" />
+                  android:textColor="?attr/colorOnSurface"
+                  android:textSize="20sp" />
             </LinearLayout>
 
             <TextView
@@ -99,8 +99,8 @@
                 android:layout_marginTop="4dp"
                 android:fontFamily="@font/shabnam"
                 android:text="@string/batteryOpLText"
-                android:textColor="@color/subtitle_color"
-                android:textSize="16dp" />
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="16sp" />
 
           </LinearLayout>
         <LinearLayout
@@ -113,7 +113,7 @@
           <View
               android:layout_width="match_parent"
               android:layout_height="1dp"
-              android:background="@color/dark_gray" />
+              android:background="?attr/colorOutlineVariant" />
         </LinearLayout>
         <LinearLayout
             android:id="@+id/endpoint_type_layout"
@@ -146,8 +146,8 @@
                 android:minWidth="100dp"
                 android:text="@string/endpointTypeText"
                 android:textAlignment="viewEnd"
-                android:textColor="@color/text_color"
-                android:textSize="20dp" />
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp" />
 
           </LinearLayout>
 
@@ -157,8 +157,8 @@
               android:layout_marginTop="4dp"
               android:fontFamily="@font/shabnam"
               android:text="@string/endpointTypeTextDesc"
-              android:textColor="@color/subtitle_color"
-              android:textSize="16dp" />
+              android:textColor="?attr/colorOnSurfaceVariant"
+              android:textSize="16sp" />
         </LinearLayout>
         <LinearLayout
             android:id="@+id/endpoint_layout"
@@ -183,10 +183,10 @@
                 android:layout_weight="2"
                 android:fontFamily="@font/shabnammedium"
                 android:text="engage.cloudflareclient.com:2048"
-                android:textColor="@color/primary"
+                android:textColor="?attr/colorPrimary"
                 android:maxLines="1"
                 android:ellipsize="end"
-                android:textSize="20dp" />
+                android:textSize="20sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -195,8 +195,8 @@
                 android:minWidth="100dp"
                 android:text="@string/endpointText"
                 android:textAlignment="viewEnd"
-                android:textColor="@color/text_color"
-                android:textSize="20dp" />
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp" />
 
           </LinearLayout>
 
@@ -206,8 +206,8 @@
               android:layout_marginTop="4dp"
               android:fontFamily="@font/shabnam"
               android:text="@string/endpointTextDesc"
-              android:textColor="@color/subtitle_color"
-              android:textSize="16dp" />
+              android:textColor="?attr/colorOnSurfaceVariant"
+              android:textSize="16sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -219,7 +219,7 @@
           <View
               android:layout_width="match_parent"
               android:layout_height="1dp"
-              android:background="@color/dark_gray" />
+              android:background="?attr/colorOutlineVariant" />
         </LinearLayout>
 
         <LinearLayout
@@ -244,10 +244,10 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
                 android:fontFamily="@font/shabnammedium"
-                android:textColor="@color/primary"
+                android:textColor="?attr/colorPrimary"
                 android:maxLines="1"
                 android:ellipsize="end"
-                android:textSize="20dp" />
+                android:textSize="20sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -256,8 +256,8 @@
                 android:minWidth="100dp"
                 android:text="@string/portTunText"
                 android:textAlignment="viewEnd"
-                android:textColor="@color/text_color"
-                android:textSize="20dp" />
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp" />
 
           </LinearLayout>
 
@@ -267,8 +267,8 @@
               android:layout_marginTop="4dp"
               android:fontFamily="@font/shabnam"
               android:text="@string/portTunTextDesc"
-              android:textColor="@color/subtitle_color"
-              android:textSize="16dp" />
+              android:textColor="?attr/colorOnSurfaceVariant"
+              android:textSize="16sp" />
 
         </LinearLayout>
 
@@ -281,14 +281,14 @@
           <View
               android:layout_width="match_parent"
               android:layout_height="1dp"
-              android:background="@color/dark_gray" />
+              android:background="?attr/colorOutlineVariant" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/split_tunnel_layout"
             android:layout_width="match_parent"
             android:layout_height="80dp"
-            android:background="?android:selectableItemBackground"
+            android:background="?selectableItemBackground"
             android:gravity="center"
             android:paddingHorizontal="16dp"
             android:orientation="vertical"
@@ -303,12 +303,12 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/shabnam"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
                 android:minWidth="100dp"
                 android:text="@string/blackList"
                 android:textAlignment="viewEnd"
-                android:textColor="@color/text_color"
-                android:textSize="20dp" />
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="16sp" />
           </LinearLayout>
 
           <TextView
@@ -317,8 +317,8 @@
               android:layout_marginTop="4dp"
               android:fontFamily="@font/shabnam"
               android:text="@string/blackListTextDesc"
-              android:textColor="@color/subtitle_color"
-              android:textSize="16dp" />
+              android:textColor="?attr/colorOnSurfaceVariant"
+              android:textSize="16sp" />
 
         </LinearLayout>
         <LinearLayout
@@ -330,7 +330,7 @@
           <View
               android:layout_width="match_parent"
               android:layout_height="1dp"
-              android:background="@color/dark_gray" />
+              android:background="?attr/colorOutlineVariant" />
         </LinearLayout>
         <LinearLayout
             android:id="@+id/proxy_mode_layout"
@@ -354,12 +354,12 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="2">
 
-              <CheckBox
+              <com.google.android.material.checkbox.MaterialCheckBox
                   android:id="@+id/proxyMode"
                   android:layout_width="50dp"
                   android:layout_height="38dp"
                   android:layout_marginStart="10dp"
-                  android:buttonTint="@color/checkbox_tint"
+                  app:useMaterialThemeColors="true"
                   android:scaleX="1.5"
                   android:scaleY="1.5"
                   android:translationX="5dp" />
@@ -372,8 +372,8 @@
                 android:minWidth="100dp"
                 android:text="@string/proxy_mode"
                 android:textAlignment="viewEnd"
-                android:textColor="@color/text_color"
-                android:textSize="20dp" />
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp" />
           </LinearLayout>
 
           <TextView
@@ -382,8 +382,8 @@
               android:layout_marginTop="4dp"
               android:fontFamily="@font/shabnam"
               android:text="@string/running_in_proxy_mode_not_vpn"
-              android:textColor="@color/subtitle_color"
-              android:textSize="16dp" />
+              android:textColor="?attr/colorOnSurfaceVariant"
+              android:textSize="16sp" />
 
         </LinearLayout>
         <LinearLayout
@@ -395,7 +395,7 @@
           <View
               android:layout_width="match_parent"
               android:layout_height="1dp"
-              android:background="@color/dark_gray" />
+              android:background="?attr/colorOutlineVariant" />
         </LinearLayout>
 
         <LinearLayout
@@ -420,12 +420,12 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="2">
 
-              <CheckBox
+              <com.google.android.material.checkbox.MaterialCheckBox
                   android:id="@+id/check_box_dark_mode"
                   android:layout_width="50dp"
                   android:layout_height="38dp"
                   android:layout_marginStart="10dp"
-                  android:buttonTint="@color/checkbox_tint"
+                  app:useMaterialThemeColors="true"
                   android:scaleX="1.5"
                   android:scaleY="1.5"
                   android:translationX="5dp" />
@@ -438,8 +438,8 @@
                 android:minWidth="100dp"
                 android:text="@string/turn_on_dark_mode"
                 android:textAlignment="viewEnd"
-                android:textColor="@color/text_color"
-                android:textSize="20dp" />
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp" />
           </LinearLayout>
 
           <TextView
@@ -448,8 +448,8 @@
               android:layout_marginTop="4dp"
               android:fontFamily="@font/shabnam"
               android:text="@string/turn_on_dark_mode_desc"
-              android:textColor="@color/subtitle_color"
-              android:textSize="16dp" />
+              android:textColor="?attr/colorOnSurfaceVariant"
+              android:textSize="16sp" />
 
         </LinearLayout>
 
@@ -462,7 +462,7 @@
           <View
               android:layout_width="match_parent"
               android:layout_height="1dp"
-              android:background="@color/dark_gray" />
+              android:background="?attr/colorOutlineVariant" />
         </LinearLayout>
 
         <LinearLayout
@@ -487,12 +487,12 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="2">
 
-              <CheckBox
+              <com.google.android.material.checkbox.MaterialCheckBox
                   android:id="@+id/lan"
                   android:layout_width="50dp"
                   android:layout_height="38dp"
                   android:layout_marginStart="10dp"
-                  android:buttonTint="@color/checkbox_tint"
+                  app:useMaterialThemeColors="true"
                   android:scaleX="1.5"
                   android:scaleY="1.5"
                   android:translationX="5dp" />
@@ -505,8 +505,8 @@
                 android:minWidth="100dp"
                 android:text="@string/connectFromLanText"
                 android:textAlignment="viewEnd"
-                android:textColor="@color/text_color"
-                android:textSize="20dp" />
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp" />
           </LinearLayout>
 
           <TextView
@@ -515,8 +515,8 @@
               android:layout_marginTop="4dp"
               android:fontFamily="@font/shabnam"
               android:text="@string/connectFromLanTextDesc"
-              android:textColor="@color/subtitle_color"
-              android:textSize="16dp" />
+              android:textColor="?attr/colorOnSurfaceVariant"
+              android:textSize="16sp" />
 
         </LinearLayout>
 
@@ -529,7 +529,7 @@
           <View
               android:layout_width="match_parent"
               android:layout_height="1dp"
-              android:background="@color/dark_gray" />
+              android:background="?attr/colorOutlineVariant" />
         </LinearLayout>
 
         <LinearLayout
@@ -553,14 +553,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="2">
 
-              <CheckBox
+              <com.google.android.material.checkbox.MaterialCheckBox
                   android:id="@+id/psiphon"
                   android:layout_width="50dp"
                   android:layout_height="38dp"
+                  android:layout_marginStart="10dp"
+                  app:useMaterialThemeColors="true"
                   android:scaleX="1.5"
                   android:scaleY="1.5"
-                  android:layout_marginStart="10dp"
-                  android:buttonTint="@color/checkbox_tint"
                   android:translationX="5dp" />
             </LinearLayout>
 
@@ -571,8 +571,8 @@
                 android:minWidth="100dp"
                 android:text="@string/psiphonText"
                 android:textAlignment="viewEnd"
-                android:textColor="@color/text_color"
-                android:textSize="20dp" />
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp" />
 
           </LinearLayout>
 
@@ -582,8 +582,8 @@
               android:layout_marginTop="4dp"
               android:fontFamily="@font/shabnam"
               android:text="@string/psiphonTextDesc"
-              android:textColor="@color/subtitle_color"
-              android:textSize="16dp" />
+              android:textColor="?attr/colorOnSurfaceVariant"
+              android:textSize="16sp" />
 
         </LinearLayout>
 
@@ -596,7 +596,7 @@
           <View
               android:layout_width="match_parent"
               android:layout_height="1dp"
-              android:background="@color/dark_gray" />
+              android:background="?attr/colorOutlineVariant" />
         </LinearLayout>
 
         <LinearLayout
@@ -632,8 +632,8 @@
                 android:minWidth="100dp"
                 android:text="@string/chooseText"
                 android:textAlignment="viewEnd"
-                android:textColor="@color/text_color"
-                android:textSize="20dp" />
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp" />
 
           </LinearLayout>
 
@@ -643,8 +643,8 @@
               android:layout_marginTop="4dp"
               android:fontFamily="@font/shabnam"
               android:text="@string/chooseTextDesc"
-              android:textColor="@color/subtitle_color"
-              android:textSize="16dp" />
+              android:textColor="?attr/colorOnSurfaceVariant"
+              android:textSize="16sp" />
 
         </LinearLayout>
 
@@ -657,7 +657,7 @@
           <View
               android:layout_width="match_parent"
               android:layout_height="1dp"
-              android:background="@color/dark_gray" />
+              android:background="?attr/colorOutlineVariant" />
         </LinearLayout>
 
         <LinearLayout
@@ -680,14 +680,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="2">
 
-              <CheckBox
+              <com.google.android.material.checkbox.MaterialCheckBox
                   android:id="@+id/gool"
                   android:layout_width="50dp"
                   android:layout_height="38dp"
+                  android:layout_marginStart="10dp"
+                  app:useMaterialThemeColors="true"
                   android:scaleX="1.5"
                   android:scaleY="1.5"
-                  android:layout_marginStart="10dp"
-                  android:buttonTint="@color/checkbox_tint"
                   android:translationX="5dp" />
             </LinearLayout>
 
@@ -698,8 +698,8 @@
                 android:minWidth="100dp"
                 android:text="@string/goolText"
                 android:textAlignment="viewEnd"
-                android:textColor="@color/text_color"
-                android:textSize="20dp" />
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp" />
 
           </LinearLayout>
 
@@ -709,8 +709,8 @@
               android:layout_marginTop="4dp"
               android:fontFamily="@font/shabnam"
               android:text="@string/goolTextDesc"
-              android:textColor="@color/subtitle_color"
-              android:textSize="16dp" />
+              android:textColor="?attr/colorOnSurfaceVariant"
+              android:textSize="16sp" />
 
         </LinearLayout>
         <LinearLayout
@@ -722,13 +722,13 @@
           <View
               android:layout_width="match_parent"
               android:layout_height="1dp"
-              android:background="@color/dark_gray" />
+              android:background="?attr/colorOutlineVariant" />
         </LinearLayout>
         <LinearLayout
             android:id="@+id/reset_app_layout"
             android:layout_width="match_parent"
             android:layout_height="80dp"
-            android:background="?android:selectableItemBackground"
+            android:background="?selectableItemBackground"
             android:gravity="center"
             android:paddingHorizontal="16dp"
             android:orientation="vertical"
@@ -747,8 +747,8 @@
                 android:minWidth="100dp"
                 android:text="@string/resetAppText"
                 android:textAlignment="viewEnd"
-                android:textColor="@color/text_color"
-                android:textSize="20dp" />
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp" />
           </LinearLayout>
 
           <TextView
@@ -757,8 +757,8 @@
               android:layout_marginTop="4dp"
               android:fontFamily="@font/shabnam"
               android:text="@string/resetAppTextDesc"
-              android:textColor="@color/subtitle_color"
-              android:textSize="16dp" />
+              android:textColor="?attr/colorOnSurfaceVariant"
+              android:textSize="16sp" />
 
         </LinearLayout>
         <LinearLayout
@@ -770,7 +770,7 @@
           <View
               android:layout_width="match_parent"
               android:layout_height="1dp"
-              android:background="@color/dark_gray" />
+              android:background="?attr/colorOutlineVariant" />
         </LinearLayout>
       </LinearLayout>
     </ScrollView>

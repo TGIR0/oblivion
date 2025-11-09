@@ -10,7 +10,7 @@
   <LinearLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:background="@color/background"
+      android:background="?attr/colorSurface"
       android:orientation="vertical"
       tools:context="org.bepass.oblivion.ui.InfoActivity"
       android:fitsSystemWindows="true">
@@ -29,10 +29,10 @@
           android:layout_alignParentStart="true"
           android:layout_centerVertical="true"
           android:layout_marginStart="16dp"
-          android:contentDescription="back"
+          android:contentDescription="@string/back"
           android:src="@drawable/ic_back"
-          app:icon_color="@color/icon_color"
-          app:tint="@color/icon_color"
+          app:icon_color="?attr/colorOnSurface"
+          app:tint="?attr/colorOnSurface"
           android:focusable="true"/>
 
       <TextView
@@ -41,10 +41,9 @@
           android:layout_alignParentEnd="true"
           android:layout_centerVertical="true"
           android:layout_marginEnd="16dp"
-          android:fontFamily="@font/shabnamlight"
+          android:textAppearance="@style/TextAppearance.Oblivion.TitleMedium"
           android:text="@string/aboutApp"
-          android:textColor="@color/text_color"
-          android:textSize="32dp"
+          android:textColor="?attr/colorOnSurface"
           tools:ignore="RelativeOverlap" />
 
     </RelativeLayout>
@@ -59,11 +58,10 @@
           android:id="@+id/about"
           android:layout_width="0dp"
           android:layout_height="wrap_content"
-          android:fontFamily="@font/shabnammedium"
           android:text='@string/aboutAppDesc'
           android:textAlignment="center"
-          android:textColor="@color/subtitle_color"
-          android:textSize="16dp"
+          android:textAppearance="@style/TextAppearance.Oblivion.BodyLarge"
+          android:textColor="?attr/colorOnSurfaceVariant"
           tools:ignore="RtlCompat"
           android:focusable="true"
           app:layout_constraintLeft_toLeftOf="parent"
@@ -94,7 +92,8 @@
           android:layout_marginStart="8dp"
           android:layout_marginEnd="8dp"
           android:src="@drawable/ic_github"
-          app:tint="@color/black"
+          android:contentDescription="@string/github_title"
+          app:tint="?attr/colorOnSurface"
           android:focusable="true"/>
 
       <TextView
@@ -102,10 +101,9 @@
           android:layout_height="wrap_content"
           android:layout_centerInParent="true"
           android:layout_toEndOf="@id/github_image"
-          android:fontFamily="@font/shabnam"
-          android:text="Github"
-          android:textColor="@color/black"
-          android:textSize="14dp" />
+          android:textAppearance="@style/TextAppearance.Oblivion.LabelLarge"
+          android:text="@string/github_title"
+          android:textColor="?attr/colorOnSurface" />
 
       <TextView
           android:layout_width="wrap_content"
@@ -113,10 +111,9 @@
           android:layout_alignParentEnd="true"
           android:layout_centerVertical="true"
           android:layout_marginEnd="16dp"
-          android:fontFamily="@font/shabnambold"
-          android:text="Bepass/Oblivion"
-          android:textColor="@color/black"
-          android:textSize="14dp" />
+          android:textAppearance="@style/TextAppearance.Oblivion.LabelLarge"
+          android:text="@string/bepass_repo"
+          android:textColor="?attr/colorOnSurface" />
 
     </RelativeLayout>
 
@@ -124,11 +121,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:fontFamily="@font/shabnam"
+        android:textAppearance="@style/TextAppearance.Oblivion.LabelLarge"
         android:gravity="center"
         android:text="@string/appVersion"
-        android:textColor="@color/subtitle_color"
-        android:textSize="14dp" />
+        android:textColor="?attr/colorOnSurfaceVariant" />
 
   </LinearLayout>
 </layout>
