@@ -1,5 +1,10 @@
 package lwip
 
+/*
+#cgo CFLAGS: -w
+*/
+import "C"
+
 import (
 	"errors"
 	"io"
@@ -68,7 +73,12 @@ func openTunDevice(tunFd int) (*water.Interface, error) {
 // Start sets up lwIP stack, starts a Tun2socks instance
 func Start(opt *Tun2socksStartOptions) int {
 
-	mtuUsed = opt.MTU
+	// Set MTU, use 1500 as default if not specified
+	if opt.MTU > 0 {
+		mtuUsed = opt.MTU
+	} else {
+		mtuUsed = 1500
+	}
 	var err error
 	tunDev, err = openTunDevice(opt.TunFd)
 	if err != nil {

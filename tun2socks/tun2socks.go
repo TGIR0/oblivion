@@ -139,7 +139,7 @@ func Start(opt *StartOptions) {
 		TunFd:        opt.TunFd,
 		Socks5Server: strings.Replace(opt.BindAddress, "0.0.0.0", "127.0.0.1", -1),
 		FakeIPRange:  "24.0.0.0/8",
-		MTU:          0,
+		MTU:          1500, // Standard Ethernet MTU for best performance
 		EnableIPv6:   true,
 		AllowLan:     true,
 	}
