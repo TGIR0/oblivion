@@ -4,20 +4,21 @@ import static org.bepass.oblivion.service.OblivionVpnService.stopVpnService;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.net.LinkAddress;
+import android.net.LinkProperties;
 import android.net.Network;
 import android.net.NetworkCapabilities;
-import android.net.NetworkInfo;
-import android.net.wifi.WifiManager;
-import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 
 import org.bepass.oblivion.enums.ConnectionState;
 
-import java.util.Locale;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 
 public class NetworkUtils {
 
-    private static final Handler handler = new Handler();
+    private static final Handler handler = new Handler(Looper.getMainLooper());
     public static void monitorInternetConnection(ConnectionState lastKnownConnectionState, Context context) {
         handler.postDelayed(new Runnable() {
             @Override
@@ -39,55 +40,50 @@ public class NetworkUtils {
     private static boolean isConnectedToInternet(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        if (connectivityManager != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                Network activeNetwork = connectivityManager.getActiveNetwork();
-                if (activeNetwork != null) {
-                    NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork);
-                    return networkCapabilities != null &&
-                            (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-                                    networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR));
-                }
-            } else {
-                // For API levels below 23, use the deprecated method
-                NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
-                return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-            }
+        if (connectivityManager == null) {
+            return false;
         }
-        return false;
+
+        Network activeNetwork = connectivityManager.getActiveNetwork();
+        if (activeNetwork == null) {
+            return false;
+        }
+
+        NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork);
+        return networkCapabilities != null &&
+                (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                        networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+                        networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET));
     }
     public static String getLocalIpAddress(Context context) throws Exception {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+        if (connectivityManager == null) {
+            return null;
+        }
 
-        if (activeNetwork != null && activeNetwork.isConnected()) {
-            if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
-                // Get IP Address from Wi-Fi
-                WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-                int ipAddress = wifiManager.getConnectionInfo().getIpAddress();
-                return String.format(Locale.US, "%d.%d.%d.%d",
-                        (ipAddress & 0xff),
-                        (ipAddress >> 8 & 0xff),
-                        (ipAddress >> 16 & 0xff),
-                        (ipAddress >> 24 & 0xff));
-            } else if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) {
-                // Throw exception if connected to Mobile Data (4G)
-                throw new Exception("Operation not allowed on cellular data (4G). Please connect to Wi-Fi.");
-            }
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            NetworkCapabilities capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
-            if (capabilities != null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                // Get IP Address from Wi-Fi
-                WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-                int ipAddress = wifiManager.getConnectionInfo().getIpAddress();
-                return String.format(Locale.US, "%d.%d.%d.%d",
-                        (ipAddress & 0xff),
-                        (ipAddress >> 8 & 0xff),
-                        (ipAddress >> 16 & 0xff),
-                        (ipAddress >> 24 & 0xff));
-            } else if (capabilities != null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
-                // Throw exception if connected to Mobile Data (4G)
-                throw new Exception("Operation not allowed on cellular data (4G). Please connect to Wi-Fi.");
+        Network activeNetwork = connectivityManager.getActiveNetwork();
+        if (activeNetwork == null) {
+            return null;
+        }
+
+        NetworkCapabilities capabilities = connectivityManager.getNetworkCapabilities(activeNetwork);
+        if (capabilities == null) {
+            return null;
+        }
+
+        if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+            throw new Exception("Operation not allowed on cellular data (4G). Please connect to Wi-Fi.");
+        }
+
+        LinkProperties linkProperties = connectivityManager.getLinkProperties(activeNetwork);
+        if (linkProperties == null) {
+            return null;
+        }
+
+        for (LinkAddress linkAddress : linkProperties.getLinkAddresses()) {
+            InetAddress inetAddress = linkAddress.getAddress();
+            if (inetAddress instanceof Inet4Address && !inetAddress.isLoopbackAddress()) {
+                return inetAddress.getHostAddress();
             }
         }
 

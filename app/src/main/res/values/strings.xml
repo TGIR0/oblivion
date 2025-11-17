@@ -144,4 +144,8 @@
     <item>zh</item> <!-- Chinese -->
   </string-array>
   <string name="splashText">With the efforts of #Yousef_Ghobadi and dozens of well-known or anonymous activists, for the purpose of providing free access to the internet for people…</string>
+  <string name="notification_warp">Warp</string>
+  <string name="notification_warp_in_warp">Warp in Warp</string>
+  <string name="notification_psiphon_in_warp">Psiphon in Warp</string>
+  <string name="notification_proxy_suffix">on socks5 proxy at 127.0.0.1:%1$s</string>
 </resources>

@@ -21,7 +21,7 @@
     </queries>
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
@@ -45,7 +45,6 @@
             android:process=":vpn_background">
             <intent-filter>
                 <action android:name="android.net.VpnService" />
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
             </intent-filter>
 
             <meta-data

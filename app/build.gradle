@@ -6,7 +6,7 @@ plugins {
 android {
     namespace = 'org.bepass.oblivion'
     compileSdk = 36  // Android 16 (API 36)
-    ndkVersion = "26.1.10909125"
+    ndkVersion = "29.0.14206865"
     defaultConfig {
         applicationId = "org.bepass.oblivion"
         minSdk = 24  // Android 7.0, balanced for compatibility without restrictions
@@ -34,15 +34,18 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17  // Latest supported in Android, as Java 25 is not fully compatible yet
+        // Bytecode level for Java
+        sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
+        // Bytecode level for Kotlin (must match Java)
         jvmTarget = '17'
     }
     java {
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(17))
+            // JDK used to run the compiler (you can point this to JDK 25 on your system)
+            languageVersion.set(JavaLanguageVersion.of(25))
         }
     }
     packagingOptions {
@@ -53,6 +56,11 @@ android {
     }
 }
 
+// Suppress noisy Java deprecation warnings in compiler output while keeping behavior unchanged
+tasks.withType(org.gradle.api.tasks.compile.JavaCompile).configureEach {
+    options.compilerArgs << "-Xlint:-deprecation"
+}
+
 configurations {
     configureEach {
         exclude group: 'org.json', module: 'json'
@@ -60,15 +68,15 @@ configurations {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.7.0'  // Latest
-    implementation 'com.google.android.material:material:1.12.0'  // Latest, includes SwitchMaterial for replacement
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'  // Latest
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     // Removed com.github.zcweng:switch-button:0.0.3@aar - replaced with Material Switch in code if needed
-    implementation 'androidx.recyclerview:recyclerview:1.3.2'  // Latest
-    implementation 'com.github.bumptech.glide:glide:4.16.0'  // Latest
-    implementation 'com.squareup.okhttp3:okhttp:4.12.0'  // Latest
-    implementation 'com.github.erfansn:locale-config-x:1.0.1'  // Assuming latest, check if newer exists
-    implementation 'com.tencent:mmkv:1.3.14'  // Revert to valid version supporting 32-bit
+    implementation 'androidx.recyclerview:recyclerview:1.4.0'
+    implementation 'com.github.bumptech.glide:glide:5.0.5'
+    implementation 'com.squareup.okhttp3:okhttp:5.3.1'
+    implementation 'com.github.erfansn:locale-config-x:1.1.0'
+    implementation 'com.tencent:mmkv:2.2.4'
     implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'])
 }
 
@@ -91,6 +99,8 @@ static def findGomobileExecutable(goExec) {
 }
 
 def goExec = findGoExecutable()
+
+def tun2socksAar = file("$projectDir/libs/tun2socks.aar")
 
 tasks.register("preBuildTun2SocksAar", Exec) {
     workingDir "../tun2socks"
@@ -117,4 +127,6 @@ tasks.register("buildTun2SocksAar", Exec) {
     dependsOn(preBuildTun2SocksAar)
 }
 
-preBuild.dependsOn(buildTun2SocksAar)
+if (!tun2socksAar.exists() || (project.hasProperty("forceTun2socksRebuild") && project.property("forceTun2socksRebuild").toString().toBoolean())) {
+    preBuild.dependsOn(buildTun2SocksAar)
+}

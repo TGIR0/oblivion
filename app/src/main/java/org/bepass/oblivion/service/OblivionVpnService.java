@@ -472,6 +472,7 @@ public class OblivionVpnService extends VpnService {
     public void onDestroy() {
         super.onDestroy();
         handler.removeCallbacks(logRunnable);
+        logPollingStarted = false;
         if (wLock != null && wLock.isHeld()) {
             wLock.release();
             wLock = null;
@@ -481,6 +482,8 @@ public class OblivionVpnService extends VpnService {
     @Override
     public void onRevoke() {
         pingCounter = 0;
+        handler.removeCallbacks(logRunnable);
+        logPollingStarted = false;
         shutdownScheduler();
         shutdownExecutor();
 
@@ -569,18 +572,22 @@ public class OblivionVpnService extends VpnService {
         boolean useWarp = serviceIntent.getBooleanExtra("USERSETTING_gool",false);
         boolean proxyMode = serviceIntent.getBooleanExtra("USERSETTING_proxymode",false);
         String portInUse = serviceIntent.getStringExtra("USERSETTING_port");
-        String notificationText;
-        String proxyText = proxyMode ? String.format(Locale.getDefault(), " on socks5 proxy at 127.0.0.1:%s", portInUse) : "";
+        String baseText;
+        String proxyText = "";
 
         if (usePsiphon) {
-            notificationText = "Psiphon in Warp" + proxyText;
+            baseText = getString(R.string.notification_psiphon_in_warp);
         } else if (useWarp) {
-            notificationText = "Warp in Warp" + proxyText;
+            baseText = getString(R.string.notification_warp_in_warp);
         } else {
-            notificationText = "Warp" + proxyText;
+            baseText = getString(R.string.notification_warp);
         }
 
-        return notificationText;
+        if (proxyMode && portInUse != null && !portInUse.isEmpty()) {
+            proxyText = " " + getString(R.string.notification_proxy_suffix, portInUse);
+        }
+
+        return baseText + proxyText;
     }
 
     private void createNotificationChannel() {
@@ -693,6 +700,11 @@ public class OblivionVpnService extends VpnService {
                         so.setDNS("1.1.1.1");
                         so.setEndpointType(serviceIntent.getIntExtra("USERSETTING_endpoint_type",0));
                         so.setTunFd(mInterface.getFd());
+                        String masqueUrl = serviceIntent.getStringExtra("USERSETTING_masque_url");
+                        boolean masqueInsecure = serviceIntent.getBooleanExtra("USERSETTING_masque_insecure", false);
+                        if (masqueUrl != null && !masqueUrl.trim().isEmpty()) {
+                            Log.w(TAG, "Masque URL provided, but current StartOptions does not expose Masque configuration APIs. Ignoring Masque settings.");
+                        }
 
                         if (serviceIntent.getBooleanExtra("USERSETTING_psiphon", false)) {
                             so.setPsiphonEnabled(true);

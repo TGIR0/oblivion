@@ -33,6 +33,7 @@ type StartOptions struct {
 	TunFd          int
 	Path           string
 	FakeIPRange    string
+	MTU            int
 	Verbose        bool
 	BindAddress    string
 	Endpoint       string
@@ -42,6 +43,9 @@ type StartOptions struct {
 	Gool           bool
 	DNS            string
 	EndpointType   int
+	EgressMode     int
+	MasqueURL      string
+	MasqueInsecure bool
 }
 
 type logWriter struct{}
@@ -120,6 +124,18 @@ func Start(opt *StartOptions) {
 		}
 	}
 
+	if opt.EgressMode == 1 && opt.MasqueURL != "" && opt.TunFd > 0 {
+		if err := runMasqueIP(ctx, opt); err != nil {
+			l.Error(err.Error())
+			os.Exit(1)
+		}
+		go func() {
+			<-ctx.Done()
+			l.Info("server shut down gracefully")
+		}()
+		return
+	}
+
 	err := app.RunWarp(ctx, l, app.WarpOptions{
 		Bind:     netip.MustParseAddrPort(opt.BindAddress),
 		DnsAddr:  netip.MustParseAddr(opt.DNS),
@@ -135,11 +151,18 @@ func Start(opt *StartOptions) {
 		os.Exit(1)
 	}
 
+	fakeRange := opt.FakeIPRange
+	if fakeRange == "" {
+		fakeRange = "198.18.0.0/15"
+	}
+
+	mtu := opt.MTU
+
 	tun2socksStartOptions := &lwip.Tun2socksStartOptions{
 		TunFd:        opt.TunFd,
 		Socks5Server: strings.Replace(opt.BindAddress, "0.0.0.0", "127.0.0.1", -1),
-		FakeIPRange:  "24.0.0.0/8",
-		MTU:          1500, // Standard Ethernet MTU for best performance
+		FakeIPRange:  fakeRange,
+		MTU:          mtu,
 		EnableIPv6:   true,
 		AllowLan:     true,
 	}
