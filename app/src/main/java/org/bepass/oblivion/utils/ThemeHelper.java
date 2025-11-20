@@ -2,17 +2,10 @@ package org.bepass.oblivion.utils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.view.View;
 import android.util.TypedValue;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.content.ContextCompat;
-
-import org.bepass.oblivion.R;
 
 public class ThemeHelper {
 
@@ -77,11 +70,6 @@ public class ThemeHelper {
         return currentTheme;
     }
 
-    public Drawable getBackgroundDrawable(Context context) {
-        // No drawable override; background will follow Material 3 colorSurface.
-        return null;
-    }
-
     public void updateActivityBackground(View view) {
         // Apply Material 3 colorSurface to root background
         Context context = view.getContext();
@@ -89,9 +77,7 @@ public class ThemeHelper {
         view.setBackgroundColor(surfaceColor);
 
         // Configure status bar based on theme
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            configureStatusBar(context instanceof Activity ? (Activity) context : null);
-        }
+        configureStatusBar(context instanceof Activity ? (Activity) context : null);
     }
 
     private int getThemeColor(Context context, int attr) {
@@ -100,7 +86,6 @@ public class ThemeHelper {
         return tv.data;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     private void configureStatusBar(Activity activity) {
         if (activity == null) return;
 

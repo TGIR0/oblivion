@@ -1,11 +1,1328 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.2" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.2)" variant="fatal" version="8.1.2">
+<issues format="6" by="lint 8.13.1" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.1)" variant="all" version="8.13.1">
 
     <issue
-        id="DuplicatePlatformClasses"
-        message="`json` defines classes that conflict with classes now provided by Android. Solutions include finding newer versions or alternative libraries that don&apos;t have the same problem (for example, for `httpclient` use `HttpUrlConnection` or `okhttp` instead), or repackaging the library using something like `jarjar`.">
+        id="MissingTranslation"
+        message="&quot;stateText&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;stateText&quot;>Not Connected&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~">
         <location
-            file="build.gradle"/>
+            file="src/main/res/values/strings.xml"
+            line="3"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;basedOnWarp&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;basedOnWarp&quot;>Based on Warp&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="4"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;aboutApp&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;aboutApp&quot;>About the App&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="5"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;aboutAppDesc&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;aboutAppDesc&quot;>&quot;This application is designed to access the internet freely, and any commercial use of it is prohibited.\n\n\n Internet for all, or no one! &quot;&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="6"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;appVersion&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;appVersion&quot;>App Version: 8&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="7"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;logApp&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;logApp&quot;>App Log&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="8"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;means&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;means&quot; formatted=&quot;true&quot;>Means \&quot;unawareness, ignorance\&quot;&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="9"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;dontForget&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;dontForget&quot;>Don\&apos;t Forget!&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="10"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;segaro&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;segaro&quot;>#Segaro&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="11"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;yousef&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;yousef&quot;>#Yousef_Ghobadi&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="12"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;slogan&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;slogan&quot;>Internet for All, or No One&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="13"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;blackList&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;blackList&quot;>Blacklist&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="14"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;disabledR&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;disabledR&quot;>Disabled&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="15"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;disabledRText&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;disabledRText&quot;>In disabled mode, traffic of all apps passes through VPN.&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="16"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;enabledR&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;enabledR&quot;>Enabled&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="17"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;enabledRText&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;enabledRText&quot;>In enabled mode, traffic of selected apps does not pass through VPN.&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="18"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;showSystemAppsText&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;showSystemAppsText&quot;>Show System Apps&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="19"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;settingsText&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;settingsText&quot;>Settings&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="20"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;endpointText&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;endpointText&quot;>Endpoint&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="21"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;endpointTextDesc&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;endpointTextDesc&quot;>Combination of IP or domain name, along with port&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="22"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;portTunText&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;portTunText&quot;>Tunnel Port&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="23"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;portTunTextDesc&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;portTunTextDesc&quot;>Specify the tunnel port for the app&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="24"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;blackListTextDesc&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;blackListTextDesc&quot;>Specify which apps should not use VPN&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="25"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;connectFromLanText&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;connectFromLanText&quot;>Connect from LAN&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="26"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;connectFromLanTextDesc&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;connectFromLanTextDesc&quot;>Ability to connect other network devices&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="27"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;chooseText&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;chooseText&quot;>Choose Country&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="28"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;chooseTextDesc&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;chooseTextDesc&quot;>Country to connect to the internet from&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="29"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;licenseText&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;licenseText&quot;>License&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="30"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;licenseTextDesc&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;licenseTextDesc&quot;>If you have a license (each license is doubled)&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="31"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;goolText&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;goolText&quot;>Gool&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="32"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;goolTextDesc&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;goolTextDesc&quot;>Activate Warp In Warp&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="33"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;editSheetEndpoint&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;editSheetEndpoint&quot;>Change Endpoint Value&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="34"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;cancel&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;cancel&quot;>Cancel&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="35"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;update&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;update&quot;>Update&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="36"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;notConnected&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;notConnected&quot;>Not Connected&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="37"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;connecting&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;connecting&quot;>Connecting…&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="38"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;connected&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;connected&quot;>Connected&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="39"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;batteryOpL&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;batteryOpL&quot;>Disable Battery optimization&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="40"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;batteryOpLText&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;batteryOpLText&quot;>Disabling battery optimization for better experience&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="41"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;dialBtText&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;dialBtText&quot;> To ensure the app works properly, please disable battery optimization for this app. &lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="42"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;goToSettings&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;goToSettings&quot;> Go to Settings &lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="43"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;copytoclip&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;copytoclip&quot;>Copy log to clipboard&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="44"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;endpointTypeText&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;endpointTypeText&quot;>Endpoint Type&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="45"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;endpointTypeTextDesc&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;endpointTypeTextDesc&quot;>Used to find the endpoint IP&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="46"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;turn_on_dark_mode&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;turn_on_dark_mode&quot;>Turn on dark mode&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="47"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;turn_on_dark_mode_desc&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;turn_on_dark_mode_desc&quot;>turn on dark mode&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="48"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;copied_to_clipboard&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;copied_to_clipboard&quot;>Copied to clipboard&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="49"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;title&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;title&quot;>Title&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="50"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;content&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;content&quot;>Endpoint&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="51"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;save&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;save&quot;>Save&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="52"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;saved_endpoints&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;saved_endpoints&quot;>Saved Endpoints&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="53"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;select_language&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;select_language&quot;>Select Language&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="54"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;resetAppTextDesc&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;resetAppTextDesc&quot;>Reset app to defaults&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="55"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;resetAppText&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;resetAppText&quot;>Reset&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="56"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;proxy_mode&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;proxy_mode&quot;>Proxy Mode&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="57"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;running_in_proxy_mode_not_vpn&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;running_in_proxy_mode_not_vpn&quot;>Running in proxy mode, not VPN&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="58"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;reset_to_default_endpoint&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;reset_to_default_endpoint&quot;>Reset to Default Endpoint&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="59"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;delete&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;delete&quot;>Delete&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="60"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;github_title&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;github_title&quot;>Github&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="61"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;bepass_repo&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;bepass_repo&quot;>Bepass/Oblivion&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="62"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;start_logging_here&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;start_logging_here&quot;>Start logging here…&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="63"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;getting_isp&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;getting_isp&quot;>Getting ISP…&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="64"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;back&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;back&quot;>Back&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="65"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;splashText&quot; is not translated in &quot;tv&quot;"
+        errorLine1="  &lt;string name=&quot;splashText&quot;>With the efforts of #Yousef_Ghobadi and dozens of well-known or anonymous activists, for the purpose of providing free access to the internet for people…&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="144"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;notification_warp&quot; is not translated in &quot;tv&quot;, &quot;ru&quot; (Russian), &quot;fa&quot; (Persian), &quot;tr&quot; (Turkish), &quot;zh&quot; (Chinese)"
+        errorLine1="  &lt;string name=&quot;notification_warp&quot;>Warp&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="145"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;notification_warp_in_warp&quot; is not translated in &quot;tv&quot;, &quot;ru&quot; (Russian), &quot;fa&quot; (Persian), &quot;tr&quot; (Turkish), &quot;zh&quot; (Chinese)"
+        errorLine1="  &lt;string name=&quot;notification_warp_in_warp&quot;>Warp in Warp&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="146"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;notification_proxy_suffix&quot; is not translated in &quot;tv&quot;, &quot;ru&quot; (Russian), &quot;fa&quot; (Persian), &quot;tr&quot; (Turkish), &quot;zh&quot; (Chinese)"
+        errorLine1="  &lt;string name=&quot;notification_proxy_suffix&quot;>on socks5 proxy at 127.0.0.1:%1$s&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="147"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="ExtraTranslation"
+        message="&quot;psiphonText&quot; is translated here but not found in default locale"
+        errorLine1="    &lt;string name=&quot;psiphonText&quot;>Psiphon&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-tr/strings.xml"
+            line="28"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ExtraTranslation"
+        message="&quot;psiphonText&quot; is translated here but not found in default locale"
+        errorLine1="    &lt;string name=&quot;psiphonText&quot;>赛风&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-zh/strings.xml"
+            line="28"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ExtraTranslation"
+        message="&quot;psiphonTextDesc&quot; is translated here but not found in default locale"
+        errorLine1="    &lt;string name=&quot;psiphonTextDesc&quot;>Psiphon\&apos;u Etkinleştir&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-tr/strings.xml"
+            line="29"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ExtraTranslation"
+        message="&quot;psiphonTextDesc&quot; is translated here but not found in default locale"
+        errorLine1="    &lt;string name=&quot;psiphonTextDesc&quot;>激活赛风&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-zh/strings.xml"
+            line="29"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 24"
+        errorLine1="@RequiresApi(api = Build.VERSION_CODES.N)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/bepass/oblivion/service/QuickStartService.java"
+            line="21"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UseCompoundDrawables"
+        message="This tag and its children can be replaced by one `&lt;TextView/>` and a compound drawable"
+        errorLine1="    &lt;LinearLayout"
+        errorLine2="     ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/toast.xml"
+            line="11"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/Theme.OblivionUI`)"
+        errorLine1="    android:background=&quot;?selectableItemBackground&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/item_endpoint.xml"
+            line="8"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?attr/colorSurface` with a theme that also paints a background (inferred theme is `@style/Theme.OblivionUI`)"
+        errorLine1="    android:background=&quot;?attr/colorSurface&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/split_tunnel_options.xml"
+            line="7"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.background_gradient` appears to be unused"
+        errorLine1="&lt;shape xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/background_gradient.xml"
+            line="2"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.bottom_sheet_cancel` appears to be unused"
+        errorLine1="&lt;shape xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/bottom_sheet_cancel.xml"
+            line="2"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.button` appears to be unused"
+        errorLine1="&lt;layer-list xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/button.xml"
+            line="2"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.button_op` appears to be unused"
+        errorLine1="&lt;layer-list xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/button_op.xml"
+            line="2"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.checkbox_tint` appears to be unused"
+        errorLine1="&lt;selector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
+        errorLine2="^">
+        <location
+            file="src/main/res/color/checkbox_tint.xml"
+            line="2"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.black` appears to be unused"
+        errorLine1="    &lt;color name=&quot;black&quot;>#333333&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="5"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.dark` appears to be unused"
+        errorLine1="    &lt;color name=&quot;dark&quot;>#1C202C&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="7"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.text_color` appears to be unused"
+        errorLine1="    &lt;color name=&quot;text_color&quot;>#1C202C&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="10"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.icon_color` appears to be unused"
+        errorLine1="    &lt;color name=&quot;icon_color&quot;>#1C202C&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="11"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.subtitle_color` appears to be unused"
+        errorLine1="    &lt;color name=&quot;subtitle_color&quot;>#7B8D9D&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="12"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.button_color` appears to be unused"
+        errorLine1="    &lt;color name=&quot;button_color&quot;>#ffa200&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="13"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.gray` appears to be unused"
+        errorLine1="    &lt;color name=&quot;gray&quot;>#D7D7D7&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="14"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.dark_gray` appears to be unused"
+        errorLine1="    &lt;color name=&quot;dark_gray&quot;>#AAAAAAAA&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="16"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.custom_progress_drawable` appears to be unused"
+        errorLine1="&lt;layer-list xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/custom_progress_drawable.xml"
+            line="2"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.dimen.space_m` appears to be unused"
+        errorLine1="    &lt;dimen name=&quot;space_m&quot;>12dp&lt;/dimen>"
+        errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/dimens.xml"
+            line="4"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.dimen.space_2xl` appears to be unused"
+        errorLine1="    &lt;dimen name=&quot;space_2xl&quot;>32dp&lt;/dimen>"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/dimens.xml"
+            line="7"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.edittext_back` appears to be unused"
+        errorLine1="&lt;shape xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable-anydpi/edittext_back.xml"
+            line="2"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.expand_up` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/expand_up.xml"
+            line="1"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.ic_ircf` appears to be unused">
+        <location
+            file="src/main/res/drawable-mdpi/ic_ircf.png"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.ic_power` appears to be unused">
+        <location
+            file="src/main/res/drawable-mdpi/ic_power.png"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.ic_twitter` appears to be unused">
+        <location
+            file="src/main/res/drawable-mdpi/ic_twitter.png"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.light_shadow_bottom` appears to be unused"
+        errorLine1="&lt;shape xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/light_shadow_bottom.xml"
+            line="3"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.dontForget` appears to be unused"
+        errorLine1="  &lt;string name=&quot;dontForget&quot;>Don\&apos;t Forget!&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="10"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.segaro` appears to be unused"
+        errorLine1="  &lt;string name=&quot;segaro&quot;>#Segaro&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="11"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.yousef` appears to be unused"
+        errorLine1="  &lt;string name=&quot;yousef&quot;>#Yousef_Ghobadi&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="12"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.chooseText` appears to be unused"
+        errorLine1="  &lt;string name=&quot;chooseText&quot;>Choose Country&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="28"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.psiphonText` appears to be unused"
+        errorLine1="    &lt;string name=&quot;psiphonText&quot;>Psiphon&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-tr/strings.xml"
+            line="28"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.chooseTextDesc` appears to be unused"
+        errorLine1="  &lt;string name=&quot;chooseTextDesc&quot;>Country to connect to the internet from&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="29"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.psiphonTextDesc` appears to be unused"
+        errorLine1="    &lt;string name=&quot;psiphonTextDesc&quot;>Psiphon\&apos;u Etkinleştir&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-tr/strings.xml"
+            line="29"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.licenseText` appears to be unused"
+        errorLine1="  &lt;string name=&quot;licenseText&quot;>License&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="30"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.licenseTextDesc` appears to be unused"
+        errorLine1="  &lt;string name=&quot;licenseTextDesc&quot;>If you have a license (each license is doubled)&lt;/string>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="31"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.array.countries` appears to be unused"
+        errorLine1="    &lt;string-array name=&quot;countries&quot;>"
+        errorLine2="                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="66"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.array.englishCountries` appears to be unused"
+        errorLine1="  &lt;string-array name=&quot;englishCountries&quot;>"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="99"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.style.CustomProgressBar` appears to be unused"
+        errorLine1="    &lt;style name=&quot;CustomProgressBar&quot; parent=&quot;Widget.Material3.LinearProgressIndicator&quot;>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/styles.xml"
+            line="3"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.toast_background` appears to be unused"
+        errorLine1="&lt;shape xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/toast_background.xml"
+            line="2"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="IconXmlAndPng"
+        message="The following images appear both as density independent `.xml` files and as bitmap files: src\main\res\drawable-anydpi\ic_back.xml, src\main\res\drawable-hdpi\ic_back.png">
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_back.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi/ic_back.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/ic_back.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/ic_back.png"/>
+        <location
+            file="src/main/res/drawable-anydpi/ic_back.xml"/>
+    </issue>
+
+    <issue
+        id="IconXmlAndPng"
+        message="The following images appear both as density independent `.xml` files and as bitmap files: src\main\res\drawable-anydpi\ic_bug.xml, src\main\res\drawable-hdpi\ic_bug.png">
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_bug.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi/ic_bug.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/ic_bug.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/ic_bug.png"/>
+        <location
+            file="src/main/res/drawable-anydpi/ic_bug.xml"/>
+    </issue>
+
+    <issue
+        id="IconXmlAndPng"
+        message="The following images appear both as density independent `.xml` files and as bitmap files: src\main\res\drawable-anydpi\ic_info.xml, src\main\res\drawable-hdpi\ic_info.png">
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_info.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi/ic_info.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/ic_info.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/ic_info.png"/>
+        <location
+            file="src/main/res/drawable-anydpi/ic_info.xml"/>
+    </issue>
+
+    <issue
+        id="IconXmlAndPng"
+        message="The following images appear both as density independent `.xml` files and as bitmap files: src\main\res\drawable-anydpi\ic_power.xml, src\main\res\drawable-mdpi\ic_power.png">
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_power.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi/ic_power.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/ic_power.png"/>
+        <location
+            file="src/main/res/drawable-anydpi/ic_power.xml"/>
+    </issue>
+
+    <issue
+        id="IconXmlAndPng"
+        message="The following images appear both as density independent `.xml` files and as bitmap files: src\main\res\drawable-anydpi\ic_settings.xml, src\main\res\drawable-hdpi\ic_settings.png">
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_settings.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi/ic_settings.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/ic_settings.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/ic_settings.png"/>
+        <location
+            file="src/main/res/drawable-anydpi/ic_settings.xml"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/segaro.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/segaro.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/yousef.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/yousef.png"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-hdpi`: ic_ircf.png, ic_power.png, ic_twitter.png">
+        <location
+            file="src/main/res/drawable-hdpi"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-mdpi`: rounded_bottom_sheet.xml (found in drawable-hdpi)">
+        <location
+            file="src/main/res/drawable-mdpi"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-xhdpi`: rounded_bottom_sheet.xml (found in drawable-hdpi)">
+        <location
+            file="src/main/res/drawable-xhdpi"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-xxhdpi`: rounded_bottom_sheet.xml (found in drawable-hdpi)">
+        <location
+            file="src/main/res/drawable-xxhdpi"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;engage.cloudflareclient.com:2048&quot;, should use `@string` resource"
+        errorLine1="                android:text=&quot;engage.cloudflareclient.com:2048&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_settings.xml"
+            line="185"
+            column="17"/>
     </issue>
 
 </issues>

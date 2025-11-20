@@ -84,13 +84,11 @@ public class PublicIPUtils {
                             .build();
 
                     try (Response response = client.newCall(request).execute()) {
-                        if (response.body() != null) {
-                            JSONObject jsonData = new JSONObject(Objects.requireNonNull(response.body()).string());
-                            details.ip = jsonData.getString("ip");
-                            details.country = jsonData.getString("country");
-                            details.flag = CountryCodeUtils.toCountryFlagEmoji(new CountryCode(details.country));
-                            Log.d(TAG, "IP details retrieved successfully");
-                        }
+                        JSONObject jsonData = new JSONObject(Objects.requireNonNull(response.body()).string());
+                        details.ip = jsonData.getString("ip");
+                        details.country = jsonData.getString("country");
+                        details.flag = CountryCodeUtils.toCountryFlagEmoji(new CountryCode(details.country));
+                        Log.d(TAG, "IP details retrieved successfully");
                         handler.post(() -> callback.onDetailsReceived(details));
                         return; // Exit the loop if details retrieved
                     } catch (Exception e) {

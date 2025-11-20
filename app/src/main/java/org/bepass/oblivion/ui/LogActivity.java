@@ -6,13 +6,14 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ProgressBar;
 import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import org.bepass.oblivion.R;
 import org.bepass.oblivion.base.BaseActivity;
@@ -28,6 +29,8 @@ import java.util.Arrays;
 import java.util.Deque;
 
 public class LogActivity extends BaseActivity<ActivityLogBinding> {
+
+    private static final String TAG = "LogActivity";
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private boolean isUserScrollingUp = false;
@@ -86,6 +89,16 @@ public class LogActivity extends BaseActivity<ActivityLogBinding> {
     }
 
     private void readLogsFromFile() {
+        if (!getFileStreamPath("logs.txt").exists()) {
+            runOnUiThread(() -> {
+                binding.logs.setText("");
+                if (!isUserScrollingUp) {
+                    binding.logScrollView.post(() -> binding.logScrollView.fullScroll(ScrollView.FOCUS_DOWN));
+                }
+            });
+            return;
+        }
+
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(openFileInput("logs.txt")))) {
             StringBuilder sb = new StringBuilder();
             String line;
@@ -102,7 +115,7 @@ public class LogActivity extends BaseActivity<ActivityLogBinding> {
                 }
             });
         } catch (IOException e) {
-            e.printStackTrace();
+            // Swallow or log quietly to avoid noisy stack traces for transient I/O issues.
         }
     }
 
@@ -112,7 +125,7 @@ public class LogActivity extends BaseActivity<ActivityLogBinding> {
 
         ISPUtils.fetchISPInfo(new ISPUtils.ISPCallback() {
             @Override
-            public void onISPInfoReceived(String isp) {
+            public void onISPInfoReceived(@NonNull String isp) {
                 runOnUiThread(() -> {
                     // Hide progress bar
                     progressBar.setVisibility(View.GONE);
@@ -143,12 +156,12 @@ public class LogActivity extends BaseActivity<ActivityLogBinding> {
             }
 
             @Override
-            public void onError(Exception e) {
+            public void onError(@NonNull Exception e) {
                 runOnUiThread(() -> {
                     // Hide progress bar
                     progressBar.setVisibility(View.GONE);
 
-                    e.printStackTrace();
+                    Log.e(TAG, "Error fetching ISP information", e);
                     Toast.makeText(LogActivity.this, "Error fetching ISP information.", Toast.LENGTH_SHORT).show();
                 });
             }

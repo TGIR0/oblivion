@@ -1,6 +1,5 @@
 package org.bepass.oblivion;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +18,7 @@ public class SplitTunnelOptionsAdapter extends RecyclerView.Adapter<SplitTunnelO
     private final OnSettingsChanged settingsCallback;
 
 
-    public SplitTunnelOptionsAdapter(Context context, OnSettingsChanged settingsCallback) {
+    public SplitTunnelOptionsAdapter(OnSettingsChanged settingsCallback) {
         this.settingsCallback = settingsCallback;
     }
 

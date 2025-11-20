@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
@@ -58,7 +59,8 @@
                 android:padding="10dp"
                 android:textSize="14sp"
                 android:singleLine="true"
-                android:nextFocusDown="@+id/contentEditText" />
+                android:nextFocusDown="@+id/contentEditText"
+                tools:ignore="VisualLintTextFieldSize" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Content Field -->
@@ -87,7 +89,8 @@
                 android:textAlignment="viewStart"
                 android:inputType="text"
                 android:singleLine="true"
-                android:nextFocusDown="@+id/saveButton" />
+                android:nextFocusDown="@+id/saveButton"
+                tools:ignore="VisualLintTextFieldSize" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Save Button -->
@@ -101,7 +104,8 @@
             app:backgroundTint="?attr/colorPrimary"
             android:textColor="?attr/colorOnPrimary"
             android:textSize="16sp"
-            android:nextFocusDown="@+id/resetDefaultButton" />
+            android:nextFocusDown="@+id/resetDefaultButton"
+            tools:ignore="VisualLintButtonSize" />
 
         <!-- Reset Button -->
         <com.google.android.material.button.MaterialButton
@@ -113,7 +117,8 @@
             android:text="@string/reset_to_default_endpoint"
             android:textColor="?attr/colorOnSurface"
             android:textSize="16sp"
-            android:nextFocusDown="@+id/recyclerView" />
+            android:nextFocusDown="@+id/recyclerView"
+            tools:ignore="VisualLintButtonSize" />
 
         <!-- Saved endpoints title -->
         <TextView

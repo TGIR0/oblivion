@@ -58,7 +58,8 @@
                 android:background="?attr/selectableItemBackground"
                 android:text="@string/cancel"
                 android:textColor="?attr/colorOnSurface"
-                android:focusable="true" />
+                android:focusable="true"
+                tools:ignore="VisualLintButtonSize" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/dialog_button_positive"
@@ -70,7 +71,8 @@
                 app:backgroundTint="?attr/colorPrimary"
                 android:text="@string/goToSettings"
                 android:textColor="?attr/colorOnPrimary"
-                android:focusable="true" />
+                android:focusable="true"
+                tools:ignore="VisualLintButtonSize" />
         </LinearLayout>
 
     </LinearLayout>

@@ -28,18 +28,16 @@ func main() {
 	fmt.Println("\n--- Test 1: Basic Initialization ---")
 
 	opts := &tun2socks.StartOptions{
-		TunFd:          -1, // Mock FD for testing (not a real TUN device)
-		Path:           filepath.Dir(cwd),
-		FakeIPRange:    "24.0.0.0/8",
-		Verbose:        true,
-		BindAddress:    "127.0.0.1:8086",
-		Endpoint:       "",
-		License:        "",
-		Country:        "",
-		PsiphonEnabled: false,
-		Gool:           false,
-		DNS:            "1.1.1.1",
-		EndpointType:   1,
+		TunFd:        -1, // Mock FD for testing (not a real TUN device)
+		Path:         filepath.Dir(cwd),
+		FakeIPRange:  "24.0.0.0/8",
+		Verbose:      true,
+		BindAddress:  "127.0.0.1:8086",
+		Endpoint:     "",
+		License:      "",
+		Gool:         false,
+		DNS:          "1.1.1.1",
+		EndpointType: 1,
 	}
 
 	fmt.Printf("Configuration:\n")

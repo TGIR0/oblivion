@@ -25,8 +25,6 @@
     <string name="blackListTextDesc">Hangi uygulamaların VPN kullanmayacağını belirleyin</string>
     <string name="connectFromLanText">LAN\'dan Bağlan</string>
     <string name="connectFromLanTextDesc">Diğer ağ cihazlarına bağlanma yeteneği</string>
-    <string name="psiphonText">Psiphon</string>
-    <string name="psiphonTextDesc">Psiphon\'u Etkinleştir</string>
     <string name="chooseText">Ülke Seç</string>
     <string name="chooseTextDesc">İnternete bağlanmak için ülke seçimi</string>
     <string name="licenseText">Lisans</string>
@@ -99,4 +97,7 @@
         <item>Amerika Birleşik Devletleri</item>
     </string-array>
     <string name="splashText">#Yusuf_Ghobadi ve tanınmış ya da anonim aktivistlerin çabalarıyla, halkın internete özgür erişimini sağlamak amacıyla…</string>
+    <string name="notification_warp">Warp</string>
+    <string name="notification_warp_in_warp">Warp in Warp</string>
+    <string name="notification_proxy_suffix">socks5 proxy\'de 127.0.0.1:%1$s üzerinde</string>
 </resources>

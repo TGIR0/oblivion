@@ -6,10 +6,8 @@ import android.os.Handler;
 import android.view.View;
 
 import org.bepass.oblivion.R;
-import org.bepass.oblivion.base.ApplicationLoader;
 import org.bepass.oblivion.base.BaseActivity;
 import org.bepass.oblivion.databinding.ActivitySplashScreenBinding;
-import org.bepass.oblivion.utils.FileManager;
 import org.bepass.oblivion.utils.LocaleHandler;
 import org.bepass.oblivion.utils.ThemeHelper;
 
@@ -71,7 +69,6 @@ public class SplashScreenActivity extends BaseActivity<ActivitySplashScreenBindi
          * Called when the root view is pressed. This method immediately navigates to the main activity
          * and finishes the splash screen activity.
          *
-         * @param view The view that was clicked.
          */
         public void OnRootPressed(View view) {
             MainActivity.start(SplashScreenActivity.this);

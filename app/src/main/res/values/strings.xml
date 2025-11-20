@@ -25,8 +25,6 @@
   <string name="blackListTextDesc">Specify which apps should not use VPN</string>
   <string name="connectFromLanText">Connect from LAN</string>
   <string name="connectFromLanTextDesc">Ability to connect other network devices</string>
-  <string name="psiphonText">Psiphon</string>
-  <string name="psiphonTextDesc">Activate Psiphon</string>
   <string name="chooseText">Choose Country</string>
   <string name="chooseTextDesc">Country to connect to the internet from</string>
   <string name="licenseText">License</string>
@@ -146,6 +144,5 @@
   <string name="splashText">With the efforts of #Yousef_Ghobadi and dozens of well-known or anonymous activists, for the purpose of providing free access to the internet for people…</string>
   <string name="notification_warp">Warp</string>
   <string name="notification_warp_in_warp">Warp in Warp</string>
-  <string name="notification_psiphon_in_warp">Psiphon in Warp</string>
   <string name="notification_proxy_suffix">on socks5 proxy at 127.0.0.1:%1$s</string>
 </resources>

@@ -25,8 +25,6 @@
     <string name="blackListTextDesc">تعیین کنید چه برنامه‌هایی از VPN استفاده نکنند</string>
     <string name="connectFromLanText">اتصال از LAN</string>
     <string name="connectFromLanTextDesc">امکان اتصال سایر دستگاه‌های شبکه</string>
-    <string name="psiphonText">سایفون</string>
-    <string name="psiphonTextDesc">فعال‌سازی سایفون</string>
     <string name="chooseText">انتخاب کشور</string>
     <string name="chooseTextDesc">کشوری که از آن به اینترنت متصل می‌شوید</string>
     <string name="licenseText">لایسنس</string>
@@ -98,5 +96,8 @@
         <item>بریتانیا</item>
         <item>ایالات متحده</item>
     </string-array>
-    <string name="splashText">با تلاش #یوسف_قبادی و ده‌ها نفر از فعالان شناخته‌شده یا ناشناس، به‌منظور دسترسی آزاد مردم به اینترنت ...</string>
+    <string name="splashText">با تلاش #یوسف_قبادی و ده‌ها نفر از فعالان شناخته‌شده یا ناشناس، به‌منظور دسترسی آزاد مردم به اینترنت …</string>
+    <string name="notification_warp">وارپ</string>
+    <string name="notification_warp_in_warp">وارپ در وارپ</string>
+    <string name="notification_proxy_suffix">روی پراکسی socks5 در 127.0.0.1:%1$s</string>
 </resources>

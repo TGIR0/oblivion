@@ -78,6 +78,7 @@ public class EndpointsBottomSheet extends BottomSheetDialogFragment {
         return view;
     }
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         BottomSheetDialog dialog = (BottomSheetDialog) super.onCreateDialog(savedInstanceState);
@@ -114,7 +115,7 @@ public class EndpointsBottomSheet extends BottomSheetDialogFragment {
 
         // Save to FileManager
         Set<String> savedEndpoints = FileManager.getStringSet("saved_endpoints", new HashSet<>());
-        savedEndpoints.add(endpoint.getTitle() + "::" + endpoint.getContent());
+        savedEndpoints.add(endpoint.title() + "::" + endpoint.content());
         FileManager.set("saved_endpoints", savedEndpoints);
     }
     private void onEndpointSelected(String content) {
@@ -128,28 +129,13 @@ public class EndpointsBottomSheet extends BottomSheetDialogFragment {
         this.selectionListener = listener;
     }
 
-    private static class Endpoint {
-        private final String title;
-        private final String content;
-
-        Endpoint(String title, String content) {
-            this.title = title;
-            this.content = content;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public String getContent() {
-            return content;
-        }
+    private record Endpoint(String title, String content) {
     }
 
     private static void saveEndpoints() {
         Set<String> savedEndpoints = new HashSet<>();
         for (Endpoint endpoint : endpointsList) {
-            savedEndpoints.add(endpoint.getTitle() + "::" + endpoint.getContent());
+            savedEndpoints.add(endpoint.title() + "::" + endpoint.content());
         }
         FileManager.set("saved_endpoints", savedEndpoints);
     }
@@ -173,12 +159,12 @@ public class EndpointsBottomSheet extends BottomSheetDialogFragment {
         @Override
         public void onBindViewHolder(@NonNull EndpointViewHolder holder, int position) {
             Endpoint endpoint = endpointsList.get(position);
-            holder.titleTextView.setText(endpoint.getTitle());
-            holder.contentTextView.setText(endpoint.getContent());
+            holder.titleTextView.setText(endpoint.title());
+            holder.contentTextView.setText(endpoint.content());
 
             holder.itemView.setOnClickListener(v -> {
                 if (selectionListener != null) {
-                    selectionListener.onEndpointSelected(endpoint.getContent());
+                    selectionListener.onEndpointSelected(endpoint.content());
                 }
             });
 

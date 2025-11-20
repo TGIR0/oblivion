@@ -23,6 +23,7 @@ android {
         generateLocaleConfig = true
     }
     buildFeatures {
+        //noinspection DataBindingWithoutKapt
         dataBinding = true
     }
 
@@ -57,7 +58,7 @@ android {
 }
 
 // Suppress noisy Java deprecation warnings in compiler output while keeping behavior unchanged
-tasks.withType(org.gradle.api.tasks.compile.JavaCompile).configureEach {
+tasks.withType(JavaCompile).configureEach {
     options.compilerArgs << "-Xlint:-deprecation"
 }
 
@@ -74,7 +75,7 @@ dependencies {
     // Removed com.github.zcweng:switch-button:0.0.3@aar - replaced with Material Switch in code if needed
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     implementation 'com.github.bumptech.glide:glide:5.0.5'
-    implementation 'com.squareup.okhttp3:okhttp:5.3.1'
+    implementation 'com.squareup.okhttp3:okhttp:5.3.2'
     implementation 'com.github.erfansn:locale-config-x:1.1.0'
     implementation 'com.tencent:mmkv:2.2.4'
     implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'])
@@ -82,21 +83,9 @@ dependencies {
 
 static def findGoExecutable() {
     def isWindows = System.getProperty("os.name").toLowerCase().contains("win")
-    def exe = isWindows ? "go.exe" : "go"
-    try {
-        def proc = [exe, "version"].execute()
-        proc.waitFor()
-        if (proc.exitValue() == 0) {
-            return exe
-        }
-    } catch (Exception ignored) {}
-    throw new GradleException("Go executable not found in PATH. Install Go 1.25.x and ensure 'go' is on PATH.")
+    return isWindows ? "go.exe" : "go"
 }
 
-static def findGomobileExecutable(goExec) {
-    // Deprecated: we now use 'go run golang.org/x/mobile/cmd/gomobile' for cross-platform support.
-    return null
-}
 
 def goExec = findGoExecutable()
 

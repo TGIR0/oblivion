@@ -5,11 +5,10 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import android.view.LayoutInflater
+import androidx.core.net.toUri
 import androidx.databinding.DataBindingUtil
 import org.bepass.oblivion.R
 import org.bepass.oblivion.databinding.DialogBatteryOptimizationBinding
@@ -19,11 +18,8 @@ import org.bepass.oblivion.databinding.DialogBatteryOptimizationBinding
  * Returns true if running in restricted mode, false otherwise.
  */
 fun isBatteryOptimizationEnabled(context: Context): Boolean {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        val powerManager = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
-        return powerManager?.isIgnoringBatteryOptimizations(context.packageName) == false
-    }
-    return false
+    val powerManager = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
+    return powerManager?.isIgnoringBatteryOptimizations(context.packageName) == false
 }
 
 /**
@@ -31,19 +27,17 @@ fun isBatteryOptimizationEnabled(context: Context): Boolean {
  */
 @SuppressLint("BatteryLife")
 fun requestIgnoreBatteryOptimizations(context: Context) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-        if (!pm.isIgnoringBatteryOptimizations(context.packageName)) {
-            val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-                data = Uri.parse("package:${context.packageName}")
-            }
-            // Check if context is an Activity
-            if (context is Activity) {
-                context.startActivityForResult(intent, 0) // Consider using a valid request code
-            } else {
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
-            }
+    val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+    if (!pm.isIgnoringBatteryOptimizations(context.packageName)) {
+        val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+            data = "package:${context.packageName}".toUri()
+        }
+        // Check if context is an Activity
+        if (context is Activity) {
+            context.startActivityForResult(intent, 0) // Consider using a valid request code
+        } else {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
         }
     }
 }

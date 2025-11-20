@@ -1,6 +1,5 @@
 package org.bepass.oblivion.base;
 
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -22,9 +21,6 @@ public abstract class BaseActivity<B extends ViewDataBinding> extends AppCompatA
     // ViewDataBinding instance associated with the activity layout
     protected B binding;
 
-    // Tag for logging purposes
-    protected String TAG = this.getClass().getSimpleName();
-
     /**
      * Abstract method to be implemented by subclasses to provide the layout resource ID for the activity.
      * @return The layout resource ID.
@@ -44,10 +40,8 @@ public abstract class BaseActivity<B extends ViewDataBinding> extends AppCompatA
         FileManager.initialize(this); // Initialize FileManager with Activity context
         // Inflates the layout and initializes the binding object
         binding = DataBindingUtil.setContentView(this, getLayoutResourceId());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            SystemUtils.setStatusBarColor(
-                    this, getStatusBarColor(), ColorUtils.isColorDark(getStatusBarColor())
-            );
-        }
+        SystemUtils.setStatusBarColor(
+                this, getStatusBarColor(), ColorUtils.isColorDark(getStatusBarColor())
+        );
     }
 }

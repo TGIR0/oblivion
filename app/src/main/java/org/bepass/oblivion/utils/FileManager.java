@@ -146,16 +146,6 @@ public class FileManager {
         }
     }
 
-    public static boolean getBoolean(String name, boolean defaultValue) {
-        lock.lock();
-        try {
-            checkInitialized();
-            return mmkv.decodeBool(name, defaultValue);
-        } finally {
-            lock.unlock();
-        }
-    }
-
     public static int getInt(String name) {
         lock.lock();
         try {
@@ -187,13 +177,12 @@ public class FileManager {
             {
                 SharedPreferences old_man = context.getSharedPreferences("UserData", Context.MODE_PRIVATE);
                 mmkv.importFromSharedPreferences(old_man);
-                old_man.edit().clear().commit();
+                old_man.edit().clear().apply();
             }
             if (!getBoolean("isFirstValueInit")) {
                 set("USERSETTING_endpoint", "engage.cloudflareclient.com:2408");
                 set("USERSETTING_port", "8086");
                 set("USERSETTING_gool", false);
-                set("USERSETTING_psiphon", false);
                 set("USERSETTING_lan", false);
                 set("USERSETTING_proxymode", false);
                 set("USERSETTING_endpoint_type", 0);

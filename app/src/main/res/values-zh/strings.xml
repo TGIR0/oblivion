@@ -25,8 +25,6 @@
     <string name="blackListTextDesc">指定不应使用VPN的应用程序</string>
     <string name="connectFromLanText">允许来自局域网的连接</string>
     <string name="connectFromLanTextDesc">允许局域网中的其他设备使用此代理</string>
-    <string name="psiphonText">赛风</string>
-    <string name="psiphonTextDesc">激活赛风</string>
     <string name="chooseText">选择国家</string>
     <string name="chooseTextDesc">连接到互联网的国家</string>
     <string name="licenseText">许可证</string>
@@ -99,5 +97,7 @@
     </string-array>
     <string name="select_language">选择语言</string>
     <string name="splashText">在#尤瑟夫_科巴迪和几十位知名或匿名活动家的努力下，旨在为人民提供自由上网的机会…</string>
-
+    <string name="notification_warp">Warp</string>
+    <string name="notification_warp_in_warp">Warp in Warp</string>
+    <string name="notification_proxy_suffix">on socks5 proxy at 127.0.0.1:%1$s</string>
 </resources>

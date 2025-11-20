@@ -25,8 +25,6 @@
     <string name="blackListTextDesc">Укажите, какие приложения не должны использовать VPN</string>
     <string name="connectFromLanText">Подключение через LAN</string>
     <string name="connectFromLanTextDesc">Возможность подключения других сетевых устройств</string>
-    <string name="psiphonText">Psiphon</string>
-    <string name="psiphonTextDesc">Активировать Psiphon</string>
     <string name="chooseText">Выбрать страну</string>
     <string name="chooseTextDesc">Страна для подключения к интернету</string>
     <string name="licenseText">Лицензия</string>
@@ -99,4 +97,7 @@
         <item>Соединенные Штаты</item>
     </string-array>
     <string name="splashText">С усилиями #Юсеф_Кобади и десятков известных или анонимных активистов с целью обеспечения свободного доступа людей в интернет…</string>
+    <string name="notification_warp">Warp</string>
+    <string name="notification_warp_in_warp">Warp в Warp</string>
+    <string name="notification_proxy_suffix">на socks5 прокси на 127.0.0.1:%1$s</string>
 </resources>

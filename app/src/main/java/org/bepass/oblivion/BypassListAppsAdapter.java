@@ -41,6 +41,7 @@ public class BypassListAppsAdapter extends RecyclerView.Adapter<BypassListAppsAd
         loadApps(context, false);
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void loadApps(Context context, boolean shouldShowSystemApps) {
         if (loadListener != null) loadListener.onLoad(true);
         executor.submit(() -> {

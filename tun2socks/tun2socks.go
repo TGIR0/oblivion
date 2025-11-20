@@ -17,7 +17,6 @@ import (
 
 	"github.com/bepass-org/warp-plus/app"
 	"github.com/bepass-org/warp-plus/wiresocks"
-	L "github.com/xjasonlyu/tun2socks/v2/log"
 )
 
 // Variables to hold flag values.
@@ -30,22 +29,17 @@ var (
 )
 
 type StartOptions struct {
-	TunFd          int
-	Path           string
-	FakeIPRange    string
-	MTU            int
-	Verbose        bool
-	BindAddress    string
-	Endpoint       string
-	License        string
-	Country        string
-	PsiphonEnabled bool
-	Gool           bool
-	DNS            string
-	EndpointType   int
-	EgressMode     int
-	MasqueURL      string
-	MasqueInsecure bool
+	TunFd        int
+	Path         string
+	FakeIPRange  string
+	MTU          int
+	Verbose      bool
+	BindAddress  string
+	Endpoint     string
+	License      string
+	Gool         bool
+	DNS          string
+	EndpointType int
 }
 
 type logWriter struct{}
@@ -86,8 +80,6 @@ func Start(opt *StartOptions) {
 	r, w, _ := os.Pipe()
 	os.Stdout = w
 	os.Stderr = w
-	L.SetLevel(L.DebugLevel)
-	L.SetOutput(logger)
 
 	go func(reader io.Reader) {
 		scanner := bufio.NewScanner(reader)
@@ -116,32 +108,11 @@ func Start(opt *StartOptions) {
 			scanOpts.V6 = true
 		}
 	}
-
-	var psiphonOpts *app.PsiphonOptions
-	if opt.PsiphonEnabled {
-		psiphonOpts = &app.PsiphonOptions{
-			Country: opt.Country,
-		}
-	}
-
-	if opt.EgressMode == 1 && opt.MasqueURL != "" && opt.TunFd > 0 {
-		if err := runMasqueIP(ctx, opt); err != nil {
-			l.Error(err.Error())
-			os.Exit(1)
-		}
-		go func() {
-			<-ctx.Done()
-			l.Info("server shut down gracefully")
-		}()
-		return
-	}
-
 	err := app.RunWarp(ctx, l, app.WarpOptions{
 		Bind:     netip.MustParseAddrPort(opt.BindAddress),
 		DnsAddr:  netip.MustParseAddr(opt.DNS),
 		Endpoint: opt.Endpoint,
 		License:  opt.License,
-		Psiphon:  psiphonOpts,
 		Gool:     opt.Gool,
 		Scan:     scanOpts,
 		TestURL:  "http://connectivity.cloudflareclient.com/cdn-cgi/trace",

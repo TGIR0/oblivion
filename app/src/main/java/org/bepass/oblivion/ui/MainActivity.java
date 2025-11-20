@@ -38,12 +38,11 @@ public class MainActivity extends StateAwareBaseActivity<ActivityMainBinding> {
         intent.putExtra("USERSETTING_proxymode", FileManager.getBoolean("USERSETTING_proxymode"));
         intent.putExtra("USERSETTING_license", FileManager.getString("USERSETTING_license"));
         intent.putExtra("USERSETTING_endpoint_type", FileManager.getInt("USERSETTING_endpoint_type"));
-        intent.putExtra("USERSETTING_psiphon", FileManager.getBoolean("USERSETTING_psiphon"));
-        intent.putExtra("USERSETTING_country", FileManager.getString("USERSETTING_country"));
         intent.putExtra("USERSETTING_gool", FileManager.getBoolean("USERSETTING_gool"));
         intent.putExtra("USERSETTING_endpoint", FileManager.getString("USERSETTING_endpoint"));
         intent.putExtra("USERSETTING_port", FileManager.getString("USERSETTING_port"));
         intent.putExtra("USERSETTING_lan", FileManager.getBoolean("USERSETTING_lan"));
+
         intent.setAction(OblivionVpnService.FLAG_VPN_START);
         ContextCompat.startForegroundService(context, intent);
     }
@@ -91,7 +90,6 @@ public class MainActivity extends StateAwareBaseActivity<ActivityMainBinding> {
     }
 
     private void handleVpnSwitch(boolean enableVpn) {
-        Log.d("83", FileManager.getString("USERSETTING_country"));
         FileManager.initialize(this);
 
         if (enableVpn) {
