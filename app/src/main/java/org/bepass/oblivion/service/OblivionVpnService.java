@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -67,19 +68,24 @@ public class OblivionVpnService extends VpnService {
     private static final String TAG = "oblivionVPN";
     private static final String PRIVATE_VLAN4_CLIENT = "172.19.0.1";
     private static final String PRIVATE_VLAN6_CLIENT = "fdfe:dcba:9876::1";
-    private final Handler handler = new Handler();
+    private final Handler handler = new Handler(Looper.getMainLooper());
     private final Messenger serviceMessenger = new Messenger(new IncomingHandler(this));
-    private static final Map<String, Messenger> connectionStateObservers = new HashMap<>();
+    private final Map<String, Messenger> connectionStateObservers = new ConcurrentHashMap<>();
     private final Runnable logRunnable = new Runnable() {
         @Override
         public void run() {
-            String logMessages = Tun2socks.getLogMessages();
-            if (!logMessages.isEmpty()) {
-                try (FileOutputStream fos = getApplicationContext().openFileOutput("logs.txt", Context.MODE_APPEND)) {
-                    fos.write((logMessages).getBytes());
-                } catch (IOException e) {
-                    Log.e(TAG, "Error writing to log file", e);
-                }
+            if (scheduler != null && !scheduler.isShutdown()) {
+                final android.content.Context appContext = getApplicationContext();
+                scheduler.execute(() -> {
+                    String logMessages = Tun2socks.getLogMessages();
+                    if (!logMessages.isEmpty()) {
+                        try (FileOutputStream fos = appContext.openFileOutput("logs.txt", Context.MODE_APPEND)) {
+                            fos.write((logMessages).getBytes());
+                        } catch (IOException e) {
+                            Log.e(TAG, "Error writing to log file", e);
+                        }
+                    }
+                });
             }
             // Adding jitter to avoid exact timing
             long jitter = (long) (Math.random() * 500); // Random delay between 0 to 500ms
@@ -87,16 +93,16 @@ public class OblivionVpnService extends VpnService {
         }
     };
     // For JNI Calling in a new threa
-    private static ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private ExecutorService executorService;
     // For PingHTTPTestConnection to don't busy-waiting
-    private static ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    private static Future<?> pingTaskFuture;
+    private ScheduledExecutorService scheduler;
+    private Future<?> pingTaskFuture;
     private Notification notification;
-    private static ParcelFileDescriptor mInterface;
+    private ParcelFileDescriptor mInterface;
     private String bindAddress;
-    private static PowerManager.WakeLock wLock;
-    private static ConnectionState lastKnownState = ConnectionState.DISCONNECTED;
-    private static long connectionStartTime = 0;
+    private PowerManager.WakeLock wLock;
+    private ConnectionState lastKnownState = ConnectionState.DISCONNECTED;
+    private long connectionStartTime = 0;
     private Intent serviceIntent;
     private int pingCounter = 0;
 
@@ -113,7 +119,7 @@ public class OblivionVpnService extends VpnService {
         data.putString("key", key);
         subscriptionMessage.setData(data);
         // Create a Messenger for the reply from the service
-        subscriptionMessage.replyTo = new Messenger(new Handler(incomingMessage -> {
+        subscriptionMessage.replyTo = new Messenger(new Handler(Looper.getMainLooper(), incomingMessage -> {
             ConnectionState state = ConnectionState.valueOf(incomingMessage.getData().getString("state"));
             if (incomingMessage.what == OblivionVpnService.MSG_TILE_STATE_SUBSCRIPTION_RESULT) {
                 observer.onChange(state);
@@ -344,7 +350,12 @@ public class OblivionVpnService extends VpnService {
     }
 
     private void stopForegroundService() {
-        stopForeground(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE);
+        } else {
+            //noinspection deprecation
+            stopForeground(true);
+        }
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {
             notificationManager.cancel(1);
@@ -396,14 +407,20 @@ public class OblivionVpnService extends VpnService {
             onRevoke();
         }
         setLastKnownState(ConnectionState.CONNECTING);
-        Log.i(TAG, "Clearing Logs");
-        clearLogFile();
-        Log.i(TAG, "Create Notification");
 
         if (wLock == null) {
             wLock = ((PowerManager) getSystemService(Context.POWER_SERVICE)).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "oblivion:vpn");
             wLock.setReferenceCounted(false);
-            wLock.acquire(3 * 60 * 1000L /*3 minutes*/);
+            wLock.acquire();
+            final PowerManager.WakeLock wakeLockRef = wLock;
+            handler.postDelayed(() -> {
+                if (wakeLockRef != null && wakeLockRef.isHeld()) {
+                    wakeLockRef.release();
+                    if (wLock == wakeLockRef) {
+                        wLock = null;
+                    }
+                }
+            }, 3 * 60 * 1000L /*3 minutes*/);
         }
 
         if (executorService == null || executorService.isShutdown()) {
@@ -416,9 +433,12 @@ public class OblivionVpnService extends VpnService {
 
         executorService.execute(() -> {
             Log.d("OblivionVpnService", "Starting VPN service");
+            Log.i(TAG, "Clearing Logs");
+            clearLogFile();
             bindAddress = getBindAddress();
             Log.i(TAG, "Configuring VPN service");
             try {
+                Log.i(TAG, "Create Notification");
                 createNotification();
                 startForeground(1, notification);
                 configure();
@@ -722,7 +742,11 @@ public class OblivionVpnService extends VpnService {
         };
 
         // Run the task on a separate thread if needed
-        new Thread(configureTask).start();
+        if (executorService != null && !executorService.isShutdown()) {
+            executorService.execute(configureTask);
+        } else {
+            Log.e(TAG, "ExecutorService is not available to run configureTask");
+        }
     }
 
     private void configureVpnBuilder(VpnService.Builder builder) throws Exception {
@@ -779,12 +803,12 @@ public class OblivionVpnService extends VpnService {
                         Log.e("IncomingHandler", "No key was provided for the connection state observer");
                         return;
                     }
-                    if (connectionStateObservers.containsKey(key)) {
+                    if (service.connectionStateObservers.containsKey(key)) {
                         // Already subscribed
                         return;
                     }
                     service.addConnectionStateObserver(key, msg.replyTo);
-                    service.publishConnectionStateTo(key, lastKnownState);
+                    service.publishConnectionStateTo(key, service.lastKnownState);
                     break;
                 }
                 case MSG_CONNECTION_STATE_UNSUBSCRIBE: {
