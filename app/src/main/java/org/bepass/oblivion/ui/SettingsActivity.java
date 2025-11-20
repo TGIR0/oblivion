@@ -44,13 +44,6 @@ public class SettingsActivity extends StateAwareBaseActivity<ActivitySettingsBin
         // Set Current Values
         settingBasicValuesFromSPF();
 
-        if (isBatteryOptimizationEnabled(this)) {
-            binding.batteryOptimizationLayout.setOnClickListener(view -> showBatteryOptimizationDialog(this));
-        } else {
-            binding.batteryOptimizationLayout.setVisibility(View.GONE);
-            binding.batteryOptLine.setVisibility(View.GONE);
-        }
-
         binding.back.setOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -96,23 +89,51 @@ public class SettingsActivity extends StateAwareBaseActivity<ActivitySettingsBin
 
         CompoundButton.OnCheckedChangeListener proxyModeListener = (buttonView, isChecked) -> FileManager.set("USERSETTING_proxymode", isChecked);
 
-        binding.txtDarkMode.setOnClickListener(view -> binding.checkBoxDarkMode.setChecked(!binding.checkBoxDarkMode.isChecked()));
-
-        // Set the initial state of the checkbox based on the current theme
-        binding.checkBoxDarkMode.setChecked(ThemeHelper.getInstance().getCurrentTheme() == ThemeHelper.Theme.DARK);
-        // Set up the listener to change the theme when the checkbox is toggled
-        binding.checkBoxDarkMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            // Determine the new theme based on the checkbox state
-            ThemeHelper.Theme newTheme = isChecked ? ThemeHelper.Theme.DARK : ThemeHelper.Theme.LIGHT;
-
-            // Use ThemeHelper to apply the new theme
-            ThemeHelper.getInstance().select(newTheme);
-        });
+        // Remove CheckBox listener and use Dialog
+        binding.txtDarkMode.setOnClickListener(view -> showThemeSelectionDialog());
+        binding.checkBoxDarkMode.setVisibility(View.GONE); // Hide checkbox, we use the layout click
 
         binding.gool.setOnCheckedChangeListener(goolListener);
         binding.resetAppLayout.setOnClickListener(v -> resetAppData());
         binding.proxyModeLayout.setOnClickListener(v -> binding.proxyMode.performClick());
         binding.proxyMode.setOnCheckedChangeListener(proxyModeListener);
+        
+        binding.batteryOptimizationLayout.setOnClickListener(view -> showBatteryOptimizationDialog(this));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (isBatteryOptimizationEnabled(this)) {
+            binding.batteryOptimizationLayout.setVisibility(View.VISIBLE);
+            binding.batteryOptLine.setVisibility(View.VISIBLE);
+        } else {
+            binding.batteryOptimizationLayout.setVisibility(View.GONE);
+            binding.batteryOptLine.setVisibility(View.GONE);
+        }
+    }
+
+    private void showThemeSelectionDialog() {
+        String[] themes = new String[]{"Light", "Dark", "Pitch Black (OLED)"};
+        int checkedItem = 0;
+        ThemeHelper.Theme current = ThemeHelper.getInstance().getCurrentTheme();
+        if (current == ThemeHelper.Theme.DARK) checkedItem = 1;
+        else if (current == ThemeHelper.Theme.OLED) checkedItem = 2;
+
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("Select Theme")
+                .setSingleChoiceItems(themes, checkedItem, (dialog, which) -> {
+                    ThemeHelper.Theme selectedTheme = ThemeHelper.Theme.LIGHT;
+                    if (which == 1) selectedTheme = ThemeHelper.Theme.DARK;
+                    else if (which == 2) selectedTheme = ThemeHelper.Theme.OLED;
+
+                    if (current != selectedTheme) {
+                        ThemeHelper.getInstance().select(selectedTheme);
+                        recreate();
+                    }
+                    dialog.dismiss();
+                })
+                .show();
     }
 
     private void resetAppData() {

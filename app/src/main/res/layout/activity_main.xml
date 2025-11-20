@@ -94,35 +94,29 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_percent="0.55" />
 
-        <View
-            android:id="@+id/switch_background_effect"
-            android:layout_width="160dp"
-            android:layout_height="80dp"
-            android:background="@drawable/switch_ripple"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="@+id/switch_button"
-            app:layout_constraintEnd_toEndOf="@+id/switch_button"
-            app:layout_constraintStart_toStartOf="@+id/switch_button"
-            app:layout_constraintTop_toTopOf="@+id/switch_button" />
-
-        <org.bepass.oblivion.component.TouchAwareSwitch
-            android:id="@+id/switch_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <FrameLayout
+            android:id="@+id/connection_button"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:background="@drawable/bg_connect_button"
             android:clickable="true"
-            android:contentDescription="@string/stateText"
             android:focusable="true"
-            android:minWidth="100dp"
-            android:minHeight="48dp"
-            android:scaleX="1.5"
-            android:scaleY="1.5"
+            android:contentDescription="@string/stateText"
             app:layout_constraintBottom_toTopOf="@id/guideline_center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/app_name_2"
-            app:layout_constraintVertical_bias="0.6"
-            app:thumbTint="?attr/colorPrimary"
-            app:trackTint="@color/gray" />
+            app:layout_constraintVertical_bias="0.6">
+
+            <ImageView
+                android:id="@+id/connection_icon"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center"
+                android:contentDescription="@null"
+                android:src="@drawable/vpn_off"
+                app:tint="?attr/colorOnPrimary" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/state_text"
@@ -134,7 +128,20 @@
             android:textColor="?attr/colorOnSurfaceVariant"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/switch_button" />
+            app:layout_constraintTop_toBottomOf="@+id/connection_button" />
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/ipProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xl"
+            android:indeterminate="true"
+            android:visibility="invisible"
+            app:indicatorSize="36dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/state_text"
+            app:trackThickness="4dp" />
 
         <TextView
             android:id="@+id/publicIP"
@@ -148,22 +155,9 @@
             android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/state_text"
+            app:layout_constraintTop_toBottomOf="@id/ipProgressBar"
             tools:text="192.168.1.1"
             tools:visibility="visible" />
-
-        <com.google.android.material.progressindicator.CircularProgressIndicator
-            android:id="@+id/ipProgressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:indeterminate="true"
-            android:visibility="invisible"
-            app:indicatorSize="36dp"
-            app:layout_constraintBottom_toBottomOf="@id/publicIP"
-            app:layout_constraintEnd_toEndOf="@id/publicIP"
-            app:layout_constraintStart_toStartOf="@id/publicIP"
-            app:layout_constraintTop_toTopOf="@id/publicIP"
-            app:trackThickness="4dp" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/floatingActionButton"

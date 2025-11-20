@@ -17,7 +17,6 @@ import androidx.core.content.ContextCompat;
 
 import org.bepass.oblivion.R;
 import org.bepass.oblivion.base.StateAwareBaseActivity;
-import org.bepass.oblivion.component.TouchAwareSwitch;
 import org.bepass.oblivion.databinding.ActivityMainBinding;
 import org.bepass.oblivion.enums.ConnectionState;
 import org.bepass.oblivion.service.OblivionVpnService;
@@ -116,31 +115,31 @@ public class MainActivity extends StateAwareBaseActivity<ActivityMainBinding> {
         vpnPermissionLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(), result -> {
                     if (result.getResultCode() == RESULT_OK) {
-                        handleVpnSwitch(true);
+                        handleVpnButton(true);
                     } else {
                         Toast.makeText(this, R.string.permission_denied_vpn, Toast.LENGTH_LONG).show();
-                        // Programmatically uncheck without triggering listener to avoid loop
-                        safeUpdateSwitch(false);
+                        updateConnectButtonState(false);
                     }
                 });
 
-        binding.switchButton.setOnCheckedChangeListener((view, isChecked) -> handleVpnSwitch(isChecked));
+        binding.connectionButton.setOnClickListener(v -> {
+            boolean isConnected = !lastKnownConnectionState.isDisconnected();
+            handleVpnButton(!isConnected);
+        });
     }
 
     /**
-     * Safely updates the switch state without triggering the OnCheckedChangeListener.
-     * Relies on the custom logic implemented in TouchAwareSwitch.
+     * Updates the connection button state (icon).
      */
-    private void safeUpdateSwitch(boolean isChecked) {
-        if (binding.switchButton instanceof TouchAwareSwitch) {
-            ((TouchAwareSwitch) binding.switchButton).setChecked(isChecked, false);
+    private void updateConnectButtonState(boolean isConnected) {
+        if (isConnected) {
+            binding.connectionIcon.setImageResource(R.drawable.vpn_on);
         } else {
-            // Fallback for standard switch (though layout uses TouchAwareSwitch)
-            binding.switchButton.setChecked(isChecked);
+            binding.connectionIcon.setImageResource(R.drawable.vpn_off);
         }
     }
 
-    private void handleVpnSwitch(boolean enableVpn) {
+    private void handleVpnButton(boolean enableVpn) {
         // Initialize FileManager if not already done (failsafe)
         FileManager.initialize(getApplicationContext());
 
@@ -200,14 +199,6 @@ public class MainActivity extends StateAwareBaseActivity<ActivityMainBinding> {
         binding.infoIcon.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, InfoActivity.class)));
         binding.bugIcon.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, LogActivity.class)));
         binding.settingIcon.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, SettingsActivity.class)));
-        
-        // Using TouchAwareSwitch's own logic, we don't need manual toggle on frame click 
-        // if the frame passes touch events correctly, but keeping it for larger touch area:
-        binding.switchButtonFrame.setOnClickListener(v -> {
-            if (!binding.switchButton.isEnabled()) return;
-            boolean newState = !binding.switchButton.isChecked();
-            binding.switchButton.setChecked(newState); // This triggers listener
-        });
     }
 
     @NonNull
@@ -244,16 +235,16 @@ public class MainActivity extends StateAwareBaseActivity<ActivityMainBinding> {
                 binding.publicIP.setVisibility(View.GONE);
                 binding.stateText.setText(R.string.notConnected);
                 binding.ipProgressBar.setVisibility(View.GONE);
-                binding.switchButton.setEnabled(true);
-                safeUpdateSwitch(false);
+                binding.connectionButton.setEnabled(true);
+                updateConnectButtonState(false);
                 break;
 
             case CONNECTING:
                 binding.stateText.setText(R.string.connecting);
                 binding.publicIP.setVisibility(View.GONE);
                 binding.ipProgressBar.setVisibility(View.VISIBLE);
-                binding.switchButton.setEnabled(true);
-                safeUpdateSwitch(true);
+                binding.connectionButton.setEnabled(true);
+                updateConnectButtonState(true);
                 break;
 
             case CONNECTED:
@@ -263,8 +254,8 @@ public class MainActivity extends StateAwareBaseActivity<ActivityMainBinding> {
     }
 
     private void handleConnectedStateUI() {
-        binding.switchButton.setEnabled(true);
-        safeUpdateSwitch(true);
+        binding.connectionButton.setEnabled(true);
+        updateConnectButtonState(true);
         binding.ipProgressBar.setVisibility(View.GONE);
 
         // Handle Text Description
@@ -297,12 +288,12 @@ public class MainActivity extends StateAwareBaseActivity<ActivityMainBinding> {
     }
 
     private void fetchPublicIP() {
-        binding.ipProgressBar.setVisibility(View.VISIBLE);
+        // binding.ipProgressBar.setVisibility(View.VISIBLE); // Removed to prevent confusion with connection loading
         PublicIPUtils.getInstance().getIPDetails(details -> runOnUiThread(() -> {
             // Lifecycle check to prevent crash
             if (isFinishing() || isDestroyed()) return;
 
-            binding.ipProgressBar.setVisibility(View.GONE);
+            binding.ipProgressBar.setVisibility(View.GONE); // Ensure it's gone when done
             if (details.ip != null) {
                 String ipInfo = details.ip + " " + (details.flag != null ? details.flag : "");
                 binding.publicIP.setText(ipInfo);

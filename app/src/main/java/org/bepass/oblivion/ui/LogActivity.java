@@ -3,9 +3,12 @@ package org.bepass.oblivion.ui;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -100,22 +103,33 @@ public class LogActivity extends BaseActivity<ActivityLogBinding> {
         }
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(openFileInput("logs.txt")))) {
-            StringBuilder sb = new StringBuilder();
+            SpannableStringBuilder sb = new SpannableStringBuilder();
             String line;
 
             while ((line = reader.readLine()) != null) {
+                int color = Color.BLACK; // Default Info - Changed to BLACK for visibility on light theme
+                String lower = line.toLowerCase(java.util.Locale.ROOT);
+                if (lower.contains("error") || lower.contains("fail") || lower.contains("[e]")) {
+                    color = Color.RED;
+                } else if (lower.contains("warn") || lower.contains("[w]")) {
+                    color = Color.parseColor("#FFA500"); // Orange for warning
+                } else if (lower.contains("debug") || lower.contains("[d]")) {
+                     color = Color.DKGRAY;
+                }
+                
+                int start = sb.length();
                 sb.append(line).append("\n");
+                sb.setSpan(new ForegroundColorSpan(color), start, sb.length(), 0);
             }
 
-            String finalLog = sb.toString();
             runOnUiThread(() -> {
-                binding.logs.setText(finalLog);
+                binding.logs.setText(sb);
                 if (!isUserScrollingUp) {
                     binding.logScrollView.post(() -> binding.logScrollView.fullScroll(ScrollView.FOCUS_DOWN));
                 }
             });
         } catch (IOException e) {
-            // Swallow or log quietly to avoid noisy stack traces for transient I/O issues.
+            // Swallow or log quietly
         }
     }
 
@@ -144,7 +158,8 @@ public class LogActivity extends BaseActivity<ActivityLogBinding> {
                     }
 
                     // Add ISP information
-                    sb.append("\n=====\nISP: ").append(isp).append("\n");
+                    String ispText = (isp == null || isp.isEmpty()) ? "Unknown" : isp;
+                    sb.append("\n=====\nISP: ").append(ispText).append("\n");
 
                     String last100Log = sb.toString();
                     ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);

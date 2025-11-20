@@ -3,6 +3,7 @@ package org.bepass.oblivion.component;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.HapticFeedbackConstants;
+import android.os.Build;
 
 import com.google.android.material.materialswitch.MaterialSwitch;
 
@@ -34,10 +35,12 @@ public class TouchAwareSwitch extends MaterialSwitch {
                 if (!isProgrammaticChange) {
                     mListener.onCheckedChanged(buttonView, isChecked);
                     // اضافه کردن ویبره ریز هنگام تاچ کاربر (تجربه کاربری بهتر)
-                    if (isChecked) {
-                        performHapticFeedback(HapticFeedbackConstants.CONFIRM);
-                    } else {
-                        performHapticFeedback(HapticFeedbackConstants.REJECT);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        if (isChecked) {
+                            performHapticFeedback(HapticFeedbackConstants.CONFIRM);
+                        } else {
+                            performHapticFeedback(HapticFeedbackConstants.REJECT);
+                        }
                     }
                 }
             }

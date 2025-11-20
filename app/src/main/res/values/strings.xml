@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <string name="app_name" translatable="false">Oblivion</string>
   <string name="stateText">Not Connected</string>
   <string name="basedOnWarp">Based on Warp</string>
@@ -63,7 +63,9 @@
   <string name="start_logging_here">Start logging here…</string>
   <string name="getting_isp">Getting ISP…</string>
   <string name="back">Back</string>
-    <string-array name="countries">
+  <string name="permission_denied_vpn">Permission denied to start VPN</string>
+  <string name="press_back_again">Press back again to exit</string>
+  <string-array name="countries">
     <item>Australia</item>
     <item>Austria</item>
     <item>Belgium</item>

@@ -45,6 +45,17 @@
     <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Oblivion.Large</item>
   </style>
 
+  <style name="Theme.OblivionUI.Black" parent="Theme.OblivionUI">
+    <item name="android:colorBackground">#000000</item>
+    <item name="colorSurface">#000000</item>
+    <item name="colorSurfaceContainer">#000000</item>
+    <item name="colorSurfaceVariant">#121212</item>
+    <item name="colorOnSurface">#FFFFFF</item>
+    <item name="colorOnSurfaceVariant">#E0E0E0</item>
+    <item name="android:statusBarColor">#000000</item>
+    <item name="android:navigationBarColor">#000000</item>
+  </style>
+
   <style name="CustomBottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
     <item name="android:windowIsFloating">false</item>
     <item name="android:windowSoftInputMode">adjustResize</item>

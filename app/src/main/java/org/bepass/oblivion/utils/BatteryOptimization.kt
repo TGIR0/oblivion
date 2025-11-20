@@ -6,6 +6,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.core.net.toUri
 import android.os.PowerManager
 import android.provider.Settings
 import android.util.Log
@@ -42,7 +43,7 @@ fun requestIgnoreBatteryOptimizations(context: Context) {
         try {
             // Method 1: Try the direct system dialog (Requires REQUEST_IGNORE_BATTERY_OPTIMIZATIONS permission)
             val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-                data = Uri.parse("package:$packageName")
+                data = "package:$packageName".toUri()
                 if (context !is Activity) {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 }
@@ -84,7 +85,7 @@ fun showBatteryOptimizationDialog(context: Context) {
         binding.dialogTitle.text = context.getString(R.string.batteryOpL)
         binding.dialogMessage.text = context.getString(R.string.dialBtText)
 
-        val dialog = MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_Material3_MaterialAlertDialog_Centered)
+        val dialog = MaterialAlertDialogBuilder(context, com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog_Centered)
             .setView(binding.root)
             .setCancelable(true)
             .create()

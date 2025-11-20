@@ -19,6 +19,7 @@ import org.bepass.oblivion.service.OblivionVpnService;
 import org.bepass.oblivion.utils.ColorUtils;
 import org.bepass.oblivion.utils.FileManager;
 import org.bepass.oblivion.utils.SystemUtils;
+import org.bepass.oblivion.utils.ThemeHelper;
 
 /**
  * Activities inheriting from this class observe connection state by default and have access to lastKnownConnectionState variable.
@@ -37,6 +38,9 @@ public abstract class StateAwareBaseActivity<B extends ViewDataBinding> extends 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        if (ThemeHelper.getInstance().isOled()) {
+            setTheme(org.bepass.oblivion.R.style.Theme_OblivionUI_Black);
+        }
         super.onCreate(savedInstanceState);
         FileManager.initialize(this); // Initialize FileManager with Activity context
         binding = DataBindingUtil.setContentView(this, getLayoutResourceId());

@@ -51,12 +51,11 @@ func (writer logWriter) Write(bytes []byte) (int, error) {
 	return len(bytes), nil
 }
 
-func Start(opt *StartOptions) {
+func Start(opt *StartOptions) error {
 	ctx, cancelFunc = signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 
 	if err := os.Chdir(opt.Path); err != nil {
-		l.Error("error changing to 'main' directory", "error", err.Error())
-		os.Exit(1)
+		return fmt.Errorf("error changing to 'main' directory: %v", err)
 	}
 
 	logger := logWriter{}
@@ -87,7 +86,8 @@ func Start(opt *StartOptions) {
 			logger.Write([]byte(scanner.Text()))
 		}
 		if err := scanner.Err(); err != nil {
-			fmt.Fprintln(os.Stderr, "There was an error with the scanner", err)
+			// Log to internal logger instead of stderr to avoid recursion/loops
+			logger.Write([]byte(fmt.Sprintf("scanner error: %v", err)))
 		}
 	}(r)
 	l.Info(fmt.Sprintf("%+v", *opt))
@@ -108,19 +108,21 @@ func Start(opt *StartOptions) {
 			scanOpts.V6 = true
 		}
 	}
-	err := app.RunWarp(ctx, l, app.WarpOptions{
-		Bind:     netip.MustParseAddrPort(opt.BindAddress),
-		DnsAddr:  netip.MustParseAddr(opt.DNS),
-		Endpoint: opt.Endpoint,
-		License:  opt.License,
-		Gool:     opt.Gool,
-		Scan:     scanOpts,
-		TestURL:  "http://connectivity.cloudflareclient.com/cdn-cgi/trace",
-	})
-	if err != nil {
-		l.Error(err.Error())
-		os.Exit(1)
-	}
+	go func() {
+		err := app.RunWarp(ctx, l, app.WarpOptions{
+			Bind:     netip.MustParseAddrPort(opt.BindAddress),
+			DnsAddr:  netip.MustParseAddr(opt.DNS),
+			Endpoint: opt.Endpoint,
+			License:  opt.License,
+			Gool:     opt.Gool,
+			Scan:     scanOpts,
+			TestURL:  "http://connectivity.cloudflareclient.com/cdn-cgi/trace",
+		})
+		if err != nil {
+			l.Error(fmt.Sprintf("failed to run warp: %v", err))
+			cancelFunc()
+		}
+	}()
 
 	fakeRange := opt.FakeIPRange
 	if fakeRange == "" {
@@ -138,8 +140,7 @@ func Start(opt *StartOptions) {
 		AllowLan:     true,
 	}
 	if ret := lwip.Start(tun2socksStartOptions); ret != 0 {
-		l.Error("failed to start LWIP")
-		os.Exit(1)
+		return fmt.Errorf("failed to start LWIP, return code: %d", ret)
 	}
 
 	go func() {
@@ -148,6 +149,8 @@ func Start(opt *StartOptions) {
 
 		l.Info("server shut down gracefully")
 	}()
+
+	return nil
 }
 
 func Stop() {

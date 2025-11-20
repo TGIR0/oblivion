@@ -3,7 +3,6 @@
     <!-- Spacing tokens scaled for 10ft (TV) -->
     <dimen name="space_s">12dp</dimen>
     <dimen name="space_m">16dp</dimen>
-    <dimen name="space_l">20dp</dimen>
     <dimen name="space_xl">28dp</dimen>
     <dimen name="space_2xl">40dp</dimen>
 

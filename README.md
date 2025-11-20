@@ -2,54 +2,75 @@
 
 "Internet, for all or none!"
 
-Oblivion provides secure, optimized internet access through a user-friendly Android app using cloudflare warp technology
-
-It's leveraging `bepass-sdk` and a custom Go implementation of WireGuard, it's designed for fast and private online experiences.
+Oblivion provides secure, optimized internet access through a user-friendly Android app using Cloudflare Warp technology.
+It uses a **Next-Gen Core** powered by the latest `sing-box`, `gvisor`, and `bepass-sdk`, specifically engineered for censorship circumvention in restrictive environments like Iran.
 
 ![oblivion3.jpg](media/oblivion3.jpg)
 
-## Features
+## Key Features
 
-- **Secure VPN**: Custom WireGuard implementation in Go.
-- **Optimized Speeds**: Enhanced with `bepass-sdk` for minimal latency.
-- **User-Friendly**: Simple, intuitive interface.
+- **Advanced Anti-Censorship Core**: Built on the latest `sing-box` and `gvisor` network stacks with **MASQUE (HTTP/3)** support capabilities.
+- **Smart Routing**: Integrated `GeoIP` support for intelligent traffic routing.
+- **Secure VPN**: Custom Go implementation optimized for Android with the latest `tun2socks` libraries.
+- **Optimized Performance**: Low latency, battery-efficient, and minimal resource usage.
+- **Advanced Split Tunneling**: Selective app routing with internet permission filtering.
+- **Themes**: Light, Dark, and **Pitch Black (OLED)** support.
+- **Live Logs**: Color-coded real-time logs (Info, Warning, Error) with auto-cleanup.
+- **Quick Settings Tile**: Toggle VPN directly from your notification shade.
+- **Android TV Support**: Compatible with TV interfaces.
+- **Legacy Support**: Works on Android 5.0+ (API 21+).
 
 ## Quick Start
 
-1. **Download**: Grab the APK from our [Releases](https://github.com/bepass-org/oblivion/releases) page or [Google play store](https://play.google.com/store/apps/details?id=org.bepass.oblivion) and install it.
+1. **Download**: Grab the APK from our [Releases](https://github.com/bepass-org/oblivion/releases) page or [Google Play Store](https://play.google.com/store/apps/details?id=org.bepass.oblivion).
    <a href="https://play.google.com/store/apps/details?id=org.bepass.oblivion">
    <img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" width="165" height="64" />
    </a>
 
 2. **Connect**: Launch Oblivion and hit the switch button.
 
-## Building the Project
+## Developer Guide
 
 ### Prerequisites
-- JDK 17
-- NDK r26b (26.1.10909125)
-- Go 1.22.x
+- **JDK 17**: Required for building the Android project.
+- **Android SDK**: API Level 35 (Android 15) recommended.
+- **NDK**: Version 29.0.14206865 (or similar LTS).
+- **Go 1.25.x**: For building the `tun2socks` library (Required for new module features).
 
-### Build Tun2Socks AAR (cross‑platform)
+### Project Structure
+- `app/`: Main Android application module.
+- `tun2socks/`: Go module for the VPN core logic, bridging `sing-box` and Android `VpnService`.
+- `warp-plus/`: Core connection logic with MASQUE and GeoIP libraries.
 
-You can build the AAR via Gradle without installing gomobile globally. The Gradle task wraps `go run golang.org/x/mobile/cmd/gomobile` and pins NDK r26b.
+### Building Instructions
 
-Linux/macOS:
-```bash
-./gradlew :app:buildTun2SocksAar
-```
+1. **Build Tun2Socks AAR**:
+   This step compiles the Go code into an Android Archive (AAR).
+   
+   *Linux/macOS:*
+   ```bash
+   ./gradlew :app:buildTun2SocksAar
+   ```
+   
+   *Windows (PowerShell):*
+   ```powershell
+   .\gradlew.bat :app:buildTun2SocksAar
+   ```
+   
+   Output: `app/libs/tun2socks.aar`
 
-Windows (PowerShell):
-```powershell
-.\gradlew.bat :app:buildTun2SocksAar
-```
+2. **Build APK**:
+   - Open the project in Android Studio.
+   - Sync Gradle.
+   - Build > Generate Signed Bundle/APK > APK.
+   - Select `release` build type.
 
-Output: `app/libs/tun2socks.aar`
-
-### Follow the steps below to build the Oblivion APK:
-- In Android Studio, navigate to "Build" in the menu bar.
-- Select "Generate Signed Bundle/APK..."
-- Choose "APK" and proceed.
+### Notes for Contributors
+- **Code Style**: Follow standard Android/Kotlin coding conventions.
+- **Dependencies**: 
+  - Go modules are managed via `go.mod` in `tun2socks` and `warp-plus`.
+  - Ensure you run `go mod tidy` when updating Go dependencies.
+- **Logs**: Use the centralized logging system in `LogActivity`.
 
 ## Get Involved
 
@@ -57,36 +78,15 @@ We're a community-driven project, aiming to make the internet accessible for all
 
 ## Acknowledgements and Credits
 
-This project makes use of several open-source tools and libraries, and we are grateful to the developers and communities behind these projects. In particular, we would like to acknowledge:
+This project makes use of several open-source tools and libraries, and we are grateful to the developers and communities behind these projects.
 
-### Cloudflare Warp
-
-- **Project**: Cloudflare Warp
-- **Website**: [Cloudflare Warp](https://www.cloudflare.com/products/warp/)
-- **License**: [License information](https://www.cloudflare.com/application/terms/)
-- **Description**: Cloudflare Warp is a technology that enhances the security and performance of Internet applications. We use it in our project for its efficient and secure network traffic routing capabilities.
-
-### WireGuard-go
-
-- **Project**: WireGuard-go
-- **GitHub Repository**: [WireGuard-go on GitHub](https://github.com/WireGuard/wireguard-go)
-- **License**: [GNU General Public License v2.0](https://github.com/WireGuard/wireguard-go/blob/master/COPYING)
-- **Description**: WireGuard-go is an implementation of the WireGuard secure network tunnel. It's used in our project to provide fast, modern, and secure VPN tunneling.
-
-Please note that the use of these tools is governed by their respective licenses, and you should consult those licenses for terms and conditions of use.
+- **Cloudflare Warp**: For the underlying technology. [Website](https://www.cloudflare.com/products/warp/)
+- **Sing-box**: The universal proxy platform. [GitHub](https://github.com/sagernet/sing-box)
+- **gVisor**: Container runtime sandbox. [GitHub](https://github.com/google/gvisor)
+- **WireGuard-go**: For the secure tunnel implementation. [GitHub](https://github.com/WireGuard/wireguard-go)
+- **bepass-sdk**: For optimization and censorship circumvention.
 
 ## License
 
 This project is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License - see the [CC BY-NC-SA 4.0 License](https://creativecommons.org/licenses/by-nc-sa/4.0/) for details.
 
-### Summary of License
-
-The CC BY-NC-SA 4.0 License is a free, copyleft license suitable for non-commercial use. Here's what it means for using this project:
-
-- **Attribution (BY)**: You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
-
-- **NonCommercial (NC)**: You may not use the material for commercial purposes.
-
-- **ShareAlike (SA)**: If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
-
-This summary is only a brief overview. For the full legal text, please visit the provided link.

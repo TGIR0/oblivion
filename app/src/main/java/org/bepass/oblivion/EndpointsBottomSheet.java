@@ -101,7 +101,14 @@ public class EndpointsBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void loadEndpoints() {
+        // Always add Auto Scan as the first option
+        endpointsList.add(new Endpoint("Auto Scan (Best Ping)", ""));
+
         Set<String> savedEndpoints = FileManager.getStringSet("saved_endpoints", new HashSet<>());
+        if (savedEndpoints.isEmpty()) {
+             // Add Default if nothing saved
+             endpointsList.add(new Endpoint("Default", "engage.cloudflareclient.com:2408"));
+        }
         for (String endpoint : savedEndpoints) {
             String[] parts = endpoint.split("::");
             if (parts.length == 2) {

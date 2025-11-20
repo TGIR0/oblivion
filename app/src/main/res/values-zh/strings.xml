@@ -62,6 +62,8 @@
     <string name="start_logging_here">从这里开始记录日志…</string>
     <string name="getting_isp">正在获取 ISP…</string>
     <string name="back">返回</string>
+    <string name="permission_denied_vpn">启动 VPN 的权限被拒绝</string>
+    <string name="press_back_again">再次按返回键退出</string>
     <string-array name="countries">
         <item>澳大利亚</item>
         <item>奥地利</item>

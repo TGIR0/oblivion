@@ -39,6 +39,16 @@ public class FileManager {
         }
     }
 
+    public static boolean contains(String key) {
+        lock.lock();
+        try {
+            checkInitialized();
+            return mmkv.containsKey(key);
+        } finally {
+            lock.unlock();
+        }
+    }
+
     // ===========================================================================
     // Methods for setting various data types with synchronization
 

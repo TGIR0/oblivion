@@ -55,57 +55,58 @@ public class PublicIPUtils {
      * @param callback The callback to handle the IP details once fetched.
      */
     public void getIPDetails(IPDetailsCallback callback) {
-        Handler handler = new Handler();
-        long startTime = System.currentTimeMillis();
-        IPDetails details = new IPDetails();
+        attemptFetch(System.currentTimeMillis(), callback);
+    }
 
-        Log.d(TAG, "Starting getIPDetails process");
-
-        scheduler.schedule(() -> {
-            while (System.currentTimeMillis() - startTime < TIMEOUT_MILLIS) { // 30 seconds
-                Log.d(TAG, "Attempting to fetch IP details");
-                try {
-                    String portString = FileManager.getString("USERSETTING_port");
-                    if (portString == null || portString.isEmpty()) {
-                        throw new IllegalStateException("USERSETTING_port is not set in FileManager");
-                    }
-
-                    int socksPort = Integer.parseInt(portString);
-                    Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("localhost", socksPort));
-
-                    OkHttpClient client = new OkHttpClient.Builder()
-                            .proxy(proxy)
-                            .connectTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS) // 5 seconds connection timeout
-                            .readTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS) // 5 seconds read timeout
-                            .build();
-
-                    Request request = new Request.Builder()
-                            .url(URL_COUNTRY_API)
-                            .build();
-
-                    try (Response response = client.newCall(request).execute()) {
-                        JSONObject jsonData = new JSONObject(Objects.requireNonNull(response.body()).string());
-                        details.ip = jsonData.getString("ip");
-                        details.country = jsonData.getString("country");
-                        details.flag = CountryCodeUtils.toCountryFlagEmoji(new CountryCode(details.country));
-                        Log.d(TAG, "IP details retrieved successfully");
-                        handler.post(() -> callback.onDetailsReceived(details));
-                        return; // Exit the loop if details retrieved
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error parsing the response or setting details", e);
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "Error fetching IP details", e);
-                } finally {
-                    // Schedule next retry even if an error occurred
-                    Log.d(TAG, "Scheduling next retry after delay");
-                    scheduler.schedule(() -> getIPDetails(callback), RETRY_DELAY_MILLIS, TimeUnit.MILLISECONDS);
-                }
-            }
+    private void attemptFetch(long startTime, IPDetailsCallback callback) {
+        if (System.currentTimeMillis() - startTime > TIMEOUT_MILLIS) {
             Log.d(TAG, "Timeout reached without successful IP details retrieval");
-            // Timeout reached, no details retrieved
-            handler.post(() -> callback.onDetailsReceived(details));
-        }, 0, TimeUnit.MILLISECONDS); // Schedule initial attempt immediately
+            new Handler(android.os.Looper.getMainLooper()).post(() -> callback.onDetailsReceived(new IPDetails()));
+            return;
+        }
+
+        scheduler.execute(() -> {
+            try {
+                Log.d(TAG, "Attempting to fetch IP details");
+                String portString = FileManager.getString("USERSETTING_port");
+                if (portString == null || portString.isEmpty()) {
+                    throw new IllegalStateException("USERSETTING_port is not set in FileManager");
+                }
+
+                int socksPort = Integer.parseInt(portString);
+                Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("localhost", socksPort));
+
+                OkHttpClient client = new OkHttpClient.Builder()
+                        .proxy(proxy)
+                        .connectTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                        .readTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                        .build();
+
+                Request request = new Request.Builder()
+                        .url(URL_COUNTRY_API)
+                        .build();
+
+                try (Response response = client.newCall(request).execute()) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        JSONObject jsonData = new JSONObject(response.body().string());
+                        IPDetails details = new IPDetails();
+                        details.ip = jsonData.optString("ip");
+                        details.country = jsonData.optString("country");
+                        details.flag = CountryCodeUtils.toCountryFlagEmoji(new CountryCode(details.country));
+                        
+                        Log.d(TAG, "IP details retrieved successfully");
+                        new Handler(android.os.Looper.getMainLooper()).post(() -> callback.onDetailsReceived(details));
+                        return; // Success, stop here
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error fetching IP details: " + e.getMessage());
+            }
+
+            // If we are here, it means failure. Schedule retry.
+            Log.d(TAG, "Scheduling next retry after delay");
+            scheduler.schedule(() -> attemptFetch(startTime, callback), RETRY_DELAY_MILLIS, TimeUnit.MILLISECONDS);
+        });
     }
 
     /**

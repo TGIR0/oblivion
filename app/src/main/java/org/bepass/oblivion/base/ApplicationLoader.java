@@ -22,7 +22,6 @@ public class ApplicationLoader extends Application {
     public void onCreate() {
         super.onCreate();
         FileManager.initialize(this);
-        DynamicColors.applyToActivitiesIfAvailable(this);
         ThemeHelper.getInstance().init();
         ThemeHelper.getInstance().applyTheme();
     }

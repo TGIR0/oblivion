@@ -29,11 +29,11 @@ $output | Where-Object {
 }
 
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "`n✓ Build completed successfully!" -ForegroundColor Green
+    Write-Host "`n[v] Build completed successfully!" -ForegroundColor Green
     Write-Host "  - All warnings suppressed" -ForegroundColor Gray
     Write-Host "  - Binary optimized (-s -w)" -ForegroundColor Gray
     Write-Host "  - MTU configured to 1500" -ForegroundColor Gray
 } else {
-    Write-Host "`n✗ Build failed!" -ForegroundColor Red
+    Write-Host "`n[x] Build failed!" -ForegroundColor Red
     exit $LASTEXITCODE
 }

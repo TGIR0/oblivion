@@ -56,21 +56,50 @@ public class BypassListAppsAdapter extends RecyclerView.Adapter<BypassListAppsAd
     private List<AppInfo> getInstalledApps(Context context, boolean shouldShowSystemApps) {
         Set<String> selectedApps = FileManager.getStringSet("splitTunnelApps", new HashSet<>());
         PackageManager packageManager = context.getPackageManager();
-        @SuppressLint("QueryPermissionsNeeded") List<ApplicationInfo> packages = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
-        List<AppInfo> appList = new ArrayList<>(packages.size());
+        @SuppressLint("QueryPermissionsNeeded") 
+        List<android.content.pm.PackageInfo> packages = packageManager.getInstalledPackages(PackageManager.GET_PERMISSIONS | PackageManager.GET_META_DATA);
+        List<AppInfo> tempAppList = new ArrayList<>();
 
-        for (ApplicationInfo packageInfo : packages) {
-            if (!shouldShowSystemApps && (packageInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0) continue;
+        for (android.content.pm.PackageInfo packageInfo : packages) {
+            // Hide self
             if (packageInfo.packageName.equals(context.getPackageName())) continue;
 
-            appList.add(new AppInfo(
-                    packageInfo.loadLabel(packageManager).toString(),
-                    () -> packageInfo.loadIcon(packageManager),
+            boolean isSelected = selectedApps.contains(packageInfo.packageName);
+
+            // Filter System Apps: Show if (ShowSystemApps is ON) OR (App is Selected)
+            boolean isSystem = (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
+            if (isSystem && !shouldShowSystemApps && !isSelected) continue;
+
+            // Filter Internet Permission
+            boolean hasInternet = false;
+            if (packageInfo.requestedPermissions != null) {
+                for (String p : packageInfo.requestedPermissions) {
+                    if (android.Manifest.permission.INTERNET.equals(p)) {
+                        hasInternet = true;
+                        break;
+                    }
+                }
+            }
+            // If it doesn't request internet, skip it (unless it's already selected, just in case)
+            if (!hasInternet && !isSelected) continue;
+
+            tempAppList.add(new AppInfo(
+                    packageInfo.applicationInfo.loadLabel(packageManager).toString(),
+                    () -> packageInfo.applicationInfo.loadIcon(packageManager),
                     packageInfo.packageName,
-                    selectedApps.contains(packageInfo.packageName)
+                    isSelected
             ));
         }
-        return appList;
+
+        // Sort: Selected first, then Alphabetical
+        tempAppList.sort((o1, o2) -> {
+            if (o1.isSelected != o2.isSelected) {
+                return o1.isSelected ? -1 : 1;
+            }
+            return o1.appName.compareToIgnoreCase(o2.appName);
+        });
+
+        return tempAppList;
     }
 
     public void setShouldShowSystemApps(Context context, boolean shouldShowSystemApps) {

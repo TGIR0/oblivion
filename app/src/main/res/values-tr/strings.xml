@@ -63,6 +63,8 @@
     <string name="start_logging_here">Günlüğü burada başlatın…</string>
     <string name="getting_isp">ISP alınıyor…</string>
     <string name="back">Geri</string>
+    <string name="permission_denied_vpn">VPN başlatma izni reddedildi</string>
+    <string name="press_back_again">Çıkmak için tekrar geri tuşuna basın</string>
     <string-array name="countries">
         <item>Avustralya</item>
         <item>Avusturya</item>

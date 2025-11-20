@@ -63,6 +63,8 @@
     <string name="start_logging_here">Начните вести журнал здесь…</string>
     <string name="getting_isp">Получение ISP…</string>
     <string name="back">Назад</string>
+    <string name="permission_denied_vpn">В разрешении на запуск VPN отказано</string>
+    <string name="press_back_again">Нажмите назад еще раз для выхода</string>
     <string-array name="countries">
         <item>Австралия</item>
         <item>Австрия</item>
