@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = 'org.bepass.oblivion'
-    compileSdk = 35
+    compileSdk = 36
     ndkVersion = "29.0.14206865"
     defaultConfig {
         applicationId = "org.bepass.oblivion"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 18
         versionName = "8"
 
@@ -19,35 +19,48 @@ android {
             useSupportLibrary = true
         }
     }
+
+    signingConfigs {
+        release {
+            storeFile file("release.keystore")
+            storePassword "password"
+            keyAlias "key0"
+            keyPassword "password"
+        }
+    }
+
     androidResources {
         generateLocaleConfig = true
     }
     buildFeatures {
         //noinspection DataBindingWithoutKapt
         dataBinding = true
+        buildConfig = true
     }
 
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled = true
+            shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            // signingConfig signingConfigs.debug // SECURITY: Do not use debug keys for release. Configure a proper release keystore.
+            signingConfig = signingConfigs.release
         }
     }
+
+
     compileOptions {
         // Bytecode level for Java
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_25
+        targetCompatibility = JavaVersion.VERSION_25
     }
     kotlinOptions {
         // Bytecode level for Kotlin (must match Java)
-        jvmTarget = '17'
+        jvmTarget = '25'
     }
     java {
         toolchain {
             // JDK used to run the compiler (you can point this to JDK 25 on your system)
-            languageVersion.set(JavaLanguageVersion.of(17))
+            languageVersion.set(JavaLanguageVersion.of(25))
         }
     }
     packagingOptions {
@@ -55,6 +68,14 @@ android {
     }
     lint {
         baseline = file("lint-baseline.xml")
+    }
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.outputs.each { output ->
+            output.outputFileName.set("Oblivion.apk")
+        }
     }
 }
 
@@ -67,22 +88,22 @@ configurations {
     configureEach {
         exclude group: 'org.json', module: 'json'
         resolutionStrategy {
-            force 'androidx.core:core:1.15.0'
-            force 'androidx.core:core-ktx:1.15.0'
+            force 'androidx.core:core:1.17.0'
+            force 'androidx.core:core-ktx:1.17.0'
         }
     }
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'com.google.android.material:material:1.14.0-alpha06'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
-    implementation 'com.github.bumptech.glide:glide:4.16.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'com.github.bumptech.glide:glide:5.0.5'
+    annotationProcessor 'com.github.bumptech.glide:compiler:5.0.5'
+    implementation 'com.squareup.okhttp3:okhttp:5.3.2'
     implementation 'com.github.erfansn:locale-config-x:1.1.0'
-    implementation 'com.tencent:mmkv:2.0.2'
+    implementation 'com.tencent:mmkv:2.2.4'
     implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'])
 }
 
@@ -113,7 +134,7 @@ tasks.register("buildTun2SocksAar", Exec) {
     commandLine goExec, "run", "golang.org/x/mobile/cmd/gomobile", "bind",
             "-ldflags=-w -s",
             "-target=android",
-            "-androidapi=$android.defaultConfig.minSdk",  // Updated to minSdk 24
+            "-androidapi=$android.defaultConfig.minSdk",
             "-o=${tun2socksAar.absolutePath}", "."
 
     dependsOn(preBuildTun2SocksAar)

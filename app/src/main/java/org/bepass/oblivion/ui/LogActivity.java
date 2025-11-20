@@ -107,14 +107,14 @@ public class LogActivity extends BaseActivity<ActivityLogBinding> {
             String line;
 
             while ((line = reader.readLine()) != null) {
-                int color = Color.BLACK; // Default Info - Changed to BLACK for visibility on light theme
+                int color = getColor(R.color.log_info);
                 String lower = line.toLowerCase(java.util.Locale.ROOT);
                 if (lower.contains("error") || lower.contains("fail") || lower.contains("[e]")) {
-                    color = Color.RED;
+                    color = getColor(R.color.log_error);
                 } else if (lower.contains("warn") || lower.contains("[w]")) {
-                    color = Color.parseColor("#FFA500"); // Orange for warning
+                    color = getColor(R.color.log_warn);
                 } else if (lower.contains("debug") || lower.contains("[d]")) {
-                     color = Color.DKGRAY;
+                     color = getColor(R.color.log_debug);
                 }
                 
                 int start = sb.length();

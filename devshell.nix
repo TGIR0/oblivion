@@ -8,7 +8,7 @@ with pkgs;
 devshell.mkShell {
   name = "oblivion";
   motd = ''
-    Entered the Android app development environment.
+    Entered the Android 16 (Baklava) app development environment.
   '';
   env = [
     {
@@ -21,7 +21,7 @@ devshell.mkShell {
     }
     {
       name = "JAVA_HOME";
-      value = jdk11.home;
+      value = jdk25.home;
     }
     {
       name = "GOBIN";
@@ -36,7 +36,9 @@ devshell.mkShell {
     android-studio
     android-sdk
     gradle
-    jdk11
-    go_1_22
+    jdk25
+    go_1_25
+    cmake
+    ninja
   ];
 }

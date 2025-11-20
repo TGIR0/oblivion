@@ -42,4 +42,11 @@
     <color name="md_theme_inverseSurface">#1c202c</color>
     <color name="md_theme_inverseOnSurface">#ffffffff</color>
     <color name="md_theme_inversePrimary">#ffa200</color>
+    
+    <!-- Log Terminal Colors (Light Theme) -->
+    <color name="log_background">#FFFFFF</color> <!-- Unused now, but kept for ref -->
+    <color name="log_info">#000000</color>      <!-- Black text on white bg -->
+    <color name="log_debug">#455A64</color>     <!-- Dark Blue Grey -->
+    <color name="log_warn">#EF6C00</color>      <!-- Dark Orange -->
+    <color name="log_error">#C62828</color>     <!-- Dark Red -->
 </resources>
