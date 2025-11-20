@@ -2,77 +2,108 @@ package org.bepass.oblivion.utils
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.PowerManager
 import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
-import androidx.core.net.toUri
-import androidx.databinding.DataBindingUtil
+import androidx.core.content.ContextCompat
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.bepass.oblivion.R
 import org.bepass.oblivion.databinding.DialogBatteryOptimizationBinding
 
+private const val TAG = "BatteryOptimization"
+
 /**
- * Checks if the app is running in restricted background mode.
- * Returns true if running in restricted mode, false otherwise.
+ * Checks if the app is subject to battery optimizations (Background restrictions).
+ *
+ * @return true if the app is optimized (restricted), false if it is whitelisted (unrestricted).
  */
 fun isBatteryOptimizationEnabled(context: Context): Boolean {
-    val powerManager = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
+    val powerManager = ContextCompat.getSystemService(context, PowerManager::class.java)
+    // isIgnoringBatteryOptimizations returns TRUE if the app is on the whitelist.
+    // We return TRUE if optimization is ENABLED (meaning NOT on the whitelist).
     return powerManager?.isIgnoringBatteryOptimizations(context.packageName) == false
 }
 
 /**
- * Directly requests to ignore battery optimizations for the app.
+ * Requests the system to ignore battery optimizations for this app.
+ * Implements a fallback mechanism for devices that block the direct request intent.
  */
 @SuppressLint("BatteryLife")
 fun requestIgnoreBatteryOptimizations(context: Context) {
-    val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-    if (!pm.isIgnoringBatteryOptimizations(context.packageName)) {
-        val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-            data = "package:${context.packageName}".toUri()
-        }
-        // Check if context is an Activity
-        if (context is Activity) {
-            context.startActivityForResult(intent, 0) // Consider using a valid request code
-        } else {
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    val packageName = context.packageName
+    val powerManager = ContextCompat.getSystemService(context, PowerManager::class.java)
+
+    if (powerManager != null && !powerManager.isIgnoringBatteryOptimizations(packageName)) {
+        try {
+            // Method 1: Try the direct system dialog (Requires REQUEST_IGNORE_BATTERY_OPTIMIZATIONS permission)
+            val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                data = Uri.parse("package:$packageName")
+                if (context !is Activity) {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+            }
             context.startActivity(intent)
+        } catch (e: Exception) {
+            Log.e(TAG, "Direct battery optimization request failed. Trying fallback.", e)
+            
+            // Method 2: Fallback to the general list of apps
+            try {
+                val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS).apply {
+                    if (context !is Activity) {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                }
+                context.startActivity(intent)
+            } catch (ex: ActivityNotFoundException) {
+                Log.e(TAG, "Battery optimization settings not found.", ex)
+            }
         }
     }
 }
 
-
 /**
- * Shows a dialog explaining the need for disabling battery optimization and navigates to the app's settings.
+ * Shows a Material Design dialog explaining why the user needs to disable battery optimization.
+ * Handles activity lifecycle states to prevent window leaks.
  */
 fun showBatteryOptimizationDialog(context: Context) {
-    // Inflate the dialog layout using Data Binding
-    val binding: DialogBatteryOptimizationBinding = DataBindingUtil.inflate(
-        LayoutInflater.from(context),
-        R.layout.dialog_battery_optimization,
-        null,
-        false
-    )
-
-    val dialog = AlertDialog.Builder(context)
-        .setView(binding.root)
-        .create()
-
-    // Set dialog title and message
-    binding.dialogTitle.text = context.getString(R.string.batteryOpL)
-    binding.dialogMessage.text = context.getString(R.string.dialBtText)
-
-    // Set positive button action
-    binding.dialogButtonPositive.setOnClickListener {
-        requestIgnoreBatteryOptimizations(context)
-        dialog.dismiss()
+    // Prevent dialog showing if context is a finishing activity (Memory Leak Protection)
+    if (context is Activity && (context.isFinishing || context.isDestroyed)) {
+        return
     }
 
-    // Set negative button action
-    binding.dialogButtonNegative.setOnClickListener {
-        dialog.dismiss()
-    }
+    try {
+        val inflater = LayoutInflater.from(context)
+        val binding = DialogBatteryOptimizationBinding.inflate(inflater)
 
-    dialog.show()
+        // Set localized texts
+        binding.dialogTitle.text = context.getString(R.string.batteryOpL)
+        binding.dialogMessage.text = context.getString(R.string.dialBtText)
+
+        val dialog = MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_Material3_MaterialAlertDialog_Centered)
+            .setView(binding.root)
+            .setCancelable(true)
+            .create()
+
+        // Apply transparency to the dialog window background if using custom rounded corners in XML
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        binding.dialogButtonPositive.setOnClickListener {
+            requestIgnoreBatteryOptimizations(context)
+            dialog.dismiss()
+        }
+
+        binding.dialogButtonNegative.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+
+    } catch (e: Exception) {
+        Log.e(TAG, "Error showing battery optimization dialog", e)
+    }
 }

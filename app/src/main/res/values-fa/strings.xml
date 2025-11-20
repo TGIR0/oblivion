@@ -63,6 +63,8 @@
     <string name="start_logging_here">از اینجا شروع به ثبت لاگ کنید…</string>
     <string name="getting_isp">در حال دریافت ISP…</string>
     <string name="back">بازگشت</string>
+    <string name="permission_denied_vpn">مجوز ایجاد VPN رد شد</string>
+    <string name="press_back_again">برای خروج، دوباره بازگشت را فشار دهید</string>
     <string-array name="countries">
         <item>استرالیا</item>
         <item>اتریش</item>

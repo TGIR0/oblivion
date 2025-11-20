@@ -1,12 +1,16 @@
 package org.bepass.oblivion.component;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.HapticFeedbackConstants;
 
 import com.google.android.material.materialswitch.MaterialSwitch;
 
 public class TouchAwareSwitch extends MaterialSwitch {
+
+    private OnCheckedChangeListener mListener;
+    // پرچم برای تشخیص تغییرات سیستمی از تغییرات کاربر
+    private boolean isProgrammaticChange = false;
 
     public TouchAwareSwitch(Context context) {
         super(context);
@@ -20,20 +24,46 @@ public class TouchAwareSwitch extends MaterialSwitch {
         super(context, attrs, defStyleAttr);
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     @Override
-    public void setOnCheckedChangeListener(final OnCheckedChangeListener listener) {
-        setOnTouchListener((v, event) -> {
-            setTag(null);
-            return false;
-        });
-
-        super.setOnCheckedChangeListener((view, isChecked) -> {
-            if (getTag() != null) {
-                setTag(null);
-                return;
+    public void setOnCheckedChangeListener(OnCheckedChangeListener listener) {
+        // نگه داشتن رفرنس لیسنر برای مدیریت داخلی
+        this.mListener = listener;
+        super.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (mListener != null) {
+                // اگر تغییر توسط متد setChecked(..., false) انجام شده باشد، لیسنر صدا زده نمی‌شود
+                if (!isProgrammaticChange) {
+                    mListener.onCheckedChanged(buttonView, isChecked);
+                    // اضافه کردن ویبره ریز هنگام تاچ کاربر (تجربه کاربری بهتر)
+                    if (isChecked) {
+                        performHapticFeedback(HapticFeedbackConstants.CONFIRM);
+                    } else {
+                        performHapticFeedback(HapticFeedbackConstants.REJECT);
+                    }
+                }
             }
-            listener.onCheckedChanged(view, isChecked);
         });
+    }
+
+    /**
+     * تغییر وضعیت سوییچ با قابلیت کنترل فراخوانی لیسنر
+     *
+     * @param checked وضعیت جدید (روشن/خاموش)
+     * @param notifyListener آیا لیسنر با این تغییر صدا زده شود؟
+     */
+    public void setChecked(boolean checked, boolean notifyListener) {
+        if (notifyListener) {
+            isProgrammaticChange = false;
+            super.setChecked(checked);
+        } else {
+            isProgrammaticChange = true;
+            super.setChecked(checked);
+            isProgrammaticChange = false;
+        }
+    }
+
+    @Override
+    public void setChecked(boolean checked) {
+        // رفتار پیش‌فرض: لیسنر صدا زده می‌شود
+        super.setChecked(checked);
     }
 }

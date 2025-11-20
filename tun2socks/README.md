@@ -2,10 +2,10 @@
 
 ## Requirements
 
-- Go 1.22.x (MUST be exactly 1.22 due to Psiphon dependency)
+- Go 1.25.x or newer (tested with Go 1.25.3)
 - Android NDK r26b (26.1.10909125)
 - Android SDK installed and available in environment (ANDROID_SDK_ROOT/ANDROID_HOME)
-- JDK 17
+- JDK 25
 
 ## Option A: Build via Gradle (recommended)
 

@@ -350,12 +350,7 @@ public class OblivionVpnService extends VpnService {
     }
 
     private void stopForegroundService() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            stopForeground(STOP_FOREGROUND_REMOVE);
-        } else {
-            //noinspection deprecation
-            stopForeground(true);
-        }
+        stopForeground(STOP_FOREGROUND_REMOVE);
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {
             notificationManager.cancel(1);
@@ -411,7 +406,7 @@ public class OblivionVpnService extends VpnService {
         if (wLock == null) {
             wLock = ((PowerManager) getSystemService(Context.POWER_SERVICE)).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "oblivion:vpn");
             wLock.setReferenceCounted(false);
-            wLock.acquire();
+            wLock.acquire(10*60*1000L /*10 minutes*/);
             final PowerManager.WakeLock wakeLockRef = wLock;
             handler.postDelayed(() -> {
                 if (wakeLockRef != null && wakeLockRef.isHeld()) {

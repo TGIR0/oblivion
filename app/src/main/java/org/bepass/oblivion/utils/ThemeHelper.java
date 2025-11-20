@@ -1,19 +1,20 @@
 package org.bepass.oblivion.utils;
 
-import android.app.Activity;
-import android.content.Context;
 import android.view.View;
-import android.util.TypedValue;
 
 import androidx.appcompat.app.AppCompatDelegate;
 
 public class ThemeHelper {
+
+    public void updateActivityBackground(View root) {
+    }
 
     public enum Theme {
         LIGHT(AppCompatDelegate.MODE_NIGHT_NO),
         DARK(AppCompatDelegate.MODE_NIGHT_YES),
         FOLLOW_SYSTEM(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM),
         UNSPECIFIED(AppCompatDelegate.MODE_NIGHT_UNSPECIFIED),
+        // Note: AUTO_BATTERY is deprecated in API 31+, treated as FOLLOW_SYSTEM usually
         AUTO_BATTERY(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);
 
         private final int nightMode;
@@ -33,26 +34,36 @@ public class ThemeHelper {
                     return theme;
                 }
             }
-            return LIGHT; // Default to LIGHT if not found
+            return FOLLOW_SYSTEM; // Default safe fallback
         }
     }
 
-    private static ThemeHelper instance;
-    private Theme currentTheme = Theme.LIGHT;
+    private static volatile ThemeHelper instance;
+    private Theme currentTheme = Theme.FOLLOW_SYSTEM;
 
     private ThemeHelper() {
+        // Private constructor for Singleton
     }
 
-    public static synchronized ThemeHelper getInstance() {
+    public static ThemeHelper getInstance() {
         if (instance == null) {
-            instance = new ThemeHelper();
+            synchronized (ThemeHelper.class) {
+                if (instance == null) {
+                    instance = new ThemeHelper();
+                }
+            }
         }
         return instance;
     }
 
     public void init() {
         int themeMode = FileManager.getInt(FileManager.KeyHolder.DARK_MODE);
-        currentTheme = Theme.fromNightMode(themeMode);
+        // If key doesn't exist or returns invalid, default to FOLLOW_SYSTEM
+        if (themeMode == -1) {
+            currentTheme = Theme.FOLLOW_SYSTEM;
+        } else {
+            currentTheme = Theme.fromNightMode(themeMode);
+        }
         applyTheme();
     }
 
@@ -70,36 +81,4 @@ public class ThemeHelper {
         return currentTheme;
     }
 
-    public void updateActivityBackground(View view) {
-        // Apply Material 3 colorSurface to root background
-        Context context = view.getContext();
-        int surfaceColor = getThemeColor(context, com.google.android.material.R.attr.colorSurface);
-        view.setBackgroundColor(surfaceColor);
-
-        // Configure status bar based on theme
-        configureStatusBar(context instanceof Activity ? (Activity) context : null);
-    }
-
-    private int getThemeColor(Context context, int attr) {
-        TypedValue tv = new TypedValue();
-        context.getTheme().resolveAttribute(attr, tv, true);
-        return tv.data;
-    }
-
-    private void configureStatusBar(Activity activity) {
-        if (activity == null) return;
-
-        int surfaceColor = getThemeColor(activity, com.google.android.material.R.attr.colorSurface);
-        activity.getWindow().setStatusBarColor(surfaceColor);
-
-        // Determine UI visibility flags
-        int uiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-
-        if (currentTheme == Theme.LIGHT) {
-            // Set dark icons for light theme
-            uiVisibility |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
-        }
-
-        activity.getWindow().getDecorView().setSystemUiVisibility(uiVisibility);
-    }
 }

@@ -1,7 +1,5 @@
 package org.bepass.oblivion.ui;
 
-import static org.bepass.oblivion.service.OblivionVpnService.stopVpnService;
-import org.bepass.oblivion.service.OblivionVpnService;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -17,39 +15,66 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
-import org.bepass.oblivion.enums.ConnectionState;
-import org.bepass.oblivion.utils.FileManager;
-import org.bepass.oblivion.utils.LocaleHandler;
-import org.bepass.oblivion.utils.PublicIPUtils;
 import org.bepass.oblivion.R;
 import org.bepass.oblivion.base.StateAwareBaseActivity;
+import org.bepass.oblivion.component.TouchAwareSwitch;
 import org.bepass.oblivion.databinding.ActivityMainBinding;
-import org.bepass.oblivion.utils.ThemeHelper;
+import org.bepass.oblivion.enums.ConnectionState;
+import org.bepass.oblivion.service.OblivionVpnService;
+import org.bepass.oblivion.utils.FileManager;
+import org.bepass.oblivion.utils.LocaleHandler;
 import org.bepass.oblivion.utils.NetworkUtils;
+import org.bepass.oblivion.utils.PublicIPUtils;
+import org.bepass.oblivion.utils.ThemeHelper;
 
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends StateAwareBaseActivity<ActivityMainBinding> {
+
+    private static final String TAG = "MainActivity";
     private long backPressedTime;
     private Toast backToast;
     private LocaleHandler localeHandler;
     private ActivityResultLauncher<Intent> vpnPermissionLauncher;
-    public static void startVpnService(Context context, Intent intent) {
-        intent.putExtra("USERSETTING_proxymode", FileManager.getBoolean("USERSETTING_proxymode"));
-        intent.putExtra("USERSETTING_license", FileManager.getString("USERSETTING_license"));
-        intent.putExtra("USERSETTING_endpoint_type", FileManager.getInt("USERSETTING_endpoint_type"));
-        intent.putExtra("USERSETTING_gool", FileManager.getBoolean("USERSETTING_gool"));
-        intent.putExtra("USERSETTING_endpoint", FileManager.getString("USERSETTING_endpoint"));
-        intent.putExtra("USERSETTING_port", FileManager.getString("USERSETTING_port"));
-        intent.putExtra("USERSETTING_lan", FileManager.getBoolean("USERSETTING_lan"));
+    
+    // Executor for background tasks to avoid blocking Main Thread
+    private final ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
 
-        intent.setAction(OblivionVpnService.FLAG_VPN_START);
-        ContextCompat.startForegroundService(context, intent);
-    }
+    /**
+     * Static helper to start the Activity
+     */
     public static void start(Context context) {
         Intent starter = new Intent(context, MainActivity.class);
         starter.putExtra("origin", context.getClass().getSimpleName());
+        starter.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         context.startActivity(starter);
+    }
+
+    /**
+     * Starts the Foreground Service with all necessary configuration extras.
+     */
+    public static void startVpnService(Context context, Intent intent) {
+        // Fetch settings efficiently
+        boolean proxyMode = FileManager.getBoolean("USERSETTING_proxymode");
+        String license = FileManager.getString("USERSETTING_license");
+        int endpointType = FileManager.getInt("USERSETTING_endpoint_type");
+        boolean gool = FileManager.getBoolean("USERSETTING_gool");
+        String endpoint = FileManager.getString("USERSETTING_endpoint");
+        String port = FileManager.getString("USERSETTING_port");
+        boolean lan = FileManager.getBoolean("USERSETTING_lan");
+
+        intent.putExtra("USERSETTING_proxymode", proxyMode);
+        intent.putExtra("USERSETTING_license", license);
+        intent.putExtra("USERSETTING_endpoint_type", endpointType);
+        intent.putExtra("USERSETTING_gool", gool);
+        intent.putExtra("USERSETTING_endpoint", endpoint);
+        intent.putExtra("USERSETTING_port", port);
+        intent.putExtra("USERSETTING_lan", lan);
+
+        intent.setAction(OblivionVpnService.FLAG_VPN_START);
+        ContextCompat.startForegroundService(context, intent);
     }
 
     @Override
@@ -66,31 +91,58 @@ public class MainActivity extends StateAwareBaseActivity<ActivityMainBinding> {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Initialize Utilities
         localeHandler = new LocaleHandler(this);
         ThemeHelper.getInstance().updateActivityBackground(binding.getRoot());
-        FileManager.cleanOrMigrateSettings(this);
+
+        // Perform heavy file operations in background
+        backgroundExecutor.execute(() -> FileManager.cleanOrMigrateSettings(getApplicationContext()));
+
         setupUI();
         setupVPNConnection();
         requestNotificationPermission();
         handleBackPress();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (backgroundExecutor != null && !backgroundExecutor.isShutdown()) {
+            backgroundExecutor.shutdown();
+        }
+    }
+
     private void setupVPNConnection() {
         vpnPermissionLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(), result -> {
                     if (result.getResultCode() == RESULT_OK) {
-                        handleVpnSwitch(binding.switchButton.isChecked());
+                        handleVpnSwitch(true);
                     } else {
-                        Toast.makeText(this, "Permission required to start VPN", Toast.LENGTH_LONG).show();
-                        binding.switchButton.setChecked(false);
+                        Toast.makeText(this, R.string.permission_denied_vpn, Toast.LENGTH_LONG).show();
+                        // Programmatically uncheck without triggering listener to avoid loop
+                        safeUpdateSwitch(false);
                     }
                 });
 
         binding.switchButton.setOnCheckedChangeListener((view, isChecked) -> handleVpnSwitch(isChecked));
     }
 
+    /**
+     * Safely updates the switch state without triggering the OnCheckedChangeListener.
+     * Relies on the custom logic implemented in TouchAwareSwitch.
+     */
+    private void safeUpdateSwitch(boolean isChecked) {
+        if (binding.switchButton instanceof TouchAwareSwitch) {
+            ((TouchAwareSwitch) binding.switchButton).setChecked(isChecked, false);
+        } else {
+            // Fallback for standard switch (though layout uses TouchAwareSwitch)
+            binding.switchButton.setChecked(isChecked);
+        }
+    }
+
     private void handleVpnSwitch(boolean enableVpn) {
-        FileManager.initialize(this);
+        // Initialize FileManager if not already done (failsafe)
+        FileManager.initialize(getApplicationContext());
 
         if (enableVpn) {
             if (lastKnownConnectionState.isDisconnected()) {
@@ -101,22 +153,16 @@ public class MainActivity extends StateAwareBaseActivity<ActivityMainBinding> {
                     vpnIntent = new Intent(this, OblivionVpnService.class);
                     startVpnService(this, vpnIntent);
                 }
+                // Basic network monitoring
                 NetworkUtils.monitorInternetConnection(lastKnownConnectionState, this);
             } else if (lastKnownConnectionState.isConnecting()) {
-                stopVpnService(this);
+                OblivionVpnService.stopVpnService(this);
             }
         } else {
             if (!lastKnownConnectionState.isDisconnected()) {
-                stopVpnService(this);
+                OblivionVpnService.stopVpnService(this);
             }
         }
-
-        refreshUI(); // Force refresh of the UI after VPN state changes
-    }
-    private void refreshUI() {
-        // This will force a refresh of the UI based on the current data bindings
-        binding.invalidateAll();
-        binding.executePendingBindings();
     }
 
     private void handleBackPress() {
@@ -128,7 +174,7 @@ public class MainActivity extends StateAwareBaseActivity<ActivityMainBinding> {
                     finish();
                 } else {
                     if (backToast != null) backToast.cancel();
-                    backToast = Toast.makeText(MainActivity.this, "برای خروج، دوباره بازگشت را فشار دهید.", Toast.LENGTH_SHORT);
+                    backToast = Toast.makeText(MainActivity.this, R.string.press_back_again, Toast.LENGTH_SHORT);
                     backToast.show();
                 }
                 backPressedTime = System.currentTimeMillis();
@@ -141,7 +187,8 @@ public class MainActivity extends StateAwareBaseActivity<ActivityMainBinding> {
             ActivityResultLauncher<String> pushNotificationPermissionLauncher = registerForActivityResult(
                     new ActivityResultContracts.RequestPermission(), isGranted -> {
                         if (!isGranted) {
-                            Toast.makeText(this, "Permission denied", Toast.LENGTH_LONG).show();
+                            // Optionally show a rationale dialog here
+                            Log.w(TAG, "Notification permission denied");
                         }
                     });
             pushNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
@@ -153,7 +200,14 @@ public class MainActivity extends StateAwareBaseActivity<ActivityMainBinding> {
         binding.infoIcon.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, InfoActivity.class)));
         binding.bugIcon.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, LogActivity.class)));
         binding.settingIcon.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, SettingsActivity.class)));
-        binding.switchButtonFrame.setOnClickListener(v -> binding.switchButton.toggle());
+        
+        // Using TouchAwareSwitch's own logic, we don't need manual toggle on frame click 
+        // if the frame passes touch events correctly, but keeping it for larger touch area:
+        binding.switchButtonFrame.setOnClickListener(v -> {
+            if (!binding.switchButton.isEnabled()) return;
+            boolean newState = !binding.switchButton.isChecked();
+            binding.switchButton.setChecked(newState); // This triggers listener
+        });
     }
 
     @NonNull
@@ -166,67 +220,96 @@ public class MainActivity extends StateAwareBaseActivity<ActivityMainBinding> {
     protected void onResume() {
         super.onResume();
         observeConnectionStatus();
+        // Refresh IP visibility in case connection dropped while paused
+        if (lastKnownConnectionState.isDisconnected()) {
+            binding.publicIP.setVisibility(View.GONE);
+            binding.ipProgressBar.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public void onConnectionStateChange(ConnectionState state) {
         runOnUiThread(() -> {
-            Log.d("MainActivity", "Connection state changed to: " + state);
-            switch (state) {
-                case DISCONNECTED:
-                    updateUIForDisconnectedState();
-                    break;
-                case CONNECTING:
-                    updateUIForConnectingState();
-                    break;
-                case CONNECTED:
-                    updateUIForConnectedState();
-                    break;
-            }
-            refreshUI(); // Refresh UI whenever the connection state changes
+            Log.d(TAG, "Connection state changed to: " + state);
+            updateUI(state);
         });
     }
 
-    private void updateUIForDisconnectedState() {
-        binding.publicIP.setVisibility(View.GONE);
-        binding.stateText.setText(R.string.notConnected);
+    /**
+     * Centralized UI update logic based on connection state.
+     */
+    private void updateUI(ConnectionState state) {
+        switch (state) {
+            case DISCONNECTED:
+                binding.publicIP.setVisibility(View.GONE);
+                binding.stateText.setText(R.string.notConnected);
+                binding.ipProgressBar.setVisibility(View.GONE);
+                binding.switchButton.setEnabled(true);
+                safeUpdateSwitch(false);
+                break;
+
+            case CONNECTING:
+                binding.stateText.setText(R.string.connecting);
+                binding.publicIP.setVisibility(View.GONE);
+                binding.ipProgressBar.setVisibility(View.VISIBLE);
+                binding.switchButton.setEnabled(true);
+                safeUpdateSwitch(true);
+                break;
+
+            case CONNECTED:
+                handleConnectedStateUI();
+                break;
+        }
+    }
+
+    private void handleConnectedStateUI() {
+        binding.switchButton.setEnabled(true);
+        safeUpdateSwitch(true);
         binding.ipProgressBar.setVisibility(View.GONE);
-        binding.switchButton.setEnabled(true);
-        binding.switchButton.setChecked(false);
-    }
 
-    private void updateUIForConnectingState() {
-        binding.stateText.setText(R.string.connecting);
-        binding.publicIP.setVisibility(View.GONE);
-        binding.ipProgressBar.setVisibility(View.VISIBLE);
-        binding.switchButton.setChecked(true);
-        binding.switchButton.setEnabled(true);
-    }
-
-    private void updateUIForConnectedState() {
-        binding.switchButton.setEnabled(true);
-        if (FileManager.getBoolean("USERSETTING_proxymode")) {
-            if (FileManager.getBoolean("USERSETTING_lan")) {
-                String lanIP;
+        // Handle Text Description
+        boolean isProxy = FileManager.getBoolean("USERSETTING_proxymode");
+        String port = FileManager.getString("USERSETTING_port");
+        
+        if (isProxy) {
+            boolean isLan = FileManager.getBoolean("USERSETTING_lan");
+            String ip = "127.0.0.1";
+            String modeText = "socks5";
+            
+            if (isLan) {
                 try {
-                    lanIP = NetworkUtils.getLocalIpAddress(this);
-                    binding.stateText.setText(String.format(Locale.getDefault(), "%s\n socks5 over LAN on\n %s:%s", getString(R.string.connected), lanIP, FileManager.getString("USERSETTING_port")));
+                    ip = NetworkUtils.getLocalIpAddress(this);
+                    modeText = "socks5 over LAN";
                 } catch (Exception e) {
-                    binding.stateText.setText(String.format(Locale.getDefault(), "%s\n socks5 over LAN on\n 0.0.0.0:%s", getString(R.string.connected), FileManager.getString("USERSETTING_port")));
+                    ip = "0.0.0.0";
                 }
-            } else {
-                binding.stateText.setText(String.format(Locale.getDefault(), "%s\nsocks5 on 127.0.0.1:%s", getString(R.string.connected), FileManager.getString("USERSETTING_port")));
             }
+            
+            binding.stateText.setText(String.format(Locale.getDefault(), 
+                    "%s\n%s on %s:%s", 
+                    getString(R.string.connected), modeText, ip, port));
         } else {
             binding.stateText.setText(R.string.connected);
         }
-        binding.switchButton.setChecked(true);
-        binding.ipProgressBar.setVisibility(View.GONE);
-        PublicIPUtils.getInstance().getIPDetails((details) -> runOnUiThread(() -> { // Ensure UI updates are done on the main thread
+
+        // Fetch and Show Public IP
+        fetchPublicIP();
+    }
+
+    private void fetchPublicIP() {
+        binding.ipProgressBar.setVisibility(View.VISIBLE);
+        PublicIPUtils.getInstance().getIPDetails(details -> runOnUiThread(() -> {
+            // Lifecycle check to prevent crash
+            if (isFinishing() || isDestroyed()) return;
+
+            binding.ipProgressBar.setVisibility(View.GONE);
             if (details.ip != null) {
-                String ipString = details.ip + " " + details.flag;
-                binding.publicIP.setText(ipString);
+                String ipInfo = details.ip + " " + (details.flag != null ? details.flag : "");
+                binding.publicIP.setText(ipInfo);
                 binding.publicIP.setVisibility(View.VISIBLE);
+            } else {
+                // Optional: Handle error state or leave hidden
+                binding.publicIP.setVisibility(View.INVISIBLE);
             }
         }));
     }

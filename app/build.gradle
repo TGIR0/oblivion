@@ -86,10 +86,9 @@ static def findGoExecutable() {
     return isWindows ? "go.exe" : "go"
 }
 
-
 def goExec = findGoExecutable()
-
-def tun2socksAar = file("$projectDir/libs/tun2socks.aar")
+def libsDir = file("libs")
+def tun2socksAar = file("libs/tun2socks.aar")
 
 tasks.register("preBuildTun2SocksAar", Exec) {
     workingDir "../tun2socks"
@@ -99,9 +98,8 @@ tasks.register("preBuildTun2SocksAar", Exec) {
 
 tasks.register("buildTun2SocksAar", Exec) {
     doFirst {
-        File myDir = new File("$projectDir/libs")
-        if (!myDir.exists()) {
-            myDir.mkdirs()
+        if (!libsDir.exists()) {
+            libsDir.mkdirs()
         }
     }
 
@@ -111,7 +109,7 @@ tasks.register("buildTun2SocksAar", Exec) {
             "-ldflags=-w -s",
             "-target=android",
             "-androidapi=$android.defaultConfig.minSdk",  // Updated to minSdk 24
-            "-o=$projectDir/libs/tun2socks.aar", "."
+            "-o=${tun2socksAar.absolutePath}", "."
 
     dependsOn(preBuildTun2SocksAar)
 }
