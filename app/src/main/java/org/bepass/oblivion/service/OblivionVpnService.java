@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.net.VpnService;
 import android.os.Build;
 import android.os.Bundle;
@@ -387,7 +388,11 @@ public class OblivionVpnService extends VpnService {
             try {
                 Log.i(TAG, "Create Notification");
                 createNotification();
-                startForeground(1, notification);
+                if (Build.VERSION.SDK_INT >= 34) {
+                    startForeground(1, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+                } else {
+                    startForeground(1, notification);
+                }
                 configure();
                 // Waiting for logs to confirm connection...
 
@@ -586,6 +591,8 @@ public class OblivionVpnService extends VpnService {
         Runnable configureTask = () -> {
             try {
                 if(serviceIntent != null) {
+                    // Clear any stale logs from previous sessions
+                    Tun2socks.getLogMessages();
                     boolean proxyModeEnabled = serviceIntent.getBooleanExtra("USERSETTING_proxymode",false);
                     if (proxyModeEnabled) {
                         // Proxy mode logic
