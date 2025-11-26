@@ -18,8 +18,8 @@ jobs:
       CGO_ENABLED: 1
 
     steps:
-      - name: Checkout Codebase
-        uses: actions/checkout@v4
+      - name: Checkout codebase
+        uses: actions/checkout@v6
 
       - name: Setup Go
         uses: actions/setup-go@v5
