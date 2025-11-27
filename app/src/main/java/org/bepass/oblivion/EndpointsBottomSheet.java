@@ -101,12 +101,13 @@ public class EndpointsBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void loadEndpoints() {
-        // Always add Auto Scan as the first option
-        endpointsList.add(new Endpoint("Auto Scan (Best Ping)", ""));
+        // Add suggested endpoints for Iran
+        endpointsList.add(new Endpoint("Suggested Endpoint (Best for Iran)", ""));
+        endpointsList.add(new Endpoint("Masque (HTTP/3) Endpoint", "engage.cloudflareclient.com:443"));
+        endpointsList.add(new Endpoint("IPv6 Endpoint", "[2606:4700:d0::a29f:c001]:2408"));
 
         Set<String> savedEndpoints = FileManager.getStringSet("saved_endpoints", new HashSet<>());
         if (savedEndpoints.isEmpty()) {
-             // Add Default if nothing saved
              endpointsList.add(new Endpoint("Default", "engage.cloudflareclient.com:2408"));
         }
         for (String endpoint : savedEndpoints) {

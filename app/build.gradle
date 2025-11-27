@@ -53,10 +53,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_25
         targetCompatibility = JavaVersion.VERSION_25
     }
-    kotlinOptions {
-        // Bytecode level for Kotlin (must match Java)
-        jvmTarget = '25'
-    }
     java {
         toolchain {
             // JDK used to run the compiler (you can point this to JDK 25 on your system)
@@ -68,6 +64,12 @@ android {
     }
     lint {
         baseline = file("lint-baseline.xml")
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_25
     }
 }
 

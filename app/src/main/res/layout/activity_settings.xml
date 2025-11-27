@@ -116,6 +116,124 @@
               android:background="?attr/colorOutlineVariant" />
         </LinearLayout>
         <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:gravity="center"
+            android:orientation="vertical">
+
+          <View
+              android:layout_width="match_parent"
+              android:layout_height="1dp"
+              android:background="?attr/colorOutlineVariant" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/region_layout"
+            android:layout_width="match_parent"
+            android:paddingHorizontal="16dp"
+            android:background="?selectableItemBackground"
+            android:layout_height="80dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:focusable="true"
+            android:nextFocusDown="@id/dns_layout">
+          <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:gravity="end">
+
+            <Spinner
+                android:id="@+id/region_spinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:focusable="true"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/shabnam"
+                android:minWidth="100dp"
+                android:text="@string/regionText"
+                android:textAlignment="viewEnd"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp" />
+
+          </LinearLayout>
+
+          <TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="4dp"
+              android:fontFamily="@font/shabnam"
+              android:text="@string/regionTextDesc"
+              android:textColor="?attr/colorOnSurfaceVariant"
+              android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:gravity="center"
+            android:orientation="vertical">
+
+          <View
+              android:layout_width="match_parent"
+              android:layout_height="1dp"
+              android:background="?attr/colorOutlineVariant" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/dns_layout"
+            android:layout_width="match_parent"
+            android:paddingHorizontal="16dp"
+            android:background="?selectableItemBackground"
+            android:layout_height="80dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:focusable="true"
+            android:nextFocusDown="@id/endpoint_type_layout">
+
+          <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:gravity="end">
+
+            <TextView
+                android:id="@+id/dns"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:fontFamily="@font/shabnammedium"
+                android:text="1.1.1.1"
+                android:textColor="?attr/colorPrimary"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textSize="20sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/shabnam"
+                android:minWidth="100dp"
+                android:text="@string/dnsText"
+                android:textAlignment="viewEnd"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp" />
+
+          </LinearLayout>
+
+          <TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="4dp"
+              android:fontFamily="@font/shabnam"
+              android:text="@string/dnsTextDesc"
+              android:textColor="?attr/colorOnSurfaceVariant"
+              android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/endpoint_type_layout"
             android:layout_width="match_parent"
             android:paddingHorizontal="16dp"
@@ -595,6 +713,60 @@
               android:layout_width="match_parent"
               android:layout_height="1dp"
               android:background="?attr/colorOutlineVariant" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/masque_layout"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:gravity="center"
+            android:paddingHorizontal="16dp"
+            android:background="?selectableItemBackground"
+            android:orientation="vertical"
+            android:focusable="true"
+            android:nextFocusUp="@id/gool_layout">
+
+          <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2">
+
+              <com.google.android.material.checkbox.MaterialCheckBox
+                  android:id="@+id/masque"
+                  android:layout_width="50dp"
+                  android:layout_height="38dp"
+                  android:layout_marginStart="10dp"
+                  app:useMaterialThemeColors="true"
+                  android:scaleX="1.5"
+                  android:scaleY="1.5"
+                  android:translationX="5dp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/shabnam"
+                android:minWidth="100dp"
+                android:text="@string/masqueText"
+                android:textAlignment="viewEnd"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp" />
+
+          </LinearLayout>
+
+          <TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="4dp"
+              android:fontFamily="@font/shabnam"
+              android:text="@string/masqueTextDesc"
+              android:textColor="?attr/colorOnSurfaceVariant"
+              android:textSize="16sp" />
+
         </LinearLayout>
         <LinearLayout
             android:id="@+id/reset_app_layout"

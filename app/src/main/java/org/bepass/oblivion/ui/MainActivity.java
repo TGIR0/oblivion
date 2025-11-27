@@ -63,6 +63,10 @@ public class MainActivity extends StateAwareBaseActivity<ActivityMainBinding> {
         String endpoint = FileManager.getString("USERSETTING_endpoint");
         String port = FileManager.getString("USERSETTING_port");
         boolean lan = FileManager.getBoolean("USERSETTING_lan");
+        boolean masque = FileManager.getBoolean("USERSETTING_masque");
+        int region = FileManager.getInt("USERSETTING_region");
+        String dns = FileManager.getString("USERSETTING_dns");
+        if (dns == null || dns.isEmpty()) dns = "1.1.1.1";
 
         intent.putExtra("USERSETTING_proxymode", proxyMode);
         intent.putExtra("USERSETTING_license", license);
@@ -71,6 +75,9 @@ public class MainActivity extends StateAwareBaseActivity<ActivityMainBinding> {
         intent.putExtra("USERSETTING_endpoint", endpoint);
         intent.putExtra("USERSETTING_port", port);
         intent.putExtra("USERSETTING_lan", lan);
+        intent.putExtra("USERSETTING_masque", masque);
+        intent.putExtra("USERSETTING_region", region);
+        intent.putExtra("USERSETTING_dns", dns);
 
         intent.setAction(OblivionVpnService.FLAG_VPN_START);
         ContextCompat.startForegroundService(context, intent);

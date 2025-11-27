@@ -80,6 +80,7 @@ public class OblivionVpnService extends VpnService {
                 scheduler.execute(() -> {
                     String logMessages = Tun2socks.getLogMessages();
                     if (!logMessages.isEmpty()) {
+                        Log.d(TAG, "Tun2Socks: " + logMessages);
                         // Sync UI state with logs
                         if (logMessages.contains("handshake complete")) {
                             if (lastKnownState != ConnectionState.CONNECTED) {
@@ -396,7 +397,7 @@ public class OblivionVpnService extends VpnService {
                 configure();
                 // Waiting for logs to confirm connection...
 
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 onRevoke();
                 Log.e(TAG, "Error in start execution", e);
                 return;
@@ -602,11 +603,21 @@ public class OblivionVpnService extends VpnService {
                         so.setEndpoint(getEndpoint());
                         so.setBindAddress(bindAddress);
                         so.setLicense(Objects.requireNonNull(serviceIntent.getStringExtra("USERSETTING_license")).trim());
-                        so.setDNS("1.1.1.1");
+                        
+                        String dns = serviceIntent.getStringExtra("USERSETTING_dns");
+                        if (dns == null || dns.isEmpty()) dns = "1.1.1.1";
+                        so.setDNS(dns);
+                        
+                        int region = serviceIntent.getIntExtra("USERSETTING_region", 0);
+                        so.setRegion(region);
+
                         so.setEndpointType(serviceIntent.getIntExtra("USERSETTING_endpoint_type",0));
 
                         if (serviceIntent.getBooleanExtra("USERSETTING_gool", false)) {
                             so.setGool(true);
+                        }
+                        if (serviceIntent.getBooleanExtra("USERSETTING_masque", false)) {
+                            so.setMasque(true);
                         }
 
                         // Runtime verification logs (PROXY mode)
@@ -615,13 +626,16 @@ public class OblivionVpnService extends VpnService {
                             String endpointLog = endpointEffective.isEmpty() ? "AUTO_SCAN" : endpointEffective;
                             int endpointType = serviceIntent.getIntExtra("USERSETTING_endpoint_type", 0);
                             boolean gool = serviceIntent.getBooleanExtra("USERSETTING_gool", false);
+                            boolean masque = serviceIntent.getBooleanExtra("USERSETTING_masque", false);
                             String licenseVal = Objects.requireNonNull(serviceIntent.getStringExtra("USERSETTING_license")).trim();
                             String licenseLog = licenseVal.isEmpty() ? "(empty)" : ("len=" + licenseVal.length());
                             Log.i(TAG, "StartOptions {mode=PROXY, bindAddress=" + bindAddress
                                     + ", endpoint=" + endpointLog
                                     + ", endpointType=" + endpointType
                                     + ", gool=" + gool
-                                    + ", dns=1.1.1.1"
+                                    + ", masque=" + masque
+                                    + ", region=" + region
+                                    + ", dns=" + dns
                                     + ", license=" + licenseLog
                                     + ", path=" + getApplicationContext().getFilesDir().getAbsolutePath()
                                     + ", tunFd=-1}"
@@ -636,23 +650,35 @@ public class OblivionVpnService extends VpnService {
                         Builder builder = new Builder();
                         configureVpnBuilder(builder);
 
+                        Log.i(TAG, "Establishing VPN interface...");
                         mInterface = builder.establish();
                         if (mInterface == null)
                             throw new RuntimeException("failed to establish VPN interface");
                         Log.i(TAG, "Interface created");
 
+                        Log.i(TAG, "Creating StartOptions...");
                         StartOptions so = new StartOptions();
                         so.setPath(getApplicationContext().getFilesDir().getAbsolutePath());
                         so.setVerbose(true);
                         so.setEndpoint(getEndpoint());
                         so.setBindAddress(bindAddress);
                         so.setLicense(Objects.requireNonNull(serviceIntent.getStringExtra("USERSETTING_license")).trim());
-                        so.setDNS("1.1.1.1");
+                        
+                        String dns = serviceIntent.getStringExtra("USERSETTING_dns");
+                        if (dns == null || dns.isEmpty()) dns = "1.1.1.1";
+                        so.setDNS(dns);
+
+                        int region = serviceIntent.getIntExtra("USERSETTING_region", 0);
+                        so.setRegion(region);
+                        
                         so.setEndpointType(serviceIntent.getIntExtra("USERSETTING_endpoint_type",0));
                         so.setTunFd(mInterface.getFd());
 
                         if (serviceIntent.getBooleanExtra("USERSETTING_gool", false)) {
                             so.setGool(true);
+                        }
+                        if (serviceIntent.getBooleanExtra("USERSETTING_masque", false)) {
+                            so.setMasque(true);
                         }
 
                         // Runtime verification logs (VPN mode)
@@ -661,13 +687,16 @@ public class OblivionVpnService extends VpnService {
                             String endpointLog = endpointEffective.isEmpty() ? "AUTO_SCAN" : endpointEffective;
                             int endpointType = serviceIntent.getIntExtra("USERSETTING_endpoint_type", 0);
                             boolean gool = serviceIntent.getBooleanExtra("USERSETTING_gool", false);
+                            boolean masque = serviceIntent.getBooleanExtra("USERSETTING_masque", false);
                             String licenseVal = Objects.requireNonNull(serviceIntent.getStringExtra("USERSETTING_license")).trim();
                             String licenseLog = licenseVal.isEmpty() ? "(empty)" : ("len=" + licenseVal.length());
                             Log.i(TAG, "StartOptions {mode=VPN, bindAddress=" + bindAddress
                                     + ", endpoint=" + endpointLog
                                     + ", endpointType=" + endpointType
                                     + ", gool=" + gool
-                                    + ", dns=1.1.1.1"
+                                    + ", masque=" + masque
+                                    + ", region=" + region
+                                    + ", dns=" + dns
                                     + ", license=" + licenseLog
                                     + ", path=" + getApplicationContext().getFilesDir().getAbsolutePath()
                                     + ", tunFd=" + mInterface.getFd() + "}"
@@ -682,7 +711,7 @@ public class OblivionVpnService extends VpnService {
                         logPollingStarted = true;
                     }
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 Log.e(TAG, "Configuration failed", e);
                 onRevoke(); // Ensure we stop if configuration fails
             }

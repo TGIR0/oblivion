@@ -143,6 +143,16 @@
     <item>tr</item> <!-- Turkish -->
     <item>zh</item> <!-- Chinese -->
   </string-array>
+  <string name="dnsText">Custom DNS</string>
+  <string name="dnsTextDesc">Set your preferred DNS (e.g., 1.1.1.1)</string>
+  <string name="regionText">Region Selection</string>
+  <string name="regionTextDesc">Optimize for specific regions (Iran, Global)</string>
+  <string-array name="regions">
+    <item>Global</item>
+    <item>Iran (Optimized)</item>
+  </string-array>
+  <string name="masqueText">Masque (Coming Soon)</string>
+  <string name="masqueTextDesc">Activate Masque (HTTP/3)</string>
   <string name="splashText">With the efforts of #Yousef_Ghobadi and dozens of well-known or anonymous activists, for the purpose of providing free access to the internet for people…</string>
   <string name="notification_warp">Warp</string>
   <string name="notification_warp_in_warp">Warp in Warp</string>

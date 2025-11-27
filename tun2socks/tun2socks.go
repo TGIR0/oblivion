@@ -13,7 +13,6 @@ import (
 	"sync"
 	"syscall"
 	"time"
-	"tun2socks/lwip"
 
 	"github.com/bepass-org/warp-plus/app"
 	"github.com/bepass-org/warp-plus/wiresocks"
@@ -38,6 +37,8 @@ type StartOptions struct {
 	Endpoint     string
 	License      string
 	Gool         bool
+	Masque       bool
+	Region       int
 	DNS          string
 	EndpointType int
 }
@@ -115,7 +116,9 @@ func Start(opt *StartOptions) error {
 			Endpoint: opt.Endpoint,
 			License:  opt.License,
 			Gool:     opt.Gool,
+			Masque:   opt.Masque,
 			Scan:     scanOpts,
+			TunFd:    opt.TunFd,
 			TestURL:  "http://connectivity.cloudflareclient.com/cdn-cgi/trace",
 		})
 		if err != nil {
@@ -124,31 +127,9 @@ func Start(opt *StartOptions) error {
 		}
 	}()
 
-	fakeRange := opt.FakeIPRange
-	if fakeRange == "" {
-		fakeRange = "198.18.0.0/15"
-	}
-
-	mtu := opt.MTU
-
-	tun2socksStartOptions := &lwip.Tun2socksStartOptions{
-		TunFd:        opt.TunFd,
-		Socks5Server: strings.Replace(opt.BindAddress, "0.0.0.0", "127.0.0.1", -1),
-		FakeIPRange:  fakeRange,
-		MTU:          mtu,
-		EnableIPv6:   true,
-		AllowLan:     true,
-	}
-	if ret := lwip.Start(tun2socksStartOptions); ret != 0 {
-		return fmt.Errorf("failed to start LWIP, return code: %d", ret)
-	}
-
-	go func() {
-		<-ctx.Done()
-		lwip.Stop()
-
-		l.Info("server shut down gracefully")
-	}()
+	// Wait for context done
+	<-ctx.Done()
+	l.Info("server shut down gracefully")
 
 	return nil
 }

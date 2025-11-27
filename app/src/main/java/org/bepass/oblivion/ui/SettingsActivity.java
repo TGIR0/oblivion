@@ -77,15 +77,31 @@ public class SettingsActivity extends StateAwareBaseActivity<ActivitySettingsBin
         });
 
         binding.portLayout.setOnClickListener(v -> (new EditSheet(this, getString(R.string.portTunText), "port", sheetsCallBack)).start());
+        binding.dnsLayout.setOnClickListener(v -> (new EditSheet(this, getString(R.string.dnsText), "dns", sheetsCallBack)).start());
 
         binding.splitTunnelLayout.setOnClickListener(v -> startActivity(new Intent(this, SplitTunnelActivity.class)));
 
         binding.goolLayout.setOnClickListener(v -> binding.gool.setChecked(!binding.gool.isChecked()));
+        // binding.masqueLayout.setOnClickListener(v -> binding.masque.setChecked(!binding.masque.isChecked()));
+        binding.masqueLayout.setEnabled(false);
+        binding.masqueLayout.setAlpha(0.5f);
+        binding.masque.setEnabled(false);
         binding.lanLayout.setOnClickListener(v -> binding.lan.setChecked(!binding.lan.isChecked()));
 
         binding.lan.setOnCheckedChangeListener((buttonView, isChecked) -> FileManager.set("USERSETTING_lan", isChecked));
+        
+        binding.regionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                FileManager.set("USERSETTING_region", position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
 
         CheckBox.OnCheckedChangeListener goolListener = (buttonView, isChecked) -> FileManager.set("USERSETTING_gool", isChecked);
+        CheckBox.OnCheckedChangeListener masqueListener = (buttonView, isChecked) -> FileManager.set("USERSETTING_masque", isChecked);
 
         CompoundButton.OnCheckedChangeListener proxyModeListener = (buttonView, isChecked) -> FileManager.set("USERSETTING_proxymode", isChecked);
 
@@ -94,6 +110,7 @@ public class SettingsActivity extends StateAwareBaseActivity<ActivitySettingsBin
         binding.checkBoxDarkMode.setVisibility(View.GONE); // Hide checkbox, we use the layout click
 
         binding.gool.setOnCheckedChangeListener(goolListener);
+        binding.masque.setOnCheckedChangeListener(masqueListener);
         binding.resetAppLayout.setOnClickListener(v -> resetAppData());
         binding.proxyModeLayout.setOnClickListener(v -> binding.proxyMode.performClick());
         binding.proxyMode.setOnCheckedChangeListener(proxyModeListener);
@@ -150,11 +167,25 @@ public class SettingsActivity extends StateAwareBaseActivity<ActivitySettingsBin
             binding.endpointType.setAdapter(etadapter);
             binding.endpointType.setSelection(FileManager.getInt("USERSETTING_endpoint_type"));
         });
+        
+        ArrayAdapter<CharSequence> regionAdapter = ArrayAdapter.createFromResource(this, R.array.regions, R.layout.country_item_layout);
+        regionAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.regionSpinner.post(() -> {
+            binding.regionSpinner.setAdapter(regionAdapter);
+            binding.regionSpinner.setSelection(FileManager.getInt("USERSETTING_region"));
+        });
+
         binding.endpoint.setText(FileManager.getString("USERSETTING_endpoint"));
         binding.port.setText(FileManager.getString("USERSETTING_port"));
+        
+        String dns = FileManager.getString("USERSETTING_dns");
+        if (dns == null || dns.isEmpty()) dns = "1.1.1.1";
+        binding.dns.setText(dns);
 
         binding.lan.setChecked(FileManager.getBoolean("USERSETTING_lan"));
         binding.gool.setChecked(FileManager.getBoolean("USERSETTING_gool"));
+        binding.masque.setChecked(false);
+        FileManager.set("USERSETTING_masque", false);
         binding.proxyMode.setChecked(FileManager.getBoolean("USERSETTING_proxymode"));
     }
 
