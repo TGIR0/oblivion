@@ -34,6 +34,12 @@
                 startActivity(intent);
             });
 
+            binding.privacyLayout.setOnClickListener(v -> {
+                Uri uri = Uri.parse("https://github.com/bepass-org/oblivion/blob/main/PRIVACY.md");
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
+            });
+
             binding.back.setOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
         }
     }
