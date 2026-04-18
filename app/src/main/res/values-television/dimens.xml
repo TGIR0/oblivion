@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Spacing tokens scaled for 10ft (TV) -->
+    <!-- Corner radius tokens slightly larger for TV -->
+    <dimen name="radius_s">12dp</dimen>
+    <dimen name="radius_m">16dp</dimen>
+    <dimen name="radius_l">20dp</dimen>
+</resources>

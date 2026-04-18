@@ -1,0 +1,18 @@
+[
+  {
+    "name": "master",
+    "commit": {
+      "sha": "9c2e10df08e5751878b99b0607617052fe4e1ba0",
+      "url": "https://api.github.com/repos/bepass-org/psiphon-tunnel-core/commits/9c2e10df08e5751878b99b0607617052fe4e1ba0"
+    },
+    "protected": false
+  },
+  {
+    "name": "patch",
+    "commit": {
+      "sha": "9783d71283bcb743c344959ae92e486dfa0a5e61",
+      "url": "https://api.github.com/repos/bepass-org/psiphon-tunnel-core/commits/9783d71283bcb743c344959ae92e486dfa0a5e61"
+    },
+    "protected": false
+  }
+]

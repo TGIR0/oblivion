@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TextAppearance.Oblivion.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge">
+        <item name="fontFamily">@font/shabnambold</item>
+        <item name="android:fontFamily">@font/shabnambold</item>
+    </style>
+    <style name="TextAppearance.Oblivion.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+        <item name="fontFamily">@font/shabnammedium</item>
+        <item name="android:fontFamily">@font/shabnammedium</item>
+    </style>
+    <style name="TextAppearance.Oblivion.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+        <item name="fontFamily">@font/shabnam</item>
+        <item name="android:fontFamily">@font/shabnam</item>
+    </style>
+    <style name="TextAppearance.Oblivion.LabelLarge" parent="TextAppearance.Material3.LabelLarge">
+        <item name="fontFamily">@font/shabnammedium</item>
+        <item name="android:fontFamily">@font/shabnammedium</item>
+    </style>
+</resources>
