@@ -1,12 +1,8 @@
 plugins {
     alias(libs.plugins.android.application) apply false
-    alias(libs.plugins.kotlin.android) apply false
-    alias(libs.plugins.kotlin.compose) apply false
+    alias(libs.plugins.kotlin.parcelize) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.hilt) apply false
-    alias(libs.plugins.google.services) apply false
-    alias(libs.plugins.firebase.crashlytics) apply false
-    alias(libs.plugins.firebase.perf) apply false
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.spotless)
     alias(libs.plugins.dependency.analysis) apply false
@@ -17,11 +13,6 @@ repositories {
 }
 
 spotless {
-    java {
-        target("app/src/**/*.java")
-        targetExclude("**/build/**")
-        googleJavaFormat()
-    }
     kotlin {
         target("app/src/**/*.kt")
         targetExclude("**/build/**")
@@ -47,17 +38,6 @@ spotless {
 
 tasks.withType<com.diffplug.gradle.spotless.SpotlessTask>().configureEach {
     notCompatibleWithConfigurationCache("Spotless is not configuration-cache compatible.")
-}
-
-subprojects {
-    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-        compilerOptions {
-            freeCompilerArgs.addAll(
-                "-jvm-default=enable",
-                "-opt-in=kotlin.RequiresOptIn"
-            )
-        }
-    }
 }
 
 fun findPowerShellExecutable(): String {
