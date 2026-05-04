@@ -6,7 +6,7 @@
 # Files for the ART/Dalvik VM
 *.dex
 
-# Java class files
+# Java class files (and Kotlin inline class files)
 *.class
 
 # Generated files
@@ -18,6 +18,9 @@ out/
 .gradle/
 build/
 
+# Kotlin project caches (created by IDE or Gradle)
+.kotlin/
+
 # Local configuration file (sdk.dir is not tracked)
 local.properties
 
@@ -26,6 +29,9 @@ proguard/
 
 # Log Files
 *.log
+
+# JVM heap dumps
+*.hprof
 
 # Android Studio Navigation Editor temp files
 .navigation/
@@ -90,3 +96,4 @@ Desktop.ini
 
 # Warp specific (if any temp files)
 warp-plus/
+keystore.properties
