@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?android:selectableItemBackground"
+    android:background="?selectableItemBackground"
     android:orientation="horizontal"
     android:padding="16dp"
     android:fitsSystemWindows="true">
@@ -17,6 +17,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearanceOverlay="@style/circleImageView"
+        android:contentDescription="@null"
         android:focusable="true"
         android:nextFocusRight="@id/appNameTextView"
         android:nextFocusDown="@id/checkBox"
@@ -31,8 +32,8 @@
         android:padding="8dp"
         android:fontFamily="@font/shabnam"
         android:textStyle="bold"
-        android:textColor="@color/text_color"
-        android:textSize="16dp"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@+id/icon"
         app:layout_constraintEnd_toStartOf="@+id/checkBox"
         app:layout_constraintStart_toEndOf="@+id/icon"
@@ -43,12 +44,12 @@
         android:nextFocusRight="@id/checkBox"
         />
 
-    <CheckBox
+    <com.google.android.material.checkbox.MaterialCheckBox
         android:id="@+id/checkBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:buttonTint="@color/checkbox_tint"
+        app:useMaterialThemeColors="true"
         android:clickable="false"
         android:focusable="true"
         app:layout_constraintBottom_toBottomOf="parent"

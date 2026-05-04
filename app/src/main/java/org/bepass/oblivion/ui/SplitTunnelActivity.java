@@ -47,14 +47,14 @@ public class SplitTunnelActivity extends StateAwareBaseActivity<ActivitySplitTun
 
         // Signal the need to restart the VPN service on app selection change
         bypassListAppsAdapter.setOnAppSelectListener((packageName, selected) -> {
-            StateAwareBaseActivity.setRequireRestartVpnService(true);
+            StateAwareBaseActivity.setRequireRestartVpnService();
         });
 
         // Set behaviour for Split tunnel options
-        SplitTunnelOptionsAdapter optionsAdapter = new SplitTunnelOptionsAdapter(this, new SplitTunnelOptionsAdapter.OnSettingsChanged() {
+        SplitTunnelOptionsAdapter optionsAdapter = new SplitTunnelOptionsAdapter(new SplitTunnelOptionsAdapter.OnSettingsChanged() {
             @Override
             public void splitTunnelMode(SplitTunnelMode mode) {
-                StateAwareBaseActivity.setRequireRestartVpnService(true);
+                StateAwareBaseActivity.setRequireRestartVpnService();
                 FileManager.set("splitTunnelMode", mode.toString());
             }
 

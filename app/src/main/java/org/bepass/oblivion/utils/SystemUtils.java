@@ -2,17 +2,14 @@ package org.bepass.oblivion.utils;
 
 import android.app.Activity;
 import android.content.res.Resources;
-import android.os.Build;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 
 public class SystemUtils {
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     public static void setStatusBarColor(Activity activity, int color, boolean isDark) {
         try {
             int statusBarColor = ContextCompat.getColor(activity, color);
@@ -25,7 +22,6 @@ public class SystemUtils {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     private static void changeStatusBarIconColor(Activity activity, boolean isDark) {
         Window window = activity.getWindow();
         View decorView = window.getDecorView();

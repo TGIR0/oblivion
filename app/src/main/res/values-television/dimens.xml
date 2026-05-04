@@ -1,7 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Spacing tokens scaled for 10ft (TV) -->
-    <!-- Corner radius tokens slightly larger for TV -->
+    <!--
+      Spacing & corner radius tokens scaled for 10ft (TV) UI.
+      All dimensions are intentionally generous to ensure legibility
+      and touch target sizes on large screens.
+    -->
+
+    <!-- Spacing -->
+    <dimen name="space_s">12dp</dimen>
+    <dimen name="space_m">16dp</dimen>
+    <dimen name="space_xl">28dp</dimen>
+    <dimen name="space_2xl">40dp</dimen>
+
+    <!-- Corner radius -->
     <dimen name="radius_s">12dp</dimen>
     <dimen name="radius_m">16dp</dimen>
     <dimen name="radius_l">20dp</dimen>

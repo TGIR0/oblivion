@@ -4,40 +4,60 @@ plugins {
 }
 
 android {
-    namespace 'org.bepass.oblivion'
-    compileSdk 34
+    namespace = 'org.bepass.oblivion'
+    compileSdk = 36
+    ndkVersion = "29.0.14206865"
     defaultConfig {
-        applicationId "org.bepass.oblivion"
-        minSdk 23 // least supported api level => android 6.0
-        targetSdk 34
-        versionCode 18
-        versionName "8"
+        applicationId = "org.bepass.oblivion"
+        minSdk = 24
+        targetSdk = 36
+        versionCode = 18
+        versionName = "8"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
-            useSupportLibrary true
+            useSupportLibrary = true
         }
     }
+
+    signingConfigs {
+        release {
+            storeFile file("release.keystore")
+            storePassword "password"
+            keyAlias "key0"
+            keyPassword "password"
+        }
+    }
+
     androidResources {
-        generateLocaleConfig true
+        generateLocaleConfig = true
     }
     buildFeatures {
+        //noinspection DataBindingWithoutKapt
         dataBinding = true
+        buildConfig = true
     }
 
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled = true
+            shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig = signingConfigs.release
         }
     }
+
+
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        // Bytecode level for Java
+        sourceCompatibility = JavaVersion.VERSION_25
+        targetCompatibility = JavaVersion.VERSION_25
     }
-    kotlinOptions {
-        jvmTarget = '1.8'
+    java {
+        toolchain {
+            // JDK used to run the compiler (you can point this to JDK 25 on your system)
+            languageVersion.set(JavaLanguageVersion.of(25))
+        }
     }
     packagingOptions {
         resources.excludes.add("META-INF/*")
@@ -47,79 +67,81 @@ android {
     }
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_25
+    }
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.outputs.each { output ->
+            output.outputFileName.set("Oblivion.apk")
+        }
+    }
+}
+
+// Suppress noisy Java deprecation warnings in compiler output while keeping behavior unchanged
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs << "-Xlint:-deprecation"
+}
+
 configurations {
     configureEach {
         exclude group: 'org.json', module: 'json'
+        resolutionStrategy {
+            force 'androidx.core:core:1.17.0'
+            force 'androidx.core:core-ktx:1.17.0'
+        }
     }
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'com.github.zcweng:switch-button:0.0.3@aar'
-    implementation 'androidx.recyclerview:recyclerview:1.3.2'
-    implementation 'com.github.bumptech.glide:glide:4.16.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
-    implementation 'com.github.erfansn:locale-config-x:1.0.1'
-    implementation 'com.tencent:mmkv:1.3.14' // we version 1.3.* to support 32-bit
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'com.google.android.material:material:1.14.0-alpha06'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation 'androidx.recyclerview:recyclerview:1.4.0'
+    implementation 'com.github.bumptech.glide:glide:5.0.5'
+    annotationProcessor 'com.github.bumptech.glide:compiler:5.0.5'
+    implementation 'com.squareup.okhttp3:okhttp:5.3.2'
+    implementation 'com.github.erfansn:locale-config-x:1.1.0'
+    implementation 'com.tencent:mmkv:2.2.4'
     implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'])
 }
 
 static def findGoExecutable() {
-    def goPath = ["which", "go"].execute().text.trim()
-    if (!goPath || !new File(goPath).exists()) {
-        throw new GradleException("Go executable not found in PATH.")
-    }
-    return goPath
-}
-
-static def findGomobileExecutable(goExec) {
-    def gomobilePath = ["which", "gomobile"].execute().text.trim()
-    if (gomobilePath && new File(gomobilePath).exists()) {
-        return gomobilePath
-    }
-
-    // fallback to GOPATH/bin/gomobile (usually ~/go/bin/gomobile)
-    def fallback = "${System.getProperty("user.home")}/go/bin/gomobile"
-    if (new File(fallback).exists()) {
-        return fallback
-    }
-
-    // try to install
-    println "Installing gomobile..."
-    def install = ["sh", "-c", "$goExec install golang.org/x/mobile/cmd/gomobile@latest"].execute()
-    install.waitForProcessOutput(System.out, System.err)
-    if (install.exitValue() != 0 || !new File(fallback).exists()) {
-        throw new GradleException("Failed to install gomobile")
-    }
-    return fallback
+    def isWindows = System.getProperty("os.name").toLowerCase().contains("win")
+    return isWindows ? "go.exe" : "go"
 }
 
 def goExec = findGoExecutable()
-def gomobileExec = findGomobileExecutable(goExec)
+def libsDir = file("libs")
+def tun2socksAar = file("libs/tun2socks.aar")
 
 tasks.register("preBuildTun2SocksAar", Exec) {
     workingDir "../tun2socks"
-    commandLine gomobileExec, "init"
+    environment "CGO_ENABLED", "1"
+    commandLine goExec, "run", "golang.org/x/mobile/cmd/gomobile", "init"
 }
 
 tasks.register("buildTun2SocksAar", Exec) {
     doFirst {
-        File myDir = new File("$projectDir/libs")
-        if (!myDir.exists()) {
-            myDir.mkdirs()
+        if (!libsDir.exists()) {
+            libsDir.mkdirs()
         }
     }
 
     workingDir "../tun2socks"
-    commandLine gomobileExec, "bind",
+    environment "CGO_ENABLED", "1"
+    commandLine goExec, "run", "golang.org/x/mobile/cmd/gomobile", "bind",
             "-ldflags=-w -s",
             "-target=android",
             "-androidapi=$android.defaultConfig.minSdk",
-            "-o=$projectDir/libs/tun2socks.aar", "."
+            "-o=${tun2socksAar.absolutePath}", "."
 
     dependsOn(preBuildTun2SocksAar)
 }
 
-preBuild.dependsOn(buildTun2SocksAar)
+if (!tun2socksAar.exists() || (project.hasProperty("forceTun2socksRebuild") && project.property("forceTun2socksRebuild").toString().toBoolean())) {
+    preBuild.dependsOn(buildTun2SocksAar)
+}

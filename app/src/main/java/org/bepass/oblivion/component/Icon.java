@@ -4,22 +4,16 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
-import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
-import androidx.core.content.ContextCompat;
 
 import org.bepass.oblivion.R;
 
-import java.io.File;
-
 public class Icon extends AppCompatImageView {
-    private boolean hasBounceAnimation;
-    private boolean isPrimaryIcon;
 
     public Icon(@NonNull Context context) {
         super(context);
@@ -57,18 +51,10 @@ public class Icon extends AppCompatImageView {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-//            if (hasBounceAnimation)
+        event.getAction();//            if (hasBounceAnimation)
 //                AnimationHelper.startPushButtonAnimation(this);
-        }
         return super.onTouchEvent(event);
 
-    }
-
-    public void changeColor(int color) {
-        if (color != 0) {
-            setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-        }
     }
 
     private void init() {

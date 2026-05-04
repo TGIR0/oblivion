@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="CustomProgressBar" parent="Widget.AppCompat.ProgressBar">
+    <style name="CustomProgressBar" parent="Widget.Material3.LinearProgressIndicator">
         <item name="android:indeterminateDrawable">@drawable/custom_progress_drawable</item>
     </style>
-    <style name="basedOnTheme" parent="@android:style/Theme.Material">
+    <style name="basedOnTheme" parent="Theme.Material3.DayNight">
         <item name="android:tint">@color/tint_selector</item>
     </style>
 </resources>

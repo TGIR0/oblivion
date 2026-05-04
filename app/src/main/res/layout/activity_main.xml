@@ -4,15 +4,160 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
-    </data>
+        </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/background"
-        tools:context="org.bepass.oblivion.ui.MainActivity"
-        android:fitsSystemWindows="true">
+        android:background="?attr/colorSurface"
+        android:fitsSystemWindows="true"
+        tools:context="org.bepass.oblivion.ui.MainActivity">
+
+        <org.bepass.oblivion.component.Icon
+            android:id="@+id/info_icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="@string/aboutApp"
+            android:focusable="true"
+            android:padding="12dp"
+            android:src="@drawable/ic_info"
+            app:icon_color="?attr/colorOnSurface"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <org.bepass.oblivion.component.Icon
+            android:id="@+id/setting_icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="@string/settingsText"
+            android:focusable="true"
+            android:padding="12dp"
+            android:src="@drawable/ic_settings"
+            app:icon_color="?attr/colorOnSurface"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <org.bepass.oblivion.component.Icon
+            android:id="@+id/bug_icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="8dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="@string/logApp"
+            android:focusable="true"
+            android:padding="12dp"
+            android:src="@drawable/ic_bug"
+            app:icon_color="?attr/colorOnSurface"
+            app:layout_constraintBottom_toBottomOf="@id/setting_icon"
+            app:layout_constraintEnd_toStartOf="@id/setting_icon"
+            app:layout_constraintTop_toTopOf="@id/setting_icon" />
+
+        <TextView
+            android:id="@+id/app_name_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="@string/app_name"
+            android:textAllCaps="true"
+            android:textAppearance="@style/TextAppearance.Oblivion.DisplayLarge"
+            android:textColor="?attr/colorOnSurface"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/info_icon"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/app_name_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/basedOnWarp"
+            android:textAppearance="@style/TextAppearance.Oblivion.TitleMedium"
+            android:textColor="?attr/colorPrimary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/app_name_1" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.55" />
+
+        <FrameLayout
+            android:id="@+id/connection_button"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:background="@drawable/bg_connect_button"
+            android:clickable="true"
+            android:focusable="true"
+            android:contentDescription="@string/stateText"
+            app:layout_constraintBottom_toTopOf="@id/guideline_center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/app_name_2"
+            app:layout_constraintVertical_bias="0.6">
+
+            <ImageView
+                android:id="@+id/connection_icon"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center"
+                android:contentDescription="@null"
+                android:src="@drawable/vpn_off"
+                app:tint="?attr/colorOnPrimary" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/state_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/stateText"
+            android:textAppearance="@style/TextAppearance.Oblivion.TitleMedium"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/connection_button" />
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/ipProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xl"
+            android:indeterminate="true"
+            android:visibility="invisible"
+            app:indicatorSize="36dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/state_text"
+            app:trackThickness="4dp" />
+
+        <TextView
+            android:id="@+id/publicIP"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xl"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.Oblivion.BodyLarge"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textStyle="bold"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ipProgressBar"
+            tools:text="192.168.1.1"
+            tools:visibility="visible" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/floatingActionButton"
@@ -21,166 +166,13 @@
             android:layout_marginEnd="24dp"
             android:layout_marginBottom="24dp"
             android:clickable="true"
-            android:contentDescription="Connect button"
+            android:contentDescription="@string/select_language"
             android:focusable="true"
             android:src="@drawable/ic_translate"
-            android:tint="@color/white"
-            app:backgroundTint="@color/primary"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <RelativeLayout
-            android:id="@+id/top_bar"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <org.bepass.oblivion.component.Icon
-                android:id="@+id/info_icon"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                app:icon_color="@color/icon_color"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="20dp"
-                android:background="?selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_info"
-                android:clickable="true"
-                android:focusable="true" />
-
-            <org.bepass.oblivion.component.Icon
-                android:id="@+id/bug_icon"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_marginEnd="20dp"
-                android:layout_centerVertical="true"
-                app:icon_color="@color/icon_color"
-                android:layout_toStartOf="@id/setting_icon"
-                android:background="?selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_bug"
-                android:clickable="true"
-                android:focusable="true" />
-
-            <org.bepass.oblivion.component.Icon
-                android:id="@+id/setting_icon"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                app:icon_color="@color/icon_color"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="20dp"
-                android:background="?selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_settings"
-                android:clickable="true"
-                android:focusable="true" />
-        </RelativeLayout>
-
-        <LinearLayout
-            android:id="@+id/linearLayout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="64dp"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/top_bar">
-        </LinearLayout>
-
-        <FrameLayout
-            android:id="@+id/switch_button_frame"
-            android:layout_width="160dp"
-            android:layout_height="75dp"
-            android:background="@drawable/switch_ripple"
+            app:backgroundTint="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.498"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.565">
-
-            <org.bepass.oblivion.component.TouchAwareSwitch
-                android:id="@+id/switch_button"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:sb_background="@color/gray"
-                app:sb_border_width="3dp"
-                app:sb_checked_color="@color/primary"
-                app:sb_show_indicator="false"
-                android:clickable="true"
-                android:focusable="true" />
-        </FrameLayout>
-
-        <TextView
-            android:id="@+id/state_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="96dp"
-            android:fontFamily="@font/shabnammedium"
-            android:text="@string/stateText"
-            android:textColor="@color/subtitle_color"
-            android:textSize="24dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/switch_button_frame" />
-
-        <TextView
-            android:id="@+id/publicIP"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:fontFamily="@font/emoji"
-            android:textColor="@color/subtitle_color"
-            android:textSize="18dp"
-            android:textStyle="bold"
-            android:textAlignment="center"
-            android:visibility="invisible"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/state_text" />
-
-        <ProgressBar
-            android:id="@+id/ipProgressBar"
-            android:layout_width="36dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:indeterminate="true"
-            android:indeterminateTint="@color/primary"
-            android:visibility="invisible"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/state_text" />
-
-        <TextView
-            android:id="@+id/app_name_1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/shabnambold"
-            android:text="@string/app_name"
-            android:textAllCaps="true"
-            android:textColor="@color/text_color"
-            android:textSize="48dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.502"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.223" />
-
-        <TextView
-            android:id="@+id/app_name_2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/shabnammedium"
-            android:text="@string/basedOnWarp"
-            android:textColor="@color/primary"
-            android:textSize="24dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.492"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/app_name_1" />
+            app:tint="?attr/colorOnPrimary" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

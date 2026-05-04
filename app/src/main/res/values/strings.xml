@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <string name="app_name" translatable="false">Oblivion</string>
   <string name="stateText">Not Connected</string>
   <string name="basedOnWarp">Based on Warp</string>
@@ -25,8 +25,6 @@
   <string name="blackListTextDesc">Specify which apps should not use VPN</string>
   <string name="connectFromLanText">Connect from LAN</string>
   <string name="connectFromLanTextDesc">Ability to connect other network devices</string>
-  <string name="psiphonText">Psiphon</string>
-  <string name="psiphonTextDesc">Activate Psiphon</string>
   <string name="chooseText">Choose Country</string>
   <string name="chooseTextDesc">Country to connect to the internet from</string>
   <string name="licenseText">License</string>
@@ -59,7 +57,16 @@
   <string name="proxy_mode">Proxy Mode</string>
   <string name="running_in_proxy_mode_not_vpn">Running in proxy mode, not VPN</string>
   <string name="reset_to_default_endpoint">Reset to Default Endpoint</string>
-    <string-array name="countries">
+  <string name="delete">Delete</string>
+  <string name="github_title">Github</string>
+  <string name="bepass_repo">Bepass/Oblivion</string>
+  <string name="privacy_policy">Privacy Policy</string>
+  <string name="start_logging_here">Start logging here…</string>
+  <string name="getting_isp">Getting ISP…</string>
+  <string name="back">Back</string>
+  <string name="permission_denied_vpn">Permission denied to start VPN</string>
+  <string name="press_back_again">Press back again to exit</string>
+  <string-array name="countries">
     <item>Australia</item>
     <item>Austria</item>
     <item>Belgium</item>
@@ -137,5 +144,18 @@
     <item>tr</item> <!-- Turkish -->
     <item>zh</item> <!-- Chinese -->
   </string-array>
+  <string name="dnsText">Custom DNS</string>
+  <string name="dnsTextDesc">Set your preferred DNS (e.g., 1.1.1.1)</string>
+  <string name="regionText">Region Selection</string>
+  <string name="regionTextDesc">Optimize for specific regions (Iran, Global)</string>
+  <string-array name="regions">
+    <item>Global</item>
+    <item>Iran (Optimized)</item>
+  </string-array>
+  <string name="masqueText">Masque (Coming Soon)</string>
+  <string name="masqueTextDesc">Activate Masque (HTTP/3)</string>
   <string name="splashText">With the efforts of #Yousef_Ghobadi and dozens of well-known or anonymous activists, for the purpose of providing free access to the internet for people…</string>
+  <string name="notification_warp">Warp</string>
+  <string name="notification_warp_in_warp">Warp in Warp</string>
+  <string name="notification_proxy_suffix">on socks5 proxy at 127.0.0.1:%1$s</string>
 </resources>

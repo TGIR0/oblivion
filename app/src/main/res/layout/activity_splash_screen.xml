@@ -14,7 +14,7 @@
         android:id="@+id/splashScreen"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/background"
+        android:background="?attr/colorSurface"
         android:fitsSystemWindows="true"
         android:onClick="@{handler::OnRootPressed}">
 
@@ -45,8 +45,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/app_name"
                 android:textAllCaps="true"
-                android:textColor="@color/primary"
-                android:textSize="48dp"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="48sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -60,8 +60,8 @@
                 android:gravity="center"
                 android:text="@string/means"
                 android:textAlignment="textEnd"
-                android:textColor="@color/text_color"
-                android:textSize="20dp"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.502"
@@ -92,8 +92,8 @@
                     android:paddingTop="5dp"
                     android:text="@string/splashText"
                     android:textAlignment="textStart"
-                    android:textColor="@color/text_color"
-                    android:textSize="15dp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="15sp"
                     tools:ignore="RtlCompat" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -107,8 +107,8 @@
             android:gravity="center"
             android:text="@string/slogan"
             android:textAlignment="center"
-            android:textColor="@color/subtitle_color"
-            android:textSize="20dp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

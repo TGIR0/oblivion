@@ -13,11 +13,9 @@ import (
 	"sync"
 	"syscall"
 	"time"
-	"tun2socks/lwip"
 
 	"github.com/bepass-org/warp-plus/app"
 	"github.com/bepass-org/warp-plus/wiresocks"
-	L "github.com/xjasonlyu/tun2socks/v2/log"
 )
 
 // Variables to hold flag values.
@@ -30,18 +28,19 @@ var (
 )
 
 type StartOptions struct {
-	TunFd          int
-	Path           string
-	FakeIPRange    string
-	Verbose        bool
-	BindAddress    string
-	Endpoint       string
-	License        string
-	Country        string
-	PsiphonEnabled bool
-	Gool           bool
-	DNS            string
-	EndpointType   int
+	TunFd        int
+	Path         string
+	FakeIPRange  string
+	MTU          int
+	Verbose      bool
+	BindAddress  string
+	Endpoint     string
+	License      string
+	Gool         bool
+	Masque       bool
+	Region       int
+	DNS          string
+	EndpointType int
 }
 
 type logWriter struct{}
@@ -53,12 +52,11 @@ func (writer logWriter) Write(bytes []byte) (int, error) {
 	return len(bytes), nil
 }
 
-func Start(opt *StartOptions) {
+func Start(opt *StartOptions) error {
 	ctx, cancelFunc = signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 
 	if err := os.Chdir(opt.Path); err != nil {
-		l.Error("error changing to 'main' directory", "error", err.Error())
-		os.Exit(1)
+		return fmt.Errorf("error changing to 'main' directory: %v", err)
 	}
 
 	logger := logWriter{}
@@ -82,8 +80,6 @@ func Start(opt *StartOptions) {
 	r, w, _ := os.Pipe()
 	os.Stdout = w
 	os.Stderr = w
-	L.SetLevel(L.DebugLevel)
-	L.SetOutput(logger)
 
 	go func(reader io.Reader) {
 		scanner := bufio.NewScanner(reader)
@@ -91,7 +87,8 @@ func Start(opt *StartOptions) {
 			logger.Write([]byte(scanner.Text()))
 		}
 		if err := scanner.Err(); err != nil {
-			fmt.Fprintln(os.Stderr, "There was an error with the scanner", err)
+			// Log to internal logger instead of stderr to avoid recursion/loops
+			logger.Write([]byte(fmt.Sprintf("scanner error: %v", err)))
 		}
 	}(r)
 	l.Info(fmt.Sprintf("%+v", *opt))
@@ -112,48 +109,29 @@ func Start(opt *StartOptions) {
 			scanOpts.V6 = true
 		}
 	}
-
-	var psiphonOpts *app.PsiphonOptions
-	if opt.PsiphonEnabled {
-		psiphonOpts = &app.PsiphonOptions{
-			Country: opt.Country,
-		}
-	}
-
-	err := app.RunWarp(ctx, l, app.WarpOptions{
-		Bind:     netip.MustParseAddrPort(opt.BindAddress),
-		DnsAddr:  netip.MustParseAddr(opt.DNS),
-		Endpoint: opt.Endpoint,
-		License:  opt.License,
-		Psiphon:  psiphonOpts,
-		Gool:     opt.Gool,
-		Scan:     scanOpts,
-		TestURL:  "http://connectivity.cloudflareclient.com/cdn-cgi/trace",
-	})
-	if err != nil {
-		l.Error(err.Error())
-		os.Exit(1)
-	}
-
-	tun2socksStartOptions := &lwip.Tun2socksStartOptions{
-		TunFd:        opt.TunFd,
-		Socks5Server: strings.Replace(opt.BindAddress, "0.0.0.0", "127.0.0.1", -1),
-		FakeIPRange:  "24.0.0.0/8",
-		MTU:          0,
-		EnableIPv6:   true,
-		AllowLan:     true,
-	}
-	if ret := lwip.Start(tun2socksStartOptions); ret != 0 {
-		l.Error("failed to start LWIP")
-		os.Exit(1)
-	}
-
 	go func() {
-		<-ctx.Done()
-		lwip.Stop()
-
-		l.Info("server shut down gracefully")
+		err := app.RunWarp(ctx, l, app.WarpOptions{
+			Bind:     netip.MustParseAddrPort(opt.BindAddress),
+			DnsAddr:  netip.MustParseAddr(opt.DNS),
+			Endpoint: opt.Endpoint,
+			License:  opt.License,
+			Gool:     opt.Gool,
+			Masque:   opt.Masque,
+			Scan:     scanOpts,
+			TunFd:    opt.TunFd,
+			TestURL:  "http://connectivity.cloudflareclient.com/cdn-cgi/trace",
+		})
+		if err != nil {
+			l.Error(fmt.Sprintf("failed to run warp: %v", err))
+			cancelFunc()
+		}
 	}()
+
+	// Wait for context done
+	<-ctx.Done()
+	l.Info("server shut down gracefully")
+
+	return nil
 }
 
 func Stop() {

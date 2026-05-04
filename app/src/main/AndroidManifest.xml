@@ -9,12 +9,15 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-feature android:name="android.hardware.wifi" android:required="false" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"
+        tools:ignore="ForegroundServicesPolicy" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED"/>
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
@@ -22,7 +25,7 @@
     </queries>
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
@@ -31,8 +34,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:name=".base.ApplicationLoader"
-        tools:replace="android:supportsRtl"
-        android:screenOrientation="portrait"
         android:enableOnBackInvokedCallback="true"
         android:theme="@style/Theme.OblivionUI"
         android:networkSecurityConfig="@xml/network_security_config"
@@ -44,11 +45,12 @@
             android:enabled="true"
             android:exported="true"
             android:permission="android.permission.BIND_VPN_SERVICE"
-            android:foregroundServiceType="systemExempted"
-            android:process=":vpn_background">
+            android:foregroundServiceType="specialUse"
+            android:process=":vpn_background"
+            tools:ignore="VpnServicePolicy">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="vpn" />
             <intent-filter>
                 <action android:name="android.net.VpnService" />
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
             </intent-filter>
 
             <meta-data

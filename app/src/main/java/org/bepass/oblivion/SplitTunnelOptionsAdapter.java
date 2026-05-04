@@ -1,6 +1,5 @@
 package org.bepass.oblivion;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +8,7 @@ import android.widget.RadioButton;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.android.material.materialswitch.MaterialSwitch;
 
 import org.bepass.oblivion.enums.SplitTunnelMode;
 import org.bepass.oblivion.utils.FileManager;
@@ -19,7 +18,7 @@ public class SplitTunnelOptionsAdapter extends RecyclerView.Adapter<SplitTunnelO
     private final OnSettingsChanged settingsCallback;
 
 
-    public SplitTunnelOptionsAdapter(Context context, OnSettingsChanged settingsCallback) {
+    public SplitTunnelOptionsAdapter(OnSettingsChanged settingsCallback) {
         this.settingsCallback = settingsCallback;
     }
 
@@ -70,7 +69,7 @@ public class SplitTunnelOptionsAdapter extends RecyclerView.Adapter<SplitTunnelO
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        SwitchMaterial showSystemApps;
+        MaterialSwitch showSystemApps;
         RadioButton disabled;
         RadioButton blacklist;
 

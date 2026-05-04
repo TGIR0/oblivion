@@ -7,18 +7,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.drawable.Icon;
-import android.os.Build;
 import android.os.IBinder;
 import android.os.Messenger;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
 import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
-
 import org.bepass.oblivion.R;
 
-@RequiresApi(api = Build.VERSION_CODES.N)
 public class QuickStartService extends TileService {
     private final static String CONNECTION_OBSERVER_KEY = "quickstartToggleButton";
     private boolean isBound;

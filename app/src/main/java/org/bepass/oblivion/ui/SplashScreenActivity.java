@@ -3,13 +3,12 @@ package org.bepass.oblivion.ui;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 
 import org.bepass.oblivion.R;
-import org.bepass.oblivion.base.ApplicationLoader;
 import org.bepass.oblivion.base.BaseActivity;
 import org.bepass.oblivion.databinding.ActivitySplashScreenBinding;
-import org.bepass.oblivion.utils.FileManager;
 import org.bepass.oblivion.utils.LocaleHandler;
 import org.bepass.oblivion.utils.ThemeHelper;
 
@@ -45,14 +44,14 @@ public class SplashScreenActivity extends BaseActivity<ActivitySplashScreenBindi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         LocaleHandler localeHandler = new LocaleHandler(this);
-        localeHandler.setPersianAsDefaultLocaleIfNeeds();
+        localeHandler.setSystemDefaultLocaleIfFirstRun();
         // Update background based on current theme
         ThemeHelper.getInstance().updateActivityBackground(binding.getRoot());
 
         binding.setHandler(new ClickHandler());
         // 1 second
         int SHORT_SPLASH_DISPLAY_LENGTH = 1000;
-        new Handler().postDelayed(() -> {
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
             // First locale change to persian cause activity recreation
             // with this check we can sure we don't do start twice
             if (isDestroyed()) return;
@@ -71,7 +70,6 @@ public class SplashScreenActivity extends BaseActivity<ActivitySplashScreenBindi
          * Called when the root view is pressed. This method immediately navigates to the main activity
          * and finishes the splash screen activity.
          *
-         * @param view The view that was clicked.
          */
         public void OnRootPressed(View view) {
             MainActivity.start(SplashScreenActivity.this);

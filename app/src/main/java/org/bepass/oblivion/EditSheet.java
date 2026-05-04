@@ -12,8 +12,6 @@ import org.bepass.oblivion.utils.FileManager;
 
 public class EditSheet {
 
-    FileManager fileManager;
-
     Context context;
     BottomSheetDialog sheet;
 

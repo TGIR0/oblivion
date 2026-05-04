@@ -9,12 +9,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.FrameLayout;
+import android.app.Dialog;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import org.bepass.oblivion.utils.FileManager;
 
@@ -41,6 +45,9 @@ public class EndpointsBottomSheet extends BottomSheetDialogFragment {
 
         endpointsList = new ArrayList<>();
         loadEndpoints();
+
+        // Ensure initial focus starts at the first input for Android TV DPAD navigation
+        titleEditText.requestFocus();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new EndpointsAdapter(endpointsList, this::onEndpointSelected);
@@ -71,9 +78,38 @@ public class EndpointsBottomSheet extends BottomSheetDialogFragment {
         return view;
     }
 
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        BottomSheetDialog dialog = (BottomSheetDialog) super.onCreateDialog(savedInstanceState);
+        dialog.setOnShowListener(d -> {
+            BottomSheetDialog bsd = (BottomSheetDialog) d;
+            FrameLayout bottomSheet = bsd.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            if (bottomSheet != null) {
+                BottomSheetBehavior<FrameLayout> behavior = BottomSheetBehavior.from(bottomSheet);
+                behavior.setSkipCollapsed(true);
+                behavior.setFitToContents(true);
+                behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                try {
+                    behavior.setDraggable(false);
+                } catch (Throwable ignored) {
+                    // Older Material versions may not support setDraggable
+                }
+            }
+        });
+        return dialog;
+    }
 
     private void loadEndpoints() {
+        // Add suggested endpoints for Iran
+        endpointsList.add(new Endpoint("Suggested Endpoint (Best for Iran)", ""));
+        endpointsList.add(new Endpoint("Masque (HTTP/3) Endpoint", "engage.cloudflareclient.com:443"));
+        endpointsList.add(new Endpoint("IPv6 Endpoint", "[2606:4700:d0::a29f:c001]:2408"));
+
         Set<String> savedEndpoints = FileManager.getStringSet("saved_endpoints", new HashSet<>());
+        if (savedEndpoints.isEmpty()) {
+             endpointsList.add(new Endpoint("Default", "engage.cloudflareclient.com:2408"));
+        }
         for (String endpoint : savedEndpoints) {
             String[] parts = endpoint.split("::");
             if (parts.length == 2) {
@@ -87,7 +123,7 @@ public class EndpointsBottomSheet extends BottomSheetDialogFragment {
 
         // Save to FileManager
         Set<String> savedEndpoints = FileManager.getStringSet("saved_endpoints", new HashSet<>());
-        savedEndpoints.add(endpoint.getTitle() + "::" + endpoint.getContent());
+        savedEndpoints.add(endpoint.title() + "::" + endpoint.content());
         FileManager.set("saved_endpoints", savedEndpoints);
     }
     private void onEndpointSelected(String content) {
@@ -101,28 +137,13 @@ public class EndpointsBottomSheet extends BottomSheetDialogFragment {
         this.selectionListener = listener;
     }
 
-    private static class Endpoint {
-        private final String title;
-        private final String content;
-
-        Endpoint(String title, String content) {
-            this.title = title;
-            this.content = content;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public String getContent() {
-            return content;
-        }
+    private record Endpoint(String title, String content) {
     }
 
     private static void saveEndpoints() {
         Set<String> savedEndpoints = new HashSet<>();
         for (Endpoint endpoint : endpointsList) {
-            savedEndpoints.add(endpoint.getTitle() + "::" + endpoint.getContent());
+            savedEndpoints.add(endpoint.title() + "::" + endpoint.content());
         }
         FileManager.set("saved_endpoints", savedEndpoints);
     }
@@ -146,12 +167,12 @@ public class EndpointsBottomSheet extends BottomSheetDialogFragment {
         @Override
         public void onBindViewHolder(@NonNull EndpointViewHolder holder, int position) {
             Endpoint endpoint = endpointsList.get(position);
-            holder.titleTextView.setText(endpoint.getTitle());
-            holder.contentTextView.setText(endpoint.getContent());
+            holder.titleTextView.setText(endpoint.title());
+            holder.contentTextView.setText(endpoint.content());
 
             holder.itemView.setOnClickListener(v -> {
                 if (selectionListener != null) {
-                    selectionListener.onEndpointSelected(endpoint.getContent());
+                    selectionListener.onEndpointSelected(endpoint.content());
                 }
             });
 

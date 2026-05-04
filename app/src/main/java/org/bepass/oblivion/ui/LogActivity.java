@@ -3,16 +3,20 @@ package org.bepass.oblivion.ui;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ProgressBar;
 import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import org.bepass.oblivion.R;
 import org.bepass.oblivion.base.BaseActivity;
@@ -28,6 +32,8 @@ import java.util.Arrays;
 import java.util.Deque;
 
 public class LogActivity extends BaseActivity<ActivityLogBinding> {
+
+    private static final String TAG = "LogActivity";
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private boolean isUserScrollingUp = false;
@@ -86,23 +92,44 @@ public class LogActivity extends BaseActivity<ActivityLogBinding> {
     }
 
     private void readLogsFromFile() {
+        if (!getFileStreamPath("logs.txt").exists()) {
+            runOnUiThread(() -> {
+                binding.logs.setText("");
+                if (!isUserScrollingUp) {
+                    binding.logScrollView.post(() -> binding.logScrollView.fullScroll(ScrollView.FOCUS_DOWN));
+                }
+            });
+            return;
+        }
+
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(openFileInput("logs.txt")))) {
-            StringBuilder sb = new StringBuilder();
+            SpannableStringBuilder sb = new SpannableStringBuilder();
             String line;
 
             while ((line = reader.readLine()) != null) {
+                int color = getColor(R.color.log_info);
+                String lower = line.toLowerCase(java.util.Locale.ROOT);
+                if (lower.contains("error") || lower.contains("fail") || lower.contains("[e]")) {
+                    color = getColor(R.color.log_error);
+                } else if (lower.contains("warn") || lower.contains("[w]")) {
+                    color = getColor(R.color.log_warn);
+                } else if (lower.contains("debug") || lower.contains("[d]")) {
+                     color = getColor(R.color.log_debug);
+                }
+                
+                int start = sb.length();
                 sb.append(line).append("\n");
+                sb.setSpan(new ForegroundColorSpan(color), start, sb.length(), 0);
             }
 
-            String finalLog = sb.toString();
             runOnUiThread(() -> {
-                binding.logs.setText(finalLog);
+                binding.logs.setText(sb);
                 if (!isUserScrollingUp) {
                     binding.logScrollView.post(() -> binding.logScrollView.fullScroll(ScrollView.FOCUS_DOWN));
                 }
             });
         } catch (IOException e) {
-            e.printStackTrace();
+            // Swallow or log quietly
         }
     }
 
@@ -112,7 +139,7 @@ public class LogActivity extends BaseActivity<ActivityLogBinding> {
 
         ISPUtils.fetchISPInfo(new ISPUtils.ISPCallback() {
             @Override
-            public void onISPInfoReceived(String isp) {
+            public void onISPInfoReceived(@NonNull String isp) {
                 runOnUiThread(() -> {
                     // Hide progress bar
                     progressBar.setVisibility(View.GONE);
@@ -131,7 +158,8 @@ public class LogActivity extends BaseActivity<ActivityLogBinding> {
                     }
 
                     // Add ISP information
-                    sb.append("\n=====\nISP: ").append(isp).append("\n");
+                    String ispText = (isp == null || isp.isEmpty()) ? "Unknown" : isp;
+                    sb.append("\n=====\nISP: ").append(ispText).append("\n");
 
                     String last100Log = sb.toString();
                     ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
@@ -143,12 +171,12 @@ public class LogActivity extends BaseActivity<ActivityLogBinding> {
             }
 
             @Override
-            public void onError(Exception e) {
+            public void onError(@NonNull Exception e) {
                 runOnUiThread(() -> {
                     // Hide progress bar
                     progressBar.setVisibility(View.GONE);
 
-                    e.printStackTrace();
+                    Log.e(TAG, "Error fetching ISP information", e);
                     Toast.makeText(LogActivity.this, "Error fetching ISP information.", Toast.LENGTH_SHORT).show();
                 });
             }

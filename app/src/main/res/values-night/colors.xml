@@ -14,4 +14,39 @@
     <color name="gray">#D7D7D7</color>
     <color name="status_bar_color">#1C202C</color>
     <color name="dark_gray">#383A45</color>
+
+    <color name="md_theme_primary">#ffa200</color>
+    <color name="md_theme_onPrimary">#ffffff</color>
+    <color name="md_theme_primaryContainer">#ffa200</color>
+    <color name="md_theme_onPrimaryContainer">#1c202c</color>
+    <color name="md_theme_secondary">#1c202c</color>
+    <color name="md_theme_onSecondary">#ffffff</color>
+    <color name="md_theme_secondaryContainer">#1c202c</color>
+    <color name="md_theme_onSecondaryContainer">#ffffff</color>
+    <color name="md_theme_tertiary">#7b8d9d</color>
+    <color name="md_theme_onTertiary">#ffffff</color>
+    <color name="md_theme_tertiaryContainer">#7b8d9d</color>
+    <color name="md_theme_onTertiaryContainer">#ffffff</color>
+    <color name="md_theme_error">#ba1a1a</color>
+    <color name="md_theme_onError">#ffffff</color>
+    <color name="md_theme_errorContainer">#ffdad6</color>
+    <color name="md_theme_onErrorContainer">#410002</color>
+    <color name="md_theme_background">#1c202c</color>
+    <color name="md_theme_onBackground">#ffffffff</color>
+    <color name="md_theme_surface">#1c202c</color>
+    <color name="md_theme_onSurface">#ffffffff</color>
+    <color name="md_theme_surfaceVariant">#383a45</color>
+    <color name="md_theme_onSurfaceVariant">#ffffffff</color>
+    <color name="md_theme_outline">#7b8d9d</color>
+    <color name="md_theme_outlineVariant">#383a45</color>
+    <color name="md_theme_inverseSurface">#ffffffff</color>
+    <color name="md_theme_inverseOnSurface">#1c202c</color>
+    <color name="md_theme_inversePrimary">#ffa200</color>
+
+    <!-- Log Terminal Colors (Same as Default for Dark Mode consistecy) -->
+    <color name="log_background">#121212</color>
+    <color name="log_info">#FFFFFF</color>
+    <color name="log_debug">#B0BEC5</color> <!-- Blue Grey 200 -->
+    <color name="log_warn">#FFCC80</color>  <!-- Orange 200 -->
+    <color name="log_error">#EF9A9A</color> <!-- Red 200 -->
 </resources>

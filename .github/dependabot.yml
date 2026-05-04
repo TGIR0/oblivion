@@ -3,4 +3,20 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
+    commit-message:
+      prefix: "ci"
+
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "deps"
+
+  - package-ecosystem: "gomod"
+    directory: "/tun2socks"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "go"

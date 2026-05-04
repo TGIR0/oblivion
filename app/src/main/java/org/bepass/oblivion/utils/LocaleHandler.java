@@ -106,21 +106,32 @@ public class LocaleHandler {
         return joinedLocales.toString();
     }
 
-    public void setPersianAsDefaultLocaleIfNeeds() {
+    public void setSystemDefaultLocaleIfFirstRun() {
         if (!FileManager.getBoolean(IS_SET_DEFAULT_LOCALE)) {
-            Locale persianLocale = Locale.forLanguageTag(DEFAULT_LOCALE);
-            AppCompatDelegate.setApplicationLocales(LocaleListCompat.create(persianLocale));
+            // On first run, we want to follow system locale.
+            // Empty locale list tells AndroidX to follow system.
+            AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList());
             FileManager.set(IS_SET_DEFAULT_LOCALE, true);
         }
     }
 
     public void showLanguageSelectionDialog() {
+        List<String> displayNames = new ArrayList<>();
+        displayNames.add("System Default");
+        displayNames.addAll(Arrays.asList(getAvailableLanguagesNames()));
+
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(R.string.select_language)
-                .setItems(getAvailableLanguagesNames(), (dialogInterface, which) -> {
-                    Locale selectedLocale = configuredLocales.get(which);
-                    LocaleListCompat desiredLocales = LocaleListCompat.create(selectedLocale);
-                    AppCompatDelegate.setApplicationLocales(desiredLocales);
+                .setItems(displayNames.toArray(new String[0]), (dialogInterface, which) -> {
+                    if (which == 0) {
+                        // System Default selected
+                        AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList());
+                    } else {
+                        // Adjust index for offset
+                        Locale selectedLocale = configuredLocales.get(which - 1);
+                        LocaleListCompat desiredLocales = LocaleListCompat.create(selectedLocale);
+                        AppCompatDelegate.setApplicationLocales(desiredLocales);
+                    }
                 })
                 .show();
     }
