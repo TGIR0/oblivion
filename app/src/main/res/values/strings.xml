@@ -18,11 +18,26 @@
   <string name="enabledRText">In enabled mode, traffic of selected apps does not pass through VPN.</string>
   <string name="showSystemAppsText">Show System Apps</string>
   <string name="settingsText">Settings</string>
+  <string name="appearance_personalization">Appearance &amp; personalization</string>
+  <string name="themeText">Theme</string>
+  <string name="themeTextDesc">Choose how Oblivion looks while keeping its orange identity.</string>
+  <string name="theme_oled">OLED</string>
+  <string name="theme_dark">Dark</string>
+  <string name="theme_light">Light</string>
+  <string name="font_size_text">Font size</string>
+  <string name="font_size_desc">Adjust the app text size.</string>
+  <string name="font_size_small">Small</string>
+  <string name="font_size_default">Default</string>
+  <string name="font_size_large">Large</string>
+  <string name="select_language_desc">Choose the app language.</string>
   <string name="endpointText">Endpoint</string>
   <string name="endpointTextDesc">Combination of IP or domain name, along with port</string>
   <string name="portTunText">Tunnel Port</string>
   <string name="portTunTextDesc">Specify the tunnel port for the app</string>
   <string name="blackListTextDesc">Specify which apps should not use VPN</string>
+  <string name="split_tunnel_search_hint">Search apps</string>
+  <string name="selected_apps_format">%1$d selected • %2$d visible</string>
+  <string name="no_apps_match_filter">No apps match this filter.</string>
   <string name="connectFromLanText">Connect from LAN</string>
   <string name="connectFromLanTextDesc">Ability to connect other network devices</string>
   <string name="chooseText">Choose Country</string>
@@ -52,6 +67,7 @@
   <string name="save">Save</string>
   <string name="saved_endpoints">Saved Endpoints</string>
   <string name="select_language">Select Language</string>
+  <string name="system_default">System default</string>
   <string name="resetAppTextDesc">Reset app to defaults</string>
   <string name="resetAppText">Reset</string>
   <string name="proxy_mode">Proxy Mode</string>
@@ -66,6 +82,7 @@
   <string name="back">Back</string>
   <string name="permission_denied_vpn">Permission denied to start VPN</string>
   <string name="press_back_again">Press back again to exit</string>
+  <string name="quick_settings_connect_once">Open Oblivion once to grant VPN permission before using Quick Settings.</string>
   <string-array name="countries">
     <item>Australia</item>
     <item>Austria</item>
@@ -146,6 +163,20 @@
   </string-array>
   <string name="dnsText">Custom DNS</string>
   <string name="dnsTextDesc">Set your preferred DNS (e.g., 1.1.1.1)</string>
+  <string name="dns_runtime_default">DNS runtime plan is using the default profile.</string>
+  <string name="dns_warning_format">Warning: %1$s</string>
+  <string name="refresh_dns_catalog">Refresh DNS catalog</string>
+  <string name="refreshing">Refreshing…</string>
+  <string name="no_dns_providers">No DNS providers are available.</string>
+  <string name="dns_section_global">Global DNS</string>
+  <string name="dns_section_tunnel_core">Tunnel core DNS</string>
+  <string name="dns_section_vpn_interface">VPN interface DNS</string>
+  <string name="dns_section_app_http">App HTTP DNS</string>
+  <string name="dns_section_diagnostics">Diagnostics DNS</string>
+  <string name="dns_mode_inherit">Inherit</string>
+  <string name="dns_mode_system">System</string>
+  <string name="dns_mode_provider">Provider</string>
+  <string name="dns_mode_manual">Manual</string>
   <string name="regionText">Region Selection</string>
   <string name="regionTextDesc">Optimize for specific regions (Iran, Global)</string>
   <string-array name="regions">
