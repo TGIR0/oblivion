@@ -8,10 +8,6 @@ plugins {
     alias(libs.plugins.dependency.analysis) apply false
 }
 
-repositories {
-    mavenCentral()
-}
-
 spotless {
     kotlin {
         target("app/src/**/*.kt")
