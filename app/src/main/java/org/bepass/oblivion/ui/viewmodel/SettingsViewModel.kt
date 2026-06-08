@@ -29,7 +29,7 @@ import org.bepass.oblivion.repository.SettingsRepository
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val repository: SettingsRepository,
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
 ) : ViewModel() {
     private data class DnsRefreshState(
         val isRefreshing: Boolean = false,
@@ -42,12 +42,6 @@ class SettingsViewModel @Inject constructor(
         DnsCatalogRepository.initialize(appContext)
         DnsProfileRepository.initialize(appContext)
     }
-
-    val config = repository.vpnConfig.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        repository.getInt("USERSETTING_endpoint_type", 0) // Just a seed or full config
-    )
 
     // Modern reactive accessor for full config
     val vpnConfig = repository.vpnConfig.stateIn(
