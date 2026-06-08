@@ -97,3 +97,8 @@ Desktop.ini
 # Warp specific (if any temp files)
 warp-plus/
 keystore.properties
+
+#buildSrc
+buildSrc/build
+buildSrc/.gradle
+buildSrc/build/
