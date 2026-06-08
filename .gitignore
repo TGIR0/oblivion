@@ -99,6 +99,6 @@ warp-plus/
 keystore.properties
 
 #buildSrc
-buildSrc/build
-buildSrc/.gradle
-buildSrc/build/
+*.logcat
+/buildSrc/build
+/buildSrc/build
