@@ -1,7 +1,9 @@
 import java.util.Properties
+import org.bepass.oblivion.gradle.VerifyRequiredFileTask
 
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
@@ -9,8 +11,7 @@ plugins {
 
 android {
     namespace = "org.bepass.oblivion"
-    compileSdk = 36
-    compileSdkExtension = 1
+    compileSdk = 37
     ndkVersion = "29.0.14206865"
 
     defaultConfig {
@@ -42,7 +43,7 @@ android {
     }
 
     buildFeatures {
-        dataBinding = true
+        compose = true
         buildConfig = true
     }
 
@@ -115,15 +116,11 @@ tasks.withType<JavaCompile>().configureEach {
     options.compilerArgs.add("-Xlint:-deprecation")
 }
 
-val tun2socksAar = layout.projectDirectory.file("libs/tun2socks.aar")
-
-tasks.register("verifyTun2socksAar") {
-    inputs.file(tun2socksAar)
-    doLast {
-        check(tun2socksAar.asFile.isFile) {
-            "Missing ${tun2socksAar.asFile}. Build tun2socks.aar outside the app module, then place it in app/libs."
-        }
-    }
+tasks.register<VerifyRequiredFileTask>("verifyTun2socksAar") {
+    requiredFile.set(layout.projectDirectory.file("libs/tun2socks.aar"))
+    failureMessage.set(
+        "Missing {path}. Build tun2socks.aar outside the app module, then place it in app/libs.",
+    )
 }
 
 tasks.named("preBuild") {
@@ -135,18 +132,27 @@ configurations.configureEach {
 }
 
 dependencies {
-    implementation(libs.androidx.appcompat)
+    implementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.activity.ktx)
-    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.runtime)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.process)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.glide)
     implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.material)
     implementation(libs.mmkv)
     implementation(libs.okhttp)
     implementation(libs.okhttp.dnsoverhttps)
@@ -162,4 +168,8 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.rules)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
