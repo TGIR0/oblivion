@@ -17,7 +17,6 @@ android {
         targetSdk = 37
         versionCode = 18
         versionName = "8"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -45,16 +44,19 @@ android {
         buildConfig = true
     }
 
-    sourceSets.named("main") {
-        kotlin.directories += "src/main/java"
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_26
+        targetCompatibility = JavaVersion.VERSION_26
     }
 
-    sourceSets.named("test") {
-        kotlin.directories += "src/test/java"
-    }
-
-    sourceSets.named("androidTest") {
-        kotlin.directories += "src/androidTest/java"
+    packaging {
+        resources {
+            excludes += setOf(
+                "META-INF/AL2.0",
+                "META-INF/LGPL2.1",
+                "META-INF/*.kotlin_module",
+            )
+        }
     }
 
     buildTypes {
@@ -68,25 +70,12 @@ android {
             signingConfig = signingConfigs.getByName("release")
         }
     }
+}
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_26
-        targetCompatibility = JavaVersion.VERSION_26
-    }
-
-    java {
-        toolchain {
-            languageVersion.set(JavaLanguageVersion.of(26))
-        }
-    }
-
-    packaging {
-        resources {
-            excludes += setOf(
-                "META-INF/AL2.0",
-                "META-INF/LGPL2.1",
-                "META-INF/*.kotlin_module",
-            )
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.outputs.forEach { output ->
+            output.outputFileName.set("Oblivion.apk")
         }
     }
 }
@@ -105,16 +94,19 @@ kotlin {
     }
 }
 
-androidComponents {
-    onVariants(selector().all()) { variant ->
-        variant.outputs.forEach { output ->
-            output.outputFileName.set("Oblivion.apk")
-        }
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(26))
     }
 }
 
 tasks.withType<JavaCompile>().configureEach {
     options.compilerArgs.add("-Xlint:-deprecation")
+}
+
+// Dependency locking: pin all transitive versions for reproducible builds
+dependencyLocking {
+    lockAllConfigurations()
 }
 
 configurations.configureEach {
@@ -125,41 +117,24 @@ dependencies {
     implementation(files("libs/tun2socks.aar"))
     implementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(platform(libs.androidx.compose.bom))
-
+    implementation(libs.bundles.compose)
+    implementation(libs.bundles.lifecycle)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.activity.ktx)
-    implementation(libs.androidx.compose.foundation)
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.runtime)
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.process)
-    implementation(libs.androidx.lifecycle.runtime.compose)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.glide)
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
-    implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.mmkv)
     implementation(libs.okhttp)
     implementation(libs.okhttp.dnsoverhttps)
+    implementation(libs.mmkv)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.glide)
     implementation(libs.timber)
-
-    ksp(libs.glide.compiler)
     ksp(libs.hilt.compiler)
-
-    testImplementation(libs.junit)
-
-    androidTestImplementation(libs.androidx.test.core)
-    androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.androidx.test.rules)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-
+    ksp(libs.glide.compiler)
+    testImplementation(libs.bundles.testing.unit)
+    androidTestImplementation(libs.bundles.testing.android)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

@@ -110,3 +110,5 @@ buildSrc/.gradle/
 
 # Temporary / generated directories
 tmp/
+/buildSrc/build
+/buildSrc/build/kotlin

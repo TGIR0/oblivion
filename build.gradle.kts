@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.kotlin.parcelize) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.hilt) apply false
@@ -8,6 +9,13 @@ plugins {
     alias(libs.plugins.dependency.analysis) apply false
 }
 
+// ── Dependency Locking (reproducible builds) ──────────────────
+dependencyLocking {
+    lockAllConfigurations()
+    lockMode = LockMode.STRICT
+}
+
+// ── Spotless (code formatting) ────────────────────────────────
 spotless {
     kotlin {
         target("app/src/**/*.kt")
@@ -32,31 +40,28 @@ spotless {
     }
 }
 
-// Spotless 8.7+ supports Configuration Cache - remove explicit incompatibility
-// If CC issues arise, re-add: tasks.withType<com.diffplug.gradle.spotless.SpotlessTask>().configureEach { notCompatibleWithConfigurationCache("Spotless CC issue") }
-
+// ── PowerShell helper ─────────────────────────────────────────
 fun findPowerShellExecutable(): String {
     val osName = System.getProperty("os.name").lowercase()
-    val isWindows = osName.contains("win")
-    return if (isWindows) "powershell" else "pwsh"
+    return if (osName.contains("win")) "powershell" else "pwsh"
 }
 
 val psExec = findPowerShellExecutable()
 
 tasks.register<Exec>("versionAudit") {
-    description = ""
+    description = "Audit dependency versions"
     workingDir = rootProject.projectDir
     commandLine(psExec, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "version_audit.ps1")
 }
 
 tasks.register<Exec>("versionAuditFail") {
-    description = ""
+    description = "Audit and fail on outdated dependencies"
     workingDir = rootProject.projectDir
     commandLine(psExec, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "version_audit.ps1", "-FailOnOutdated")
 }
 
 tasks.register<Exec>("updateDeps") {
-    description = "Check and apply dependency version updates in libs.versions.toml"
+    description = "Apply dependency version updates in libs.versions.toml"
     workingDir = rootProject.projectDir
     commandLine(psExec, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "update_deps.ps1", "-Apply")
 }

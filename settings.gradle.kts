@@ -22,6 +22,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "Oblivion"
 
+// Gradle 10 behavior: no implicit property/method lookup in parent projects
 enableFeaturePreview("NO_IMPLICIT_LOOKUP_IN_PARENT_PROJECTS")
 
 include(":app")
