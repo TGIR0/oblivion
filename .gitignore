@@ -98,7 +98,15 @@ Desktop.ini
 warp-plus/
 keystore.properties
 
-#buildSrc
+# Generated script outputs
 *.logcat
-/buildSrc/build
-/buildSrc/build
+version_audit_output.txt
+hash.txt
+hash_error.txt
+INPUT_SIGNAL.txt
+
+# Build tooling caches (not in .gradle/)
+buildSrc/.gradle/
+
+# Temporary / generated directories
+tmp/
