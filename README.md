@@ -11,14 +11,14 @@ It uses a **Next-Gen Core** powered by the latest `sing-box`, `gvisor`, and `bep
 
 - **Advanced Anti-Censorship Core**: Built on the latest `sing-box` and `gvisor` network stacks with **MASQUE (HTTP/3)** support capabilities.
 - **Smart Routing**: Integrated `GeoIP` support for intelligent traffic routing.
-- **Secure VPN**: Custom Go implementation optimized for Android with the latest `tun2socks` libraries.
+- **VPN Service Shell**: Android `VpnService` integration is kept in place while the native tunnel core is reset.
 - **Optimized Performance**: Low latency, battery-efficient, and minimal resource usage.
 - **Advanced Split Tunneling**: Selective app routing with internet permission filtering.
 - **Themes**: Light, Dark, and **Pitch Black (OLED)** support.
 - **Live Logs**: Color-coded real-time logs (Info, Warning, Error) with auto-cleanup.
 - **Quick Settings Tile**: Toggle VPN directly from your notification shade.
 - **Android TV Support**: Compatible with TV interfaces.
-- **Legacy Support**: Works on Android 5.0+ (API 21+).
+- **Legacy Support**: Works on Android 7.0+ (API 24+).
 
 ## Quick Start
 
@@ -32,34 +32,17 @@ It uses a **Next-Gen Core** powered by the latest `sing-box`, `gvisor`, and `bep
 ## Developer Guide
 
 ### Prerequisites
-- **JDK 17**: Required for building the Android project.
-- **Android SDK**: API Level 35 (Android 15) recommended.
+- **JDK 25**: Required for building the Android project.
+- **Android SDK**: API Level 36 (Android 16) recommended.
 - **NDK**: Version 29.0.14206865 (or similar LTS).
-- **Go 1.25.x**: For building the `tun2socks` library (Required for new module features).
 
 ### Project Structure
 - `app/`: Main Android application module.
-- `tun2socks/`: Go module for the VPN core logic, bridging `sing-box` and Android `VpnService`.
-- `warp-plus/`: Core connection logic with MASQUE and GeoIP libraries.
+- `tun2socks/`: Empty Go placeholder that preserves the old public API until a new core is chosen.
 
 ### Building Instructions
 
-1. **Build Tun2Socks AAR**:
-   This step compiles the Go code into an Android Archive (AAR).
-   
-   *Linux/macOS:*
-   ```bash
-   ./gradlew :app:buildTun2SocksAar
-   ```
-   
-   *Windows (PowerShell):*
-   ```powershell
-   .\gradlew.bat :app:buildTun2SocksAar
-   ```
-   
-   Output: `app/libs/tun2socks.aar`
-
-2. **Build APK**:
+1. **Build APK**:
    - Open the project in Android Studio.
    - Sync Gradle.
    - Build > Generate Signed Bundle/APK > APK.
@@ -67,9 +50,7 @@ It uses a **Next-Gen Core** powered by the latest `sing-box`, `gvisor`, and `bep
 
 ### Notes for Contributors
 - **Code Style**: Follow standard Android/Kotlin coding conventions.
-- **Dependencies**: 
-  - Go modules are managed via `go.mod` in `tun2socks` and `warp-plus`.
-  - Ensure you run `go mod tidy` when updating Go dependencies.
+- **Dependencies**: The `tun2socks` module is intentionally dependency-free until a replacement core is added.
 - **Logs**: Use the centralized logging system in `LogActivity`.
 
 ## Get Involved
