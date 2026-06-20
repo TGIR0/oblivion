@@ -2,7 +2,7 @@
 agp = "9.2.1"
 kotlin = "2.3.21"
 ksp = "2.3.9"
-coreKtx = "1.19.0-rc01"
+coreKtx = "1.19.0"
 junit = "4.13.2"
 androidxTestCore = "1.7.0"
 androidxTestRules = "1.7.0"
