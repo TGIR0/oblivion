@@ -70,13 +70,13 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_25
-        targetCompatibility = JavaVersion.VERSION_25
+        sourceCompatibility = JavaVersion.VERSION_26
+        targetCompatibility = JavaVersion.VERSION_26
     }
 
     java {
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(25))
+            languageVersion.set(JavaLanguageVersion.of(26))
         }
     }
 
@@ -93,11 +93,14 @@ android {
 
 kotlin {
     compilerOptions {
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_25)
-        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_3)
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_26)
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_4)
         freeCompilerArgs.addAll(
             "-jvm-default=enable",
             "-opt-in=kotlin.RequiresOptIn",
+            "-Xreturn-value-checker=check",
+            "-Xname-based-destructuring=only-syntax",
+            "-opt-in=kotlin.experimental.collectionLiterals",
         )
     }
 }
@@ -119,6 +122,7 @@ configurations.configureEach {
 }
 
 dependencies {
+    implementation(files("libs/tun2socks.aar"))
     implementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(platform(libs.androidx.compose.bom))
 
