@@ -1,28 +1,32 @@
 <#
 .SYNOPSIS
-  Audits version catalog (gradle/libs.versions.toml) against live Maven metadata.
+  Checks and optionally applies dependency version updates in gradle/libs.versions.toml.
 
 .DESCRIPTION
-  Compares each dependency version against the highest available on Maven/Gradle.
-  Reports OK / OUTDATED / ERROR per entry and optionally exits with code 1 when
-  any outdated dependency is found (useful for CI).
+  Queries live Maven/Gradle metadata for each dependency in the version catalog.
+  In dry-run mode (default), lists available updates. With -Apply, writes new
+  versions into the TOML file and creates a .bak backup.
 
-.PARAMETER FailOnOutdated
-  Exit with code 1 if any outdated dependency is detected.
+.PARAMETER Apply
+  Write the new versions into the TOML file (creates .bak backup).
 
 .PARAMETER Quiet
   Suppress coloured console output (plain text only).
 #>
 
 param(
-  [switch]$FailOnOutdated,
+  [switch]$Apply,
   [switch]$Quiet
 )
+
+$ErrorActionPreference = "Stop"
 
 #region helpers — version comparison & HTTP retry
 
 function Assert-NotQuiet($text, $fg) {
-  if (-not $Quiet) { Write-Host $text -ForegroundColor $fg }
+  if (-not $Quiet) {
+    if ($fg) { Write-Host $text -ForegroundColor $fg } else { Write-Host $text }
+  }
 }
 
 function Invoke-WithRetry {
@@ -72,7 +76,7 @@ function Compare-Version {
 
 #endregion
 
-#region version catalog reader
+#region version catalog reader / writer
 
 function Get-TomlVersions {
   param([string]$Path)
@@ -91,6 +95,15 @@ function Get-TomlVersions {
     throw "Failed to parse version catalog: $Path"
   }
   return $result
+}
+
+function Set-TomlVersion {
+  param([string]$Path, [string]$Key, [string]$NewValue)
+  $content = Get-Content $Path -Raw
+  $pattern = "($Key\s*=\s*`")[^`"]+(`")"
+  if ($content -notmatch $pattern) { throw "Key '$Key' not found in version catalog" }
+  $content = $content -replace $pattern, "`${1}$NewValue`${2}"
+  $content | Set-Content $Path -NoNewline
 }
 
 function Get-MavenHighestVersion {
@@ -163,109 +176,95 @@ $script:checkDefs = @(
 
 $root = if ($PSScriptRoot) { $PSScriptRoot } else { "." }
 $catalogPath = Join-Path $root "gradle/libs.versions.toml"
+$wrapperPath = Join-Path $root "gradle/wrapper/gradle-wrapper.properties"
+
 if (-not (Test-Path $catalogPath)) { throw "Version catalog not found: $catalogPath" }
 
 $current = Get-TomlVersions -Path $catalogPath
-$outdated = [System.Collections.Generic.List[object]]::new()
-$results = [System.Collections.Generic.List[object]]::new()
+$updates = [System.Collections.Generic.List[object]]::new()
 
-Assert-NotQuiet "`n  Checking $(@($checkDefs).Count) packages ...`n" Cyan
-
-$padLen = ($checkDefs | ForEach-Object { $_.key.Length } | Measure-Object -Maximum).Maximum + 2
+# ── dependencies ──────────────────────────────────────────────────
+Assert-NotQuiet "`n=== Checking for updates ===`n" Cyan
 
 foreach ($c in $checkDefs) {
   $have = $current[$c.key]
   if (-not $have) { continue }
 
-  $row = [PSCustomObject]@{ Key = $c.key; Current = $have; Latest = ""; Status = ""; Error = "" }
-
   try {
     $latest = Get-MavenHighestVersion -BaseUrl $repos[$c.repo] -Group $c.group -Artifact $c.artifact
-    $row.Latest = $latest
-    $cmp = Compare-Version $have $latest
-    if ($cmp -lt 0) {
-      $row.Status = "OUTDATED"
-      $outdated.Add($row)
-      Assert-NotQuiet ("  {0,-$padLen} {1,-12} → {2,-16} <--" -f $c.key, $have, $latest) Yellow
-    } else {
-      $row.Status = "OK"
-      Assert-NotQuiet ("  {0,-$padLen} {1,-12} ✓ {2,-16}" -f $c.key, $have, $latest) Green
-    }
   } catch {
-    $row.Latest = "<?>"
-    $row.Status = "ERR"
-    $row.Error = $_.Exception.Message
-    Assert-NotQuiet ("  {0,-$padLen} {1,-12} ✗ {2}" -f $c.key, $have, $row.Error) Red
+    Assert-NotQuiet ("  {0,-24} ERROR ($($_.Exception.Message))" -f "$($c.key) ...") Red
+    continue
   }
-  $results.Add($row)
+
+  if ((Compare-Version $have $latest) -lt 0) {
+    Assert-NotQuiet ("  {0,-24} {1,-12} → {2}" -f "$($c.key) ...", $have, $latest) Yellow
+    $updates.Add([PSCustomObject]@{ Key = $c.key; Old = $have; New = $latest })
+  } else {
+    Assert-NotQuiet ("  {0,-24} {1,-12} (up to date)" -f "$($c.key) ...", $have) Green
+  }
 }
 
 # ── Gradle wrapper ────────────────────────────────────────────────
-$wrapperPath = Join-Path $root "gradle/wrapper/gradle-wrapper.properties"
 $wrapperVer = Get-GradleWrapperVersion -Path $wrapperPath
 
 if ($wrapperVer) {
-  foreach ($channel in @("current", "release-candidate")) {
-    $label = if ($channel -eq "current") { "gradleStable" } else { "gradleRc" }
-    $row = [PSCustomObject]@{ Key = $label; Current = $wrapperVer; Latest = ""; Status = ""; Error = "" }
-    try {
-      $latest = Get-GradleReleaseVersion -Channel $channel
-      $row.Latest = $latest
-      $cmp = Compare-Version $wrapperVer $latest
-      if ($cmp -lt 0) {
-        $row.Status = "OUTDATED"
-        $outdated.Add($row)
-        Assert-NotQuiet ("  {0,-$padLen} {1,-12} → {2,-16} <--" -f $label, $wrapperVer, $latest) Yellow
-      } else {
-        $row.Status = "OK"
-        Assert-NotQuiet ("  {0,-$padLen} {1,-12} ✓ {2,-16}" -f $label, $wrapperVer, $latest) Green
-      }
-    } catch {
-      if ($channel -eq "release-candidate") {
-        $row.Latest = "—"
-        $row.Status = "N/A"
-        Assert-NotQuiet ("  {0,-$padLen} {1,-12} - {2}" -f $label, $wrapperVer, "(no RC available)") Gray
-      } else {
-        $row.Latest = "<?>"
-        $row.Status = "ERR"
-        $row.Error = $_.Exception.Message
-        Assert-NotQuiet ("  {0,-$padLen} {1,-12} ✗ {2}" -f $label, $wrapperVer, $row.Error) Red
-      }
+  Assert-NotQuiet "`n=== Gradle wrapper ===`n" Cyan
+  try {
+    $gradleLatest = Get-GradleReleaseVersion -Channel "current"
+    if ((Compare-Version $wrapperVer $gradleLatest) -lt 0) {
+      Assert-NotQuiet ("  {0,-24} {1,-12} → {2}" -f "gradle ...", $wrapperVer, $gradleLatest) Yellow
+      $updates.Add([PSCustomObject]@{ Key = "gradle"; Old = $wrapperVer; New = $gradleLatest })
+    } else {
+      Assert-NotQuiet ("  {0,-24} {1,-12} (up to date)" -f "gradle ...", $wrapperVer) Green
     }
-    $results.Add($row)
+  } catch {
+    Assert-NotQuiet ("  gradle ... ERROR ($($_.Exception.Message))") Red
   }
 }
 
-# ── Summary table ─────────────────────────────────────────────────
-  Write-Host
-$table = $results | Sort-Object Key | ForEach-Object {
-  $sym = switch ($_.Status) {
-    "OK"       { " ✓ " }
-    "OUTDATED" { " ⚠ " }
-    "ERR"      { " ✗ " }
-    "N/A"      { " – " }
-    default    { " ? " }
-  }
-  [PSCustomObject]@{
-    Package = $sym + $_.Key
-    Current = $_.Current
-    Latest  = if ($_.Latest) { $_.Latest } else { "" }
-    Status  = $_.Status
-    Info    = $_.Error
-  }
-}
-$table | Format-Table -AutoSize -Property Package, Current, Latest, Status, Info
-
-if ($outdated.Count -gt 0) {
-  Assert-NotQuiet ("  $($outdated.Count) outdated / $($results.Count) checked") Yellow
-} else {
-  Assert-NotQuiet ("  All $($results.Count) dependencies up to date.") Green
+# ── summary + apply ───────────────────────────────────────────────
+if ($updates.Count -eq 0) {
+  Assert-NotQuiet "`nAll packages up to date." Green
+  exit 0
 }
 
-if ($FailOnOutdated -and $outdated.Count -gt 0) {
-  $names = ($outdated | ForEach-Object { $_.Key }) -join ", "
-  Write-Error "Outdated: $names"
-  exit 1
+Assert-NotQuiet "`n$($updates.Count) update(s) available." Yellow
+
+if (-not $Apply) {
+  Assert-NotQuiet "Re-run with -Apply to write updates." Gray
+  $updates | Format-Table -AutoSize -Property Key, Old, New
+  exit 0
+}
+
+# ── write updates ─────────────────────────────────────────────────
+Assert-NotQuiet "`n=== Applying updates ===`n" Cyan
+$backupPath = "$catalogPath.bak"
+Copy-Item $catalogPath $backupPath -Force
+
+$errors = 0
+foreach ($u in $updates) {
+  try {
+    if ($u.Key -eq "gradle") {
+      Assert-NotQuiet ("  gradle wrapper: {0,-12} → {1,-12}  (run: gradlew wrapper --gradle-version $($u.New))" -f $u.Old, $u.New) Yellow
+    } else {
+      Set-TomlVersion -Path $catalogPath -Key $u.Key -NewValue $u.New
+      Assert-NotQuiet ("  {0,-24} {1,-12} → {2,-12}" -f $u.Key, $u.Old, $u.New) Green
+    }
+  } catch {
+    Assert-NotQuiet ("  {0,-24} ✗ {1}" -f $u.Key, $_.Exception.Message) Red
+    $errors++
+  }
+}
+
+if ($errors -eq 0) {
+  Assert-NotQuiet "`nBackup: $backupPath" Gray
+  Assert-NotQuiet "Done. $($updates.Count) version(s) updated." Green
+}
+
+$gradleUpdate = $updates | Where-Object { $_.Key -eq "gradle" } | Select-Object -First 1
+if ($gradleUpdate) {
+  Assert-NotQuiet "`n>>> To update Gradle wrapper: gradlew wrapper --gradle-version $($gradleUpdate.New)" Yellow
 }
 
 exit 0
