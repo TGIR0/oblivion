@@ -1,6 +1,3 @@
-import java.util.Properties
-import org.bepass.oblivion.gradle.VerifyRequiredFileTask
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
@@ -17,7 +14,7 @@ android {
     defaultConfig {
         applicationId = "org.bepass.oblivion"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 18
         versionName = "8"
 
@@ -26,14 +23,15 @@ android {
 
     signingConfigs {
         create("release") {
-            val keystorePropertiesFile = rootProject.file("keystore.properties")
-            if (keystorePropertiesFile.exists()) {
-                val keystoreProperties = Properties()
-                keystorePropertiesFile.inputStream().use(keystoreProperties::load)
-                storeFile = file(keystoreProperties["storeFile"].toString())
-                storePassword = keystoreProperties["storePassword"].toString()
-                keyAlias = keystoreProperties["keyAlias"].toString()
-                keyPassword = keystoreProperties["keyPassword"].toString()
+            val keystoreProps = providers.of(org.bepass.oblivion.gradle.OptionalPropertiesValueSource::class) {
+                parameters.file.set(rootProject.layout.projectDirectory.file("keystore.properties"))
+            }
+            val props = keystoreProps.get()
+            if (props.isNotEmpty()) {
+                storeFile = file(props["storeFile"]!!)
+                storePassword = props["storePassword"]!!
+                keyAlias = props["keyAlias"]!!
+                keyPassword = props["keyPassword"]!!
             }
         }
     }
@@ -116,17 +114,6 @@ tasks.withType<JavaCompile>().configureEach {
     options.compilerArgs.add("-Xlint:-deprecation")
 }
 
-tasks.register<VerifyRequiredFileTask>("verifyTun2socksAar") {
-    requiredFile.set(layout.projectDirectory.file("libs/tun2socks.aar"))
-    failureMessage.set(
-        "Missing {path}. Build tun2socks.aar outside the app module, then place it in app/libs.",
-    )
-}
-
-tasks.named("preBuild") {
-    dependsOn("verifyTun2socksAar")
-}
-
 configurations.configureEach {
     exclude(group = "org.json", module = "json")
 }
@@ -157,7 +144,6 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.okhttp.dnsoverhttps)
     implementation(libs.timber)
-    implementation(files("libs/tun2socks.aar"))
 
     ksp(libs.glide.compiler)
     ksp(libs.hilt.compiler)
