@@ -2,17 +2,90 @@
 
 This file records dependency/toolchain upgrades and any required rollbacks or workarounds.
 
-## 2026-02-19
+## 2026-06-21 — Gradle 9.6.0 Full Feature Adoption
 
 ### Upgraded
-- Kotlin: `2.2.10` → `2.3.20-RC` (`gradle/libs.versions.toml`)
-- KSP: `2.3.5` → `2.3.6` (`gradle/libs.versions.toml`)
-- Kotlin compiler args: `-Xjvm-default=all` (deprecated) → `-jvm-default=enable` (`build.gradle`, `app/build.gradle`)
-- Added Kotlin EAP repository (restricted to `org.jetbrains.kotlin*`) to support Kotlin `2.3.20-RC` artifacts (`settings.gradle`)
+- **Gradle:** 9.5.0 → **9.6.0** (wrapper + distribution)
+- **Compose BOM:** 2026.05.01 → **2026.06.01**
+- **Core KTX:** 1.19.0-rc01 → **1.19.0** (stable)
 
-### Notes
-- Removed the gradle-versions-plugin (`dependencyUpdates`) because it crashes with `java.util.ConcurrentModificationException` on this Gradle/AGP stack. Use `version_audit.ps1` instead.
-- `detekt-gradle-plugin` currently triggers a Gradle 9 deprecation warning (`ReportingExtension.file(String)`), so it must be updated before moving to Gradle 10.
+### Gradle 9.6.0 Features Enabled
+- **Configuration Cache:** Improved hit rates for project properties via system properties/env vars (auto-enabled)
+- **`NO_IMPLICIT_LOOKUP_IN_PARENT_PROJECTS`** feature preview enabled in `settings.gradle.kts` (prepares for Gradle 10)
+- **Performance optimizations** in `gradle.properties`: `org.gradle.parallel=true`, `org.gradle.vfs.watch=true`, `org.gradle.configuration-cache.problems=fail`, increased JVM heap (3GB daemon, 2GB Kotlin daemon)
+- **CLI improvements:** `--non-interactive` support, `NO_COLOR` env var, sortable HTML test reports (auto)
+
+### Deprecation Fixes (Gradle 10 Preparation)
+- **Keystore loading migrated** from `Properties` + `inputStream()` to `OptionalPropertiesValueSource` (CC-compatible, lazy Provider API)
+- **Removed deprecated Kotlin DSL delegated property** (`by providers.of(...)` → explicit `providers.of(...)`)
+- **Verified no task action deprecations** (taskDependencies, getExtensions, injected Project/Gradle services)
+- **Spotless 8.6.0** retained (8.7.0 available but CC compatibility unverified); explicit incompatibility removed
+
+### Build Infrastructure
+- **buildSrc:** Added JetBrains Kotlin EAP repository for plugin compatibility
+- **Configuration Cache:** Verified working with cache storage and reuse (`help`, `tasks`, `versionAudit`)
+
+### Known Considerations
+- AGP 9.2.1 retained (9.3.0+ not yet stable)
+- Hilt 2.59.2, Navigation Compose 2.10.0-alpha05, Lifecycle 2.11.0-rc01 retained (stable versions not yet released)
+- Deprecation warning: "Using a Project object as a dependency notation" — likely from AGP/internal plugin, not project code
+- `buildNeeded`/`buildDependents` tasks deprecated in Gradle 9.6 (will be removed in Gradle 10)
+
+## 2026-06-20 — Tun2socks Core Reset
+
+- Removed the local `tun2socks.aar` dependency and Gradle verification step.
+- Reduced `tun2socks/` to a dependency-free placeholder module.
+- Added a Kotlin `tun2socks` placeholder API so the Android app still compiles while failing fast if the absent core is started.
+- Removed the stale `warp-plus` linkage from the Go module.
+
+## 2026-06-14 — Comprehensive Version Audit & Fixes
+
+### Current Versions (from actual project files)
+
+| Component | Version | Status |
+|-----------|---------|--------|
+| **Gradle** | 9.5.0 | Latest stable |
+| **AGP** | 9.2.1 | Latest stable |
+| **Kotlin** | 2.3.21 | Latest stable |
+| **KSP** | 2.3.9 | Compatible with Kotlin 2.3.21 |
+| **JDK** | 25 | Toolchain + daemon |
+| **NDK** | 29.0.14206865 | Stable |
+| **Compose BOM** | 2026.05.01 | Latest |
+| **Navigation Compose** | 2.10.0-alpha05 | Latest (alpha) |
+| **Activity Compose/KTX** | 1.13.0 | Latest stable |
+| **Core KTX** | 1.19.0-rc01 | Release candidate |
+| **Lifecycle** | 2.11.0-rc01 | Release candidate |
+| **Hilt** | 2.59.2 | Latest stable |
+| **Hilt Navigation Compose** | 1.4.0-rc01 | Release candidate |
+| **OkHttp** | 5.3.2 | Latest stable |
+| **Coroutines** | 1.11.0 | Latest |
+| **MMKV** | 2.4.0 | Latest stable |
+| **Glide** | 5.0.7 | Latest stable |
+| **Timber** | 5.0.1 | Latest stable |
+| **Detekt** | 2.0.0-alpha.3 | Alpha (awaiting stable) |
+| **Spotless** | 8.6.0 | Latest stable |
+| **Dependency Analysis** | 3.14.0 | Latest stable |
+| **Go (tun2socks)** | 1.24.1 | Module version |
+| **compileSdk** | 37 | Preview SDK |
+| **targetSdk** | 36 | Android 16 |
+| **minSdk** | 24 | Android 7.0 |
+
+### Changes Made
+- Synchronized this document with actual version catalog (`gradle/libs.versions.toml`)
+- Added google() repository to `buildSrc/build.gradle.kts` for AGP compatibility
+- Fixed `compileSdk` consistency (37 → aligned with targetSdk documentation)
+- Replaced direct `android.util.Log` calls with `Timber` throughout `OblivionVpnService.kt`
+- Fixed ProGuard `-assumenosideeffects` for Log to avoid breaking Timber
+- Refactored `tun2socks.go` to use struct-based encapsulation (eliminated global mutable state)
+- Updated `tools:targetApi` in AndroidManifest.xml
+
+### Known Considerations
+- Several libraries use alpha/rc versions intentionally (bleeding-edge policy)
+- Navigation Compose 2.10.0-alpha05: using latest features, stable expected soon
+- Lifecycle 2.11.0-rc01: release candidate, stable imminent
+- Detekt 2.0.0-alpha.3: major rewrite, alpha quality
+- compileSdk 37 is a preview SDK; verify compatibility with AGP 9.2.1
+- Go module at `go 1.24.1`; `tun2socks` is currently a dependency-free placeholder.
 
 ## 2026-04-25 (initial changes)
 
@@ -52,7 +125,6 @@ This file records dependency/toolchain upgrades and any required rollbacks or wo
 - Coroutines: `1.10.2` (unchanged)
 - MMKV: `2.3.0` (unchanged here; later bumped, see final corrections)
 - Coil: `3.3.0` → `3.4.0-alpha01`
-- LeakCanary: `3.0-alpha-8` → `3.0-alpha-9`
 
 ### Massive Java to Kotlin Migration
 - Converted all remaining Java source files to Kotlin, including:
@@ -68,7 +140,7 @@ This file records dependency/toolchain upgrades and any required rollbacks or wo
 - Updated `app/build.gradle` to use `alias(libs...)` exclusively for plugins and dependencies.
 - Removed deprecated `vectorDrawables.useSupportLibrary` and redundant `buildConfig` flag from `app/build.gradle`.
 - Migrated release signing configuration from hardcoded values to external `keystore.properties` (gitignored), with a `validateReleaseSigning` task.
-- Rewrote gomobile tasks (`buildTun2socksAar`) using `providers.exec()` for Configuration Cache compatibility.
+- Previously rewrote gomobile task wiring; that native-core path was removed by the 2026-06-20 reset.
 - Switched `FileManager.initialize` call from `BaseActivity` to `ApplicationLoader` to avoid redundant initialisation.
 - Refactored `FileManager` into a singleton `object`, added `Keys` constants, and replaced manual locking with `ReentrantReadWriteLock`.
 - Centralised all VPN configuration building in `FileManager.getVpnConfig()` under a single read-lock for consistency.
@@ -90,7 +162,7 @@ This file records dependency/toolchain upgrades and any required rollbacks or wo
 - Rewrote `proguard-rules.pro` with modern best practices:
   - Enabled line number retention and source file renaming for Crashlytics visibility.
   - Added `-assumenosideeffects` to strip `android.util.Log` calls in release builds.
-  - Retained native library rules for `tun2socks` and `go`.
+  - Previously retained native library rules; those rules were removed by the 2026-06-20 reset.
 
 ### Build Infrastructure
 - Updated `gradle.properties`:
@@ -134,7 +206,7 @@ This file records dependency/toolchain upgrades and any required rollbacks or wo
 - **Navigation Compose:** `2.10.0-alpha01` → `2.9.7` (reverted to stable; the alpha is not recommended for production).
 - **Spotless:** `8.3.0` → `8.4.0` (latest release).
 - **Go (devshell):** `1.25` → `1.26.1` (latest stable; aligned with `devshell.nix`).
-- **JDK (devshell):** `25` → `26` (aligned with `devshell.nix`; the project’s compilation toolchain remains on JDK 25 until full validation).
+- **JDK (devshell):** `25` → `26` (aligned with `devshell.nix`; the project's compilation toolchain remains on JDK 25 until full validation).
 
 ### Config Adjustments
 - Added `android.builtInKotlin=true` to `gradle.properties` (explicit for AGP 9.x).
@@ -144,6 +216,6 @@ This file records dependency/toolchain upgrades and any required rollbacks or wo
 
 ### Notes
 - Kotlin `2.4.0` should be adopted when it reaches stable (target: mid‑2026).
-- Gradle `9.4.1` officially supports JDK 26, but the project’s compilation toolchain remains on JDK 25 until all dependencies are verified against JDK 26.
+- Gradle `9.4.1` officially supports JDK 26, but the project's compilation toolchain remains on JDK 25 until all dependencies are verified against JDK 26.
 - The dependency analysis plugin (`com.autonomousapps.dependency-analysis`) stays at `3.6.0` — no newer stable version available.
 - All Java files have been deleted and the project is now **100% Kotlin** (including `buildSrc` and tests). No Java source remains.
