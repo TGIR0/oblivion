@@ -1,6 +1,5 @@
 package org.bepass.oblivion.ui
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -12,18 +11,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.bepass.oblivion.R
+import org.bepass.oblivion.enums.VpnCoreType
 import org.bepass.oblivion.ui.viewmodel.SettingsViewModel
 import org.bepass.oblivion.utils.FileManager
 import org.bepass.oblivion.utils.FontSizeHelper
@@ -39,37 +38,31 @@ fun SettingsScreen(
   viewModel: SettingsViewModel = hiltViewModel(),
 ) {
   val context = LocalContext.current
-  viewModel.vpnConfig.collectAsStateWithLifecycle()
+  val config by viewModel.vpnConfig.collectAsStateWithLifecycle()
+  val core by viewModel.vpnCore.collectAsStateWithLifecycle()
   val selectedTheme by ThemeHelper.themeFlow.collectAsStateWithLifecycle()
   val selectedFontSize by FontSizeHelper.fontSizeFlow.collectAsStateWithLifecycle()
-  var endpoint by remember { mutableStateOf(FileManager.getString(FileManager.Keys.USERSETTING_ENDPOINT)) }
-  var port by remember { mutableStateOf(FileManager.getString(FileManager.Keys.USERSETTING_PORT)) }
-  var dns by remember { mutableStateOf(FileManager.getString(FileManager.Keys.USERSETTING_DNS).ifEmpty { "1.1.1.1" }) }
-  var endpointType by remember { mutableIntStateOf(FileManager.getInt(FileManager.Keys.USERSETTING_ENDPOINT_TYPE)) }
-  var region by remember { mutableIntStateOf(FileManager.getInt(FileManager.Keys.USERSETTING_REGION)) }
-  var lan by remember { mutableStateOf(FileManager.getBoolean(FileManager.Keys.USERSETTING_LAN)) }
-  var gool by remember { mutableStateOf(FileManager.getBoolean(FileManager.Keys.USERSETTING_GOOL)) }
-  var proxy by remember { mutableStateOf(FileManager.getBoolean(FileManager.Keys.USERSETTING_PROXYMODE)) }
+
   var showEndpointSheet by remember { mutableStateOf(false) }
-  var showPortDialog by remember { mutableStateOf(false) }
   var showDnsSheet by remember { mutableStateOf(false) }
-  var showEndpointTypeDialog by remember { mutableStateOf(false) }
-  var showRegionDialog by remember { mutableStateOf(false) }
+  var showCoreDialog by remember { mutableStateOf(false) }
+  var showScannerDialog by remember { mutableStateOf(false) }
   var showBatteryDialog by remember { mutableStateOf(false) }
   var showThemeDialog by remember { mutableStateOf(false) }
   var showFontSizeDialog by remember { mutableStateOf(false) }
   var showLanguageDialog by remember { mutableStateOf(false) }
-  val endpointTypes = stringArrayResource(R.array.endpointType)
-  val regions = stringArrayResource(R.array.regions)
-  val themeOptions = remember { listOf(ThemeHelper.Theme.OLED, ThemeHelper.Theme.DARK, ThemeHelper.Theme.LIGHT) }
-  val fontSizeOptions =
-    remember {
-      listOf(
-        FontSizeHelper.FontSize.SMALL,
-        FontSizeHelper.FontSize.DEFAULT,
-        FontSizeHelper.FontSize.LARGE,
-      )
-    }
+  val coreTypes = remember { VpnCoreType.entries }
+  val coreLabels = coreTypes.map { stringResource(it.labelRes) }
+  val themeOptions = remember {
+    listOf(ThemeHelper.Theme.OLED, ThemeHelper.Theme.DARK, ThemeHelper.Theme.LIGHT)
+  }
+  val fontSizeOptions = remember {
+    listOf(
+      FontSizeHelper.FontSize.SMALL,
+      FontSizeHelper.FontSize.DEFAULT,
+      FontSizeHelper.FontSize.LARGE,
+    )
+  }
   val themeLabels =
     listOf(
       stringResource(R.string.theme_oled),
@@ -87,15 +80,15 @@ fun SettingsScreen(
     if (currentLocaleTag.isBlank()) {
       stringResource(R.string.system_default)
     } else {
-      LocaleManager.availableLocales(context).firstOrNull { it.tag == currentLocaleTag }?.displayName
-        ?: currentLocaleTag
+      LocaleManager.availableLocales(context)
+        .firstOrNull { it.tag == currentLocaleTag }
+        ?.displayName ?: currentLocaleTag
     }
 
-  Column(Modifier.fillMaxSize()) {
+  Column(Modifier.fillMaxSize().testTag(UiTestTags.SETTINGS)) {
     ScreenHeader(title = stringResource(R.string.settingsText), onBack = onBack)
     Column(
-      modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(20.dp),
-      verticalArrangement = Arrangement.spacedBy(12.dp),
+      modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(vertical = 8.dp)
     ) {
       Text(
         text = stringResource(R.string.appearance_personalization),
@@ -111,7 +104,8 @@ fun SettingsScreen(
       SettingsRow(
         title = stringResource(R.string.font_size_text),
         description = stringResource(R.string.font_size_desc),
-        value = fontSizeLabels.getOrElse(fontSizeOptions.indexOf(selectedFontSize)) { fontSizeLabels[1] },
+        value =
+          fontSizeLabels.getOrElse(fontSizeOptions.indexOf(selectedFontSize)) { fontSizeLabels[1] },
         onClick = { showFontSizeDialog = true },
       )
       SettingsRow(
@@ -123,46 +117,38 @@ fun SettingsScreen(
       SettingsRow(
         title = stringResource(R.string.endpointText),
         description = stringResource(R.string.endpointTextDesc),
-        value = endpoint.ifBlank { "Auto" },
+        value = config.endpoint.ifBlank { "Auto" },
         onClick = { showEndpointSheet = true },
-      )
-      SettingsRow(
-        title = stringResource(R.string.portTunText),
-        description = stringResource(R.string.portTunTextDesc),
-        value = port,
-        onClick = { showPortDialog = true },
       )
       SettingsRow(
         title = stringResource(R.string.dnsText),
         description = stringResource(R.string.dnsTextDesc),
-        value = dns,
+        value = config.dns,
         onClick = { showDnsSheet = true },
       )
       SettingsRow(
-        title = stringResource(R.string.endpointTypeText),
-        description = stringResource(R.string.endpointTypeTextDesc),
-        value = endpointTypes.getOrElse(endpointType) { endpointTypes.firstOrNull().orEmpty() },
-        onClick = { showEndpointTypeDialog = true },
+        title = stringResource(R.string.core_title),
+        description = stringResource(R.string.core_title_desc),
+        value =
+          coreLabels.getOrElse(
+            coreTypes.indexOfFirst { it.storageId == core }.takeIf { it >= 0 } ?: 0
+          ) {
+            coreLabels.first()
+          },
+        onClick = { showCoreDialog = true },
       )
       SettingsRow(
-        title = stringResource(R.string.regionText),
-        description = stringResource(R.string.regionTextDesc),
-        value = regions.getOrElse(region) { regions.firstOrNull().orEmpty() },
-        onClick = { showRegionDialog = true },
+        title = stringResource(R.string.scanner_section_title),
+        description = stringResource(R.string.scanner_section_desc),
+        onClick = { showScannerDialog = true },
       )
-      SwitchSettingsRow(stringResource(R.string.goolText), stringResource(R.string.goolTextDesc), gool) {
-        gool = it
-        viewModel.updateSetting(FileManager.Keys.USERSETTING_GOOL, it)
-      }
-      SwitchSettingsRow(stringResource(R.string.connectFromLanText), stringResource(R.string.connectFromLanTextDesc), lan) {
-        lan = it
-        viewModel.updateSetting(FileManager.Keys.USERSETTING_LAN, it)
-      }
-      SwitchSettingsRow(stringResource(R.string.proxy_mode), stringResource(R.string.running_in_proxy_mode_not_vpn), proxy) {
-        proxy = it
+      SwitchSettingsRow(
+        stringResource(R.string.proxy_mode),
+        stringResource(R.string.running_in_proxy_mode_not_vpn),
+        config.proxyMode,
+      ) {
         viewModel.updateSetting(FileManager.Keys.USERSETTING_PROXYMODE, it)
       }
-      SwitchSettingsRow(stringResource(R.string.masqueText), stringResource(R.string.masqueTextDesc), false, enabled = false) {}
       SettingsRow(
         title = stringResource(R.string.blackList),
         description = stringResource(R.string.blackListTextDesc),
@@ -179,18 +165,7 @@ fun SettingsScreen(
         title = stringResource(R.string.resetAppText),
         description = stringResource(R.string.resetAppTextDesc),
         onClick = {
-          FileManager.resetToDefault()
-          FileManager.cleanOrMigrateSettings(context)
-          ThemeHelper.getInstance().init()
-          FontSizeHelper.init()
-          endpoint = FileManager.getString(FileManager.Keys.USERSETTING_ENDPOINT)
-          port = FileManager.getString(FileManager.Keys.USERSETTING_PORT)
-          dns = FileManager.getString(FileManager.Keys.USERSETTING_DNS)
-          endpointType = FileManager.getInt(FileManager.Keys.USERSETTING_ENDPOINT_TYPE)
-          region = FileManager.getInt(FileManager.Keys.USERSETTING_REGION)
-          lan = FileManager.getBoolean(FileManager.Keys.USERSETTING_LAN)
-          gool = FileManager.getBoolean(FileManager.Keys.USERSETTING_GOOL)
-          proxy = FileManager.getBoolean(FileManager.Keys.USERSETTING_PROXYMODE)
+          viewModel.resetSettings(context)
         },
       )
     }
@@ -230,55 +205,31 @@ fun SettingsScreen(
     EndpointSheet(
       onDismiss = { showEndpointSheet = false },
       onSelected = {
-        endpoint = it
         viewModel.updateSetting(FileManager.Keys.USERSETTING_ENDPOINT, it)
         showEndpointSheet = false
       },
     )
   }
-  if (showPortDialog) {
-    EditValueDialog(
-      title = stringResource(R.string.portTunText),
-      value = port,
-      onDismiss = { showPortDialog = false },
-      onSave = {
-        port = it
-        viewModel.updateSetting(FileManager.Keys.USERSETTING_PORT, it)
-        showPortDialog = false
-      },
-    )
-  }
   if (showDnsSheet) {
-    DnsSettingsSheet(onDismiss = {
-      dns = FileManager.getString(FileManager.Keys.USERSETTING_DNS).ifEmpty { "1.1.1.1" }
-      showDnsSheet = false
-    })
+    DnsSettingsSheet(
+      onDismiss = {
+        showDnsSheet = false
+      }
+    )
   }
-  if (showEndpointTypeDialog) {
-    OptionDialog(
-      title = stringResource(R.string.endpointTypeText),
-      options = endpointTypes.toList(),
-      selectedIndex = endpointType,
-      onDismiss = { showEndpointTypeDialog = false },
-      onSelected = {
-        endpointType = it
-        viewModel.updateSetting(FileManager.Keys.USERSETTING_ENDPOINT_TYPE, it)
-        showEndpointTypeDialog = false
+  if (showCoreDialog) {
+    CoreSelectionDialog(
+      modes = coreTypes,
+      selectedStorageId = core,
+      onDismiss = { showCoreDialog = false },
+      onSelected = { selectedCore ->
+        viewModel.updateSetting(FileManager.Keys.USERSETTING_VPN_CORE, selectedCore.storageId)
+        showCoreDialog = false
       },
     )
   }
-  if (showRegionDialog) {
-    OptionDialog(
-      title = stringResource(R.string.regionText),
-      options = regions.toList(),
-      selectedIndex = region,
-      onDismiss = { showRegionDialog = false },
-      onSelected = {
-        region = it
-        viewModel.updateSetting(FileManager.Keys.USERSETTING_REGION, it)
-        showRegionDialog = false
-      },
-    )
+  if (showScannerDialog) {
+    ScannerDialog(onDismiss = { showScannerDialog = false })
   }
   if (showBatteryDialog) {
     AlertDialog(
@@ -286,14 +237,20 @@ fun SettingsScreen(
       title = { Text(stringResource(R.string.batteryOpL)) },
       text = { Text(stringResource(R.string.dialBtText)) },
       confirmButton = {
-        TextButton(onClick = {
-          requestIgnoreBatteryOptimizations(context)
-          showBatteryDialog = false
-        }) {
+        TextButton(
+          onClick = {
+            requestIgnoreBatteryOptimizations(context)
+            showBatteryDialog = false
+          }
+        ) {
           Text(stringResource(R.string.goToSettings))
         }
       },
-      dismissButton = { TextButton(onClick = { showBatteryDialog = false }) { Text(stringResource(R.string.cancel)) } },
+      dismissButton = {
+        TextButton(onClick = { showBatteryDialog = false }) {
+          Text(stringResource(R.string.cancel))
+        }
+      },
     )
   }
 }

@@ -1,8 +1,10 @@
 package org.bepass.oblivion.utils
 
+import android.app.LocaleManager as AndroidLocaleManager
 import android.content.Context
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.os.LocaleListCompat
+import android.content.res.Configuration
+import android.os.Build
+import android.os.LocaleList
 import java.util.Locale
 import org.bepass.oblivion.R
 
@@ -16,20 +18,12 @@ object LocaleManager {
   fun initialize(context: Context) {
     FileManager.initialize(context.applicationContext)
     val savedTag = FileManager.getString(APP_LOCALE_TAG).trim()
-    if (savedTag.isNotBlank()) {
-      val locale = Locale.forLanguageTag(savedTag)
-      if (locale.toLanguageTag().isNotBlank() && locale.toLanguageTag() != "und") {
-        AppCompatDelegate.setApplicationLocales(LocaleListCompat.create(locale))
-        FileManager.set(IS_SET_DEFAULT_LOCALE, true)
-        return
-      }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      val tags = savedTag.takeIf(::isValidLanguageTag).orEmpty()
+      context.getSystemService(AndroidLocaleManager::class.java).applicationLocales =
+        LocaleList.forLanguageTags(tags)
     }
-
-    if (!FileManager.getBoolean(IS_SET_DEFAULT_LOCALE, false)) {
-      // Empty locale list tells AndroidX to follow system.
-      AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
-      FileManager.set(IS_SET_DEFAULT_LOCALE, true)
-    }
+    FileManager.set(IS_SET_DEFAULT_LOCALE, true)
   }
 
   @JvmStatic
@@ -56,16 +50,45 @@ object LocaleManager {
       .toList()
   }
 
+  fun currentLocaleTag(): String = FileManager.getString(APP_LOCALE_TAG).trim()
+
+  fun localizedContext(context: Context): Context {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) return context
+    val savedTag = FileManager.getString(APP_LOCALE_TAG).trim()
+    if (!isValidLanguageTag(savedTag)) return context
+    val configuration = Configuration(context.resources.configuration)
+    configuration.setLocales(LocaleList.forLanguageTags(savedTag))
+    return context.createConfigurationContext(configuration)
+  }
+
+  fun setSystemDefaultLocale(context: Context) {
+    setSystemDefaultLocale()
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      context.getSystemService(AndroidLocaleManager::class.java).applicationLocales =
+        LocaleList.getEmptyLocaleList()
+    }
+  }
+
+  fun setAppLocale(context: Context, locale: Locale) {
+    setAppLocale(locale)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      context.getSystemService(AndroidLocaleManager::class.java).applicationLocales =
+        LocaleList.forLanguageTags(locale.toLanguageTag())
+    }
+  }
+
   fun setSystemDefaultLocale() {
-    AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
     FileManager.set(APP_LOCALE_TAG, "")
     FileManager.set(IS_SET_DEFAULT_LOCALE, true)
   }
 
   fun setAppLocale(locale: Locale) {
     val normalized = locale.toLanguageTag()
-    AppCompatDelegate.setApplicationLocales(LocaleListCompat.create(locale))
+    require(isValidLanguageTag(normalized)) { "Invalid locale" }
     FileManager.set(APP_LOCALE_TAG, normalized)
     FileManager.set(IS_SET_DEFAULT_LOCALE, true)
   }
+
+  private fun isValidLanguageTag(tag: String): Boolean =
+    tag.isNotBlank() && Locale.forLanguageTag(tag).toLanguageTag() != "und"
 }

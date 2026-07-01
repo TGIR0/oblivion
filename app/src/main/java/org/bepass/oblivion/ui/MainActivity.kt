@@ -21,6 +21,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import org.bepass.oblivion.R
+import org.bepass.oblivion.enums.VpnCoreType
 import org.bepass.oblivion.platform.VpnServiceConnector
 import org.bepass.oblivion.service.OblivionVpnService
 import org.bepass.oblivion.ui.theme.OblivionTheme
@@ -80,6 +81,11 @@ class MainActivity : ComponentActivity() {
   }
 
   private fun requestVpnStart() {
+    val core = VpnCoreType.getCurrent()
+    if (!core.isReady) {
+      Toast.makeText(this, core.availabilityReasonRes, Toast.LENGTH_LONG).show()
+      return
+    }
     if (shouldRequestNotificationPermissionBeforeVpnStart()) {
       FileManager.set(NOTIFICATION_PERMISSION_REQUESTED_KEY, true)
       pendingNotificationPermissionForVpnStart = true
@@ -93,7 +99,7 @@ class MainActivity : ComponentActivity() {
   private fun shouldRequestNotificationPermissionBeforeVpnStart(): Boolean =
     Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
       ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
-      PackageManager.PERMISSION_GRANTED &&
+        PackageManager.PERMISSION_GRANTED &&
       !FileManager.getBoolean(NOTIFICATION_PERMISSION_REQUESTED_KEY, false)
 
   private fun continueVpnStartAfterNotificationCheck() {
@@ -108,7 +114,7 @@ class MainActivity : ComponentActivity() {
 
   private fun startVpnServiceFromActivity(intent: Intent) {
     startVpnService(this, intent)
-    vpnServiceConnector.ensureBound(createIfNeeded = true)
+    vpnServiceConnector.ensureBound()
   }
 
   private fun applySystemBars(theme: ThemeHelper.Theme) {
@@ -154,16 +160,19 @@ class MainActivity : ComponentActivity() {
       val dns = FileManager.getString(FileManager.Keys.USERSETTING_DNS).ifEmpty { "1.1.1.1" }
 
       intent.apply {
-        putExtra(FileManager.Keys.USERSETTING_PROXYMODE, FileManager.getBoolean(FileManager.Keys.USERSETTING_PROXYMODE))
-        putExtra(FileManager.Keys.USERSETTING_LICENSE, FileManager.getString(FileManager.Keys.USERSETTING_LICENSE))
-        putExtra(FileManager.Keys.USERSETTING_ENDPOINT_TYPE, FileManager.getInt(FileManager.Keys.USERSETTING_ENDPOINT_TYPE))
-        putExtra(FileManager.Keys.USERSETTING_GOOL, FileManager.getBoolean(FileManager.Keys.USERSETTING_GOOL))
-        putExtra(FileManager.Keys.USERSETTING_ENDPOINT, FileManager.getString(FileManager.Keys.USERSETTING_ENDPOINT))
-        putExtra(FileManager.Keys.USERSETTING_PORT, FileManager.getString(FileManager.Keys.USERSETTING_PORT))
-        putExtra(FileManager.Keys.USERSETTING_LAN, FileManager.getBoolean(FileManager.Keys.USERSETTING_LAN))
-        putExtra(FileManager.Keys.USERSETTING_MASQUE, FileManager.getBoolean(FileManager.Keys.USERSETTING_MASQUE))
-        putExtra(FileManager.Keys.USERSETTING_REGION, FileManager.getInt(FileManager.Keys.USERSETTING_REGION))
+        putExtra(
+          FileManager.Keys.USERSETTING_PROXYMODE,
+          FileManager.getBoolean(FileManager.Keys.USERSETTING_PROXYMODE),
+        )
+        putExtra(
+          FileManager.Keys.USERSETTING_ENDPOINT,
+          FileManager.getString(FileManager.Keys.USERSETTING_ENDPOINT),
+        )
         putExtra(FileManager.Keys.USERSETTING_DNS, dns)
+        putExtra(
+          FileManager.Keys.USERSETTING_VPN_DNS,
+          FileManager.getString(FileManager.Keys.USERSETTING_VPN_DNS, dns),
+        )
         action = OblivionVpnService.FLAG_VPN_START
       }
       ContextCompat.startForegroundService(context, intent)

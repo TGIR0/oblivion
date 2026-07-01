@@ -70,10 +70,7 @@ class PublicIPUtils @Inject constructor(private val okHttpClient: OkHttpClient) 
   private fun resolveSocksPort(): Int {
     val runtimePort = FileManager.getInt(FileManager.KeyHolder.RUNTIME_SOCKS_PORT, 0)
     if (runtimePort in MIN_PORT..MAX_PORT) return runtimePort
-
-    val port =
-      FileManager.getString("USERSETTING_port").toIntOrNull()?.takeIf { it in MIN_PORT..MAX_PORT }
-    return port ?: error("SOCKS port is not configured (RUNTIME_SOCKS_PORT/USERSETTING_port)")
+    error("Runtime SOCKS port is not available")
   }
 
   private companion object {

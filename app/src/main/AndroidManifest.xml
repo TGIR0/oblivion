@@ -7,15 +7,14 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-feature android:name="android.hardware.wifi" android:required="false" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"
         tools:ignore="ForegroundServicesPolicy" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
     <queries>
@@ -37,7 +36,8 @@
         android:enableOnBackInvokedCallback="true"
         android:theme="@style/Theme.OblivionUI"
         android:networkSecurityConfig="@xml/network_security_config"
-        tools:targetApi="vanilla_ice_cream"
+        android:usesCleartextTraffic="false"
+        tools:targetApi="CINNAMON_BUN"
         tools:ignore="DiscouragedApi">
 
         <service
@@ -75,6 +75,7 @@
         <activity
             android:name="org.bepass.oblivion.ui.MainActivity"
             android:exported="true"
+            android:banner="@mipmap/tv_banner"
             android:theme="@style/Theme.OblivionUI"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>

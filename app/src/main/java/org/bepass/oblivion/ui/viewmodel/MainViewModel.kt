@@ -50,14 +50,13 @@ constructor(
 
   fun refreshPublicIp() {
     fetchPublicIpJob?.cancel()
-    fetchPublicIpJob =
-      viewModelScope.launch {
-        _isFetchingPublicIp.value = true
-        try {
-          _publicIpDetails.value = publicIPUtils.fetchIpDetails()
-        } finally {
-          _isFetchingPublicIp.value = false
-        }
+    fetchPublicIpJob = viewModelScope.launch {
+      _isFetchingPublicIp.value = true
+      try {
+        _publicIpDetails.value = publicIPUtils.fetchIpDetails()
+      } finally {
+        _isFetchingPublicIp.value = false
       }
+    }
   }
 }

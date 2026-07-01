@@ -7,6 +7,8 @@ plugins {
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.spotless)
     alias(libs.plugins.dependency.analysis) apply false
+    alias(libs.plugins.cyclonedx)
+    alias(libs.plugins.kotlin.serialization) apply false
 }
 
 // ── Dependency Locking (reproducible builds) ──────────────────
@@ -18,23 +20,26 @@ dependencyLocking {
 // ── Spotless (code formatting) ────────────────────────────────
 spotless {
     kotlin {
-        target("app/src/**/*.kt")
-        targetExclude("**/build/**")
+        target(fileTree("app/src") { include("**/*.kt") })
         ktfmt().googleStyle()
     }
     format("misc") {
         target(
-            ".gitignore",
-            "*.md",
-            "*.properties",
-            "*.gradle",
-            "*.gradle.kts",
-            ".github/**/*.yml",
-            ".github/**/*.yaml",
-            "gradle/**/*.toml",
-            "gradle/**/*.properties"
+            fileTree(rootDir) {
+                include(
+                    ".gitignore",
+                    "*.md",
+                    "*.properties",
+                    "*.gradle",
+                    "*.gradle.kts",
+                    ".github/**/*.yml",
+                    ".github/**/*.yaml",
+                    "gradle/**/*.toml",
+                    "gradle/**/*.properties",
+                )
+                exclude("**/build/**", "**/.gradle/**")
+            }
         )
-        targetExclude("**/build/**")
         trimTrailingWhitespace()
         endWithNewline()
     }

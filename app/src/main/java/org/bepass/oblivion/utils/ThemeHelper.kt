@@ -36,7 +36,9 @@ object ThemeHelper {
     val storedValue = FileManager.getInt(FileManager.Keys.DARK_MODE, Theme.OLED.storageValue)
     currentTheme = Theme.fromStorageKey(storedValue)
     _themeFlow.value = currentTheme
-    if (!FileManager.contains(FileManager.Keys.DARK_MODE) || storedValue != currentTheme.storageValue) {
+    if (
+      !FileManager.contains(FileManager.Keys.DARK_MODE) || storedValue != currentTheme.storageValue
+    ) {
       FileManager.set(FileManager.Keys.DARK_MODE, currentTheme.storageValue)
     }
     applyTheme()
@@ -54,5 +56,6 @@ object ThemeHelper {
   val isOled: Boolean
     get() = currentTheme == Theme.OLED
 
-  fun isDarkTheme(@Suppress("UNUSED_PARAMETER") systemDark: Boolean): Boolean = currentTheme != Theme.LIGHT
+  fun isDarkTheme(@Suppress("UNUSED_PARAMETER") systemDark: Boolean): Boolean =
+    currentTheme != Theme.LIGHT
 }

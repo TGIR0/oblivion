@@ -1,23 +1,23 @@
 package org.bepass.oblivion.ui
 
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import android.content.Context
+import android.os.Build
+import androidx.activity.ComponentActivity
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.clickable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.activity.ComponentActivity
-import android.content.Context
-import android.os.Build
+import androidx.compose.ui.unit.dp
 import org.bepass.oblivion.R
 import org.bepass.oblivion.utils.LocaleManager
 
@@ -68,7 +68,9 @@ fun LanguageDialog(onDismiss: () -> Unit, onLocaleChanged: () -> Unit) {
         }
       }
     },
-    confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(android.R.string.cancel)) } },
+    confirmButton = {
+      TextButton(onClick = onDismiss) { Text(stringResource(android.R.string.cancel)) }
+    },
   )
 }
 

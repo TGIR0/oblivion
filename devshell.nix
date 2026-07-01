@@ -21,7 +21,7 @@ devshell.mkShell {
     }
     {
       name = "JAVA_HOME";
-      value = jdk25.home;
+      value = jdk26.home;
     }
     {
       name = "GOBIN";
@@ -36,8 +36,8 @@ devshell.mkShell {
     android-studio
     android-sdk
     gradle
-    jdk25
-    go_1_25
+    jdk26
+    go_1_24
     cmake
     ninja
   ];

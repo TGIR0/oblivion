@@ -4,14 +4,12 @@ package org.bepass.oblivion.utils
 
 import java.util.Locale
 
-fun CountryCode.toCountryFlagEmoji() = value.uppercase()
-    .fold(charArrayOf()) { acc, c ->
-        acc + Character.toChars(c.code + 0x1F1A5)
-    }
+fun CountryCode.toCountryFlagEmoji(): String {
+  val normalized = value.uppercase(Locale.ROOT)
+  if (normalized.length != 2 || normalized !in Locale.getISOCountries()) return ""
+  return normalized
+    .map { character -> String(Character.toChars(character.code + 0x1F1A5)) }
     .joinToString(separator = "")
-
-class CountryCode(val value: String) {
-    init {
-        require(value in Locale.getISOCountries())
-    }
 }
+
+@JvmInline value class CountryCode(val value: String)

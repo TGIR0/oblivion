@@ -11,9 +11,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +39,7 @@ fun SplashScreen(onContinue: () -> Unit) {
   BoxWithConstraints(
     modifier =
       Modifier.fillMaxSize()
+        .testTag(UiTestTags.SPLASH)
         .clickable(onClick = onContinue)
         .statusBarsPadding()
         .navigationBarsPadding()
@@ -69,7 +71,9 @@ fun SplashScreen(onContinue: () -> Unit) {
         Spacer(Modifier.height(if (compact) 10.dp else 16.dp))
         Text(
           text = stringResource(R.string.app_name).uppercase(),
-          style = if (compact) MaterialTheme.typography.displaySmall else MaterialTheme.typography.displayMedium,
+          style =
+            if (compact) MaterialTheme.typography.displaySmall
+            else MaterialTheme.typography.displayMedium,
           fontWeight = FontWeight.Bold,
           color = MaterialTheme.colorScheme.primary,
           maxLines = 1,
@@ -98,7 +102,8 @@ fun SplashScreen(onContinue: () -> Unit) {
         Spacer(Modifier.width(14.dp))
         Text(
           text = stringResource(R.string.splashText),
-          style = if (compact) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyLarge,
+          style =
+            if (compact) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyLarge,
           color = MaterialTheme.colorScheme.onSurface,
           modifier = Modifier.weight(1f),
           maxLines = if (compact) 4 else 5,

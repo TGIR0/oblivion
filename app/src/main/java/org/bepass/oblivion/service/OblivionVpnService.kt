@@ -11,11 +11,11 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.net.ConnectivityManager
-import android.os.Build
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.net.VpnService
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
@@ -31,13 +31,11 @@ import androidx.annotation.MainThread
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import hev.htproxy.TProxyService
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.lang.ref.WeakReference
-import java.net.InetSocketAddress
-import java.net.Proxy
-import java.net.ServerSocket
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ThreadLocalRandom
@@ -53,17 +51,26 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.bepass.oblivion.dns.AppDnsResolverFactory
 import org.bepass.oblivion.R
+import org.bepass.oblivion.dns.AppDnsResolverFactory
 import org.bepass.oblivion.enums.ConnectionState
 import org.bepass.oblivion.enums.SplitTunnelMode
+import org.bepass.oblivion.enums.VpnCoreType
+import org.bepass.oblivion.model.PsiphonConfigV2
+import org.bepass.oblivion.model.TunnelConfigV2
+import org.bepass.oblivion.model.VpnConfig
+import org.bepass.oblivion.security.AndroidSecureStore
 import org.bepass.oblivion.ui.MainActivity
 import org.bepass.oblivion.utils.FileManager
 import org.bepass.oblivion.utils.HostPortParser
-import org.bepass.oblivion.model.VpnConfig
-import tun2socks.StartOptions
+import tun2socks.Engine
+import tun2socks.EngineListener
+import tun2socks.SecureStore
+import tun2socks.SocketProtector
 import tun2socks.Tun2socks
 
 @SuppressLint("VpnServicePolicy")
@@ -85,9 +92,33 @@ class OblivionVpnService : VpnService() {
 
   private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
   private var coreJob: Job? = null
-  private var logPollingJob: Job? = null
   private var connectVerifyJob: Job? = null
   private var networkLossJob: Job? = null
+  private var nativeEngine: Engine? = null
+  private var hevTunnel: TProxyService? = null
+  private val secureStore by lazy { AndroidSecureStore(applicationContext) }
+  private val nativeListener =
+    object : EngineListener {
+      override fun onStateChanged(statusJSON: String) {
+        Log.d(TAG, "Native state: $statusJSON")
+      }
+
+      override fun onError(errorJSON: String) {
+        Log.e(TAG, "Native error: $errorJSON")
+      }
+
+      override fun onLog(message: String) {
+        serviceScope.launch(Dispatchers.IO) { appendLogsToFile(message) }
+      }
+    }
+  private val nativeSecureStore =
+    object : SecureStore {
+      override fun get(key: String): String = secureStore.get(key)
+
+      override fun put(key: String, value: String) = secureStore.put(key, value)
+
+      override fun delete(key: String) = secureStore.delete(key)
+    }
 
   private var notification: Notification? = null
   private var vpnInterface: ParcelFileDescriptor? = null
@@ -167,6 +198,7 @@ class OblivionVpnService : VpnService() {
         intent == null -> "missing serviceIntent"
         lastKnownState != ConnectionState.DISCONNECTED -> "current state is $lastKnownState"
         stopInProgress -> "stop in progress"
+        !VpnCoreType.getCurrent().isReady -> "selected core has not passed production gates"
         else -> null
       }
 
@@ -200,21 +232,20 @@ class OblivionVpnService : VpnService() {
 
     if (startedForeground) {
       coreJob?.cancel()
-      coreJob =
-        serviceScope.launch {
-          Log.d(TAG, "Preparing core")
-          try {
-            withContext(Dispatchers.IO) {
-              rotateLogFile(force = true)
-              bindAddress = getBindAddress(checkNotNull(intent))
-            }
-            withContext(Dispatchers.Main) { startNetworkMonitoring() }
-            configure()
-          } catch (expected: Throwable) {
-            Log.e(TAG, "Error in start execution", expected)
-            requestStop(stopSelf = true, reason = "start_failed")
+      coreJob = serviceScope.launch {
+        Log.d(TAG, "Preparing core")
+        try {
+          withContext(Dispatchers.IO) {
+            rotateLogFile(force = true)
+            bindAddress = "127.0.0.1:0"
           }
+          withContext(Dispatchers.Main) { startNetworkMonitoring() }
+          configure()
+        } catch (expected: Throwable) {
+          Log.e(TAG, "Error in start execution", expected)
+          requestStop(stopSelf = true, reason = "start_failed")
         }
+      }
     }
   }
 
@@ -224,6 +255,7 @@ class OblivionVpnService : VpnService() {
     val lock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "oblivion:vpn")
     lock.setReferenceCounted(false)
     runCatching { lock.acquire(WAKELOCK_ACQUIRE_DURATION_MS) }
+      .onFailure { Log.w(TAG, "Unable to acquire wake lock", it) }
     wakeLock = lock
 
     serviceScope.launch {
@@ -239,60 +271,48 @@ class OblivionVpnService : VpnService() {
     }
   }
 
-  private fun getBindAddress(intent: Intent): String {
-    val portRaw = intent.getStringExtra("USERSETTING_port")
-    val enableLan = intent.getBooleanExtra("USERSETTING_lan", false)
-
-    val portFromIntent = portRaw?.trim()?.toIntOrNull() ?: 0
-    val port =
-      when {
-        portFromIntent !in MIN_PORT..MAX_PORT -> findFreePort()
-        isLocalPortInUse(portFromIntent) -> findFreePort()
-        else -> portFromIntent
-      }
-
-    intent.putExtra("USERSETTING_port", port.toString())
-
-    FileManager.set(FileManager.KeyHolder.RUNTIME_SOCKS_PORT, port)
-
-    val host = if (enableLan) "0.0.0.0" else "127.0.0.1"
-    val bindAddress = "$host:$port"
-    FileManager.set(FileManager.KeyHolder.RUNTIME_BIND_ADDRESS, bindAddress)
-    return bindAddress
-  }
-
-  private fun configure() {
+  private suspend fun configure() {
     try {
       val intent = checkNotNull(serviceIntent) { "Missing serviceIntent" }
       val bAddress = requireNotNull(bindAddress) { "Missing bindAddress" }
 
-      val configExtra = androidx.core.content.IntentCompat.getParcelableExtra(intent, "config", VpnConfig::class.java)
-      val config = configExtra?.copy(bindAddress = bAddress, port = bAddress.substringAfterLast(":")) ?: VpnConfig.fromIntent(intent, bAddress)
+      val configExtra =
+        androidx.core.content.IntentCompat.getParcelableExtra(
+          intent,
+          "config",
+          VpnConfig::class.java,
+        )
+      var config =
+        configExtra?.copy(bindAddress = bAddress) ?: VpnConfig.fromIntent(intent, bAddress)
 
+      val coreType = VpnCoreType.getCurrent()
+      val nativeConfig =
+        TunnelConfigV2(
+          mode = coreType.tunnelMode,
+          proxyOnly = true,
+          mtu = VPN_MTU,
+          dns = parseDns(config.vpnDns),
+          endpoint = config.endpoint,
+          psiphon = PsiphonConfigV2(country = config.psiphonCountry),
+        )
+      val configJson = Json.encodeToString(nativeConfig)
+      val engine =
+        Tun2socks.newEngine(
+          nativeListener,
+          SocketProtector { fd -> protect(fd.toInt()) },
+          nativeSecureStore,
+        )
+      nativeEngine = engine
+      engine.validateConfig(configJson)
+      val startResult = withContext(Dispatchers.IO) { engine.start(configJson) }
+      val proxyAddress =
+        HostPortParser.parseOrNull(startResult.proxyAddress)
+          ?: error("Native core returned an invalid proxy address")
+      config = config.copy(bindAddress = startResult.proxyAddress)
+      bindAddress = startResult.proxyAddress
       currentConfig = config
-
-      // Clear any stale logs from previous sessions
-      runCatching { Tun2socks.getLogMessages() }
-
-      val so = StartOptions().apply {
-        setPath(applicationContext.filesDir.absolutePath)
-        setVerbose(true)
-        setEndpoint(config.endpoint)
-        setBindAddress(config.bindAddress)
-        setLicense(config.license)
-        setDNS(config.dns)
-        setRegion(config.region.toLong())
-        setEndpointType(config.endpointType.toLong())
-        if (config.gool) setGool(true)
-        if (config.masque) setMasque(true)
-        if (config.masquePreferred) setMasquePreferred(true)
-        if (config.masqueNoize) setMasqueNoize(true)
-        setMasqueNoizePreset(config.masquePreset)
-        setAnycastIPs(config.anycastIPs)
-        setPreferredFingerprint(config.preferredFingerprint)
-        setPsiphonCountry(config.psiphonCountry)
-        setPsiphonConduit(config.conduit)
-      }
+      FileManager.set(FileManager.KeyHolder.RUNTIME_SOCKS_PORT, proxyAddress.port())
+      FileManager.set(FileManager.KeyHolder.RUNTIME_BIND_ADDRESS, startResult.proxyAddress)
 
       if (!config.proxyMode) {
         val builder = Builder()
@@ -300,13 +320,22 @@ class OblivionVpnService : VpnService() {
         Log.i(TAG, "Establishing VPN interface...")
         vpnInterface = builder.establish()
         val iface = requireNotNull(vpnInterface) { "failed to establish VPN interface" }
-        so.setTunFd(iface.fd.toLong())
+        val hev = TProxyService()
+        hev.TProxyStartService(
+          buildHevConfig(
+            proxyAddress.host(),
+            proxyAddress.port(),
+            startResult.proxyUsername,
+            startResult.proxyPassword,
+          ),
+          iface.fd,
+        )
+        delay(HEV_START_SETTLE_MS)
+        check(hev.TProxyIsRunning()) { "HEV exited during startup" }
+        hevTunnel = hev
       }
 
-      Log.i(TAG, "Starting core with config: $config")
-
-      Tun2socks.start(so)
-      startLogPolling()
+      Log.i(TAG, "Core proxy and TUN adapter are ready (mode=${coreType.modeId})")
       startConnectVerification()
       updateNotification()
     } catch (expected: Throwable) {
@@ -315,13 +344,48 @@ class OblivionVpnService : VpnService() {
     }
   }
 
+  private fun parseDns(value: String): List<String> =
+    value.split(Regex("[,\\s;]+")).map(String::trim).filter(String::isNotEmpty).ifEmpty {
+      listOf("1.1.1.1", "1.0.0.1")
+    }
+
+  private fun buildHevConfig(
+    proxyHost: String,
+    proxyPort: Int,
+    username: String,
+    password: String,
+  ): String {
+    require(proxyHost == "127.0.0.1") { "HEV proxy must be loopback-only" }
+    require(proxyPort in MIN_PORT..MAX_PORT)
+    require(username.matches(SESSION_CREDENTIAL_PATTERN))
+    require(password.matches(SESSION_CREDENTIAL_PATTERN))
+    return """
+      tunnel:
+        mtu: $VPN_MTU
+        ipv4: $PRIVATE_VLAN4_CLIENT
+        ipv6: '$PRIVATE_VLAN6_CLIENT'
+      socks5:
+        address: 127.0.0.1
+        port: $proxyPort
+        udp: 'udp'
+        username: '$username'
+        password: '$password'
+      misc:
+        task-stack-size: 24576
+        tcp-buffer-size: 8192
+        max-session-count: 2048
+        connect-timeout: 10000
+        log-level: warn
+      """
+      .trimIndent()
+  }
+
   private fun configureVpnBuilder(builder: VpnService.Builder, dnsSetting: String) {
     builder
       .setSession("oblivion")
       .setMtu(VPN_MTU)
       .addAddress(PRIVATE_VLAN4_CLIENT, PRIVATE_VLAN4_PREFIX_LENGTH)
       .addAddress(PRIVATE_VLAN6_CLIENT, PRIVATE_VLAN6_PREFIX_LENGTH)
-      .addDisallowedApplication(packageName)
       .addRoute("0.0.0.0", 0)
       .addRoute("::", 0)
 
@@ -363,41 +427,6 @@ class OblivionVpnService : VpnService() {
     return FileManager.getStringSet("splitTunnelApps", emptySet())
   }
 
-
-  private fun startLogPolling() {
-    if (logPollingJob?.isActive == true) return
-    logPollingJob =
-      serviceScope.launch {
-        while (isActive) {
-          try {
-            val logs = Tun2socks.getLogMessages().orEmpty()
-            if (logs.isNotBlank()) {
-              withContext(Dispatchers.IO) { appendLogsToFile(logs) }
-
-              if (logs.contains("[STAT] DIAL_SUCCESS:")) {
-                logs.split("\n").forEach { line ->
-                  if (line.contains("[STAT] DIAL_SUCCESS:")) {
-                    val fprint = line.substringAfter("[STAT] DIAL_SUCCESS:").trim()
-                    if (fprint.isNotBlank()) {
-                      FileManager.set("USERSETTING_preferred_fprint", fprint)
-                    }
-                  }
-                }
-              }
-            }
-          } catch (expected: Throwable) {
-            Log.w(TAG, "Log polling failed", expected)
-          }
-          delay(LOG_POLL_INTERVAL_MS)
-        }
-      }
-  }
-
-  private fun stopLogPolling() {
-    logPollingJob?.cancel()
-    logPollingJob = null
-  }
-
   private fun startConnectVerification() {
     val generation =
       synchronized(connectVerifyLock) {
@@ -432,7 +461,7 @@ class OblivionVpnService : VpnService() {
 
         val ok =
           try {
-            pingOverHTTP(bindAddress)
+            pingOverHTTP()
           } catch (expected: Throwable) {
             Log.w(TAG, "Connect verification attempt failed", expected)
             false
@@ -461,29 +490,29 @@ class OblivionVpnService : VpnService() {
       }
     }
 
-  private fun pingOverHTTP(bindAddress: String?): Boolean {
+  private fun pingOverHTTP(): Boolean {
     pingCounter++
     Log.i(TAG, "Pinging (attempt #$pingCounter)")
-    val socks = bindAddress?.let(HostPortParser::parseOrNull)
-    if (socks == null || socks.port() <= 0) {
-      Log.w(TAG, "Invalid SOCKS bindAddress for ping: $bindAddress")
-      return false
+    if (currentConfig?.proxyMode != true) {
+      val request = Request.Builder().url(CONNECT_VERIFY_URL).build()
+      return try {
+        baseHttpClient.newCall(request).execute().use { response ->
+          pingCounter = 0
+          response.isSuccessful
+        }
+      } catch (e: IOException) {
+        Log.e(TAG, "Error executing tunneled ping", e)
+        false
+      }
     }
 
-    val socksHost = socks.host()
-    val socksPort = socks.port()
-    val proxy = Proxy(Proxy.Type.SOCKS, InetSocketAddress(socksHost, socksPort))
-    val client = baseHttpClient.newBuilder().proxy(proxy).build()
-    val request = Request.Builder().url(CONNECT_VERIFY_URL).build()
-    return try {
-      client.newCall(request).execute().use { response ->
-        pingCounter = 0
-        response.isSuccessful
-      }
-    } catch (e: IOException) {
-      Log.e(TAG, "Error executing ping", e)
-      false
+    // Native Start already performed a health check through the authenticated proxy.
+    // Java's global SOCKS authenticator is intentionally not modified here.
+    if (nativeEngine?.getStatus()?.contains("\"state\":\"CONNECTED\"") == true) {
+      pingCounter = 0
+      return true
     }
+    return false
   }
 
   private fun startNetworkMonitoring() {
@@ -532,22 +561,21 @@ class OblivionVpnService : VpnService() {
   private fun scheduleStopOnNetworkLoss() {
     synchronized(networkLock) {
       if (networkLossJob?.isActive == true) return
-      networkLossJob =
-        serviceScope.launch {
-          delay(NETWORK_LOSS_GRACE_MS)
-          val stillLost =
-            synchronized(networkLock) {
-              networkLossJob = null
-              nonVpnNetworks.isEmpty()
-            }
-          if (!stillLost) return@launch
-          if (
-            lastKnownState == ConnectionState.CONNECTING ||
-              lastKnownState == ConnectionState.CONNECTED
-          ) {
-            requestStop(stopSelf = true, reason = "network_lost")
+      networkLossJob = serviceScope.launch {
+        delay(NETWORK_LOSS_GRACE_MS)
+        val stillLost =
+          synchronized(networkLock) {
+            networkLossJob = null
+            nonVpnNetworks.isEmpty()
           }
+        if (!stillLost) return@launch
+        if (
+          lastKnownState == ConnectionState.CONNECTING ||
+            lastKnownState == ConnectionState.CONNECTED
+        ) {
+          requestStop(stopSelf = true, reason = "network_lost")
         }
+      }
     }
   }
 
@@ -557,6 +585,7 @@ class OblivionVpnService : VpnService() {
     networkCallback = null
     if (cm != null && cb != null) {
       runCatching { cm.unregisterNetworkCallback(cb) }
+        .onFailure { Log.w(TAG, "Unable to unregister network callback", it) }
     }
 
     synchronized(networkLock) {
@@ -586,17 +615,13 @@ class OblivionVpnService : VpnService() {
     coreJob?.cancel()
     coreJob = null
     stopConnectVerification()
-    stopLogPolling()
     stopNetworkMonitoring()
-
-    runCatching {
-      val tail = Tun2socks.getLogMessages().orEmpty()
-      if (tail.isNotBlank()) {
-        appendLogsToFile(tail)
-      }
-    }
-
-    runCatching { Tun2socks.stop() }.onFailure { t -> Log.w(TAG, "Tun2socks.stop failed", t) }
+    val hev = hevTunnel
+    hevTunnel = null
+    runCatching { hev?.TProxyStopService() }.onFailure { t -> Log.w(TAG, "HEV stop failed", t) }
+    val engine = nativeEngine
+    nativeEngine = null
+    runCatching { engine?.stop() }.onFailure { t -> Log.w(TAG, "Native engine stop failed", t) }
 
     val iface = vpnInterface
     vpnInterface = null
@@ -621,16 +646,18 @@ class OblivionVpnService : VpnService() {
 
   private fun stopForegroundService() {
     runCatching { stopForeground(STOP_FOREGROUND_REMOVE) }
+      .onFailure { Log.w(TAG, "Unable to stop foreground service", it) }
     NotificationManagerCompat.from(this).cancel(NOTIFICATION_ID)
   }
 
   private fun releaseWakeLock() {
     val lock = wakeLock ?: return
     runCatching {
-      if (lock.isHeld) {
-        lock.release()
+        if (lock.isHeld) {
+          lock.release()
+        }
       }
-    }
+      .onFailure { Log.w(TAG, "Unable to release wake lock", it) }
     wakeLock = null
   }
 
@@ -741,15 +768,18 @@ class OblivionVpnService : VpnService() {
 
   private fun getNotificationText(): String {
     val config = currentConfig
-    val useWarp = config?.gool == true
     val proxyMode = config?.proxyMode == true
     val portInUse = config?.bindAddress?.split(":")?.lastOrNull()
 
     val baseText =
-      if (useWarp) {
-        getString(R.string.notification_warp_in_warp)
-      } else {
-        getString(R.string.notification_warp)
+      when (VpnCoreType.getCurrent()) {
+        VpnCoreType.WARP -> getString(R.string.notification_warp)
+        VpnCoreType.VWARP -> "VWarp MASQUE"
+        VpnCoreType.PSIPHON -> "Psiphon"
+        VpnCoreType.PSIPHON_OVER_WARP -> "Psiphon over WARP"
+        VpnCoreType.WARP_OVER_PSIPHON -> "WARP over Psiphon"
+        VpnCoreType.PSIPHON_FRONTED -> "Psiphon Fronted"
+        VpnCoreType.WIREGUARD -> "WireGuard"
       }
 
     val proxyText =
@@ -869,7 +899,6 @@ class OblivionVpnService : VpnService() {
     private const val NOTIFICATION_ID = 1
     private const val NOTIFICATION_CHANNEL_ID = "vpn_service"
     private const val LOG_FILE_NAME = "logs.txt"
-    private const val LOG_POLL_INTERVAL_MS = 1_500L
     private const val CONNECT_VERIFY_TIMEOUT_MS = 30_000L
     private const val CONNECT_VERIFY_INITIAL_BACKOFF_MS = 500L
     private const val CONNECT_VERIFY_MAX_BACKOFF_MS = 5_000L
@@ -881,7 +910,9 @@ class OblivionVpnService : VpnService() {
     private const val PRIVATE_VLAN6_CLIENT = "fdfe:dcba:9876::1"
     private const val PRIVATE_VLAN4_PREFIX_LENGTH = 30
     private const val PRIVATE_VLAN6_PREFIX_LENGTH = 126
-    private const val VPN_MTU = 1500
+    private const val VPN_MTU = 1280
+    private const val HEV_START_SETTLE_MS = 500L
+    private val SESSION_CREDENTIAL_PATTERN = Regex("[A-Za-z0-9_-]{43}")
 
     private const val CONNECT_VERIFY_JITTER_DIVISOR = 5L
     private const val PING_CONNECT_TIMEOUT_SECONDS = 5L
@@ -942,26 +973,6 @@ class OblivionVpnService : VpnService() {
         serviceMessenger.send(unsubscriptionMessage)
       } catch (e: RemoteException) {
         Log.e(TAG, "Error sending unsubscription message", e)
-      }
-    }
-
-    private fun findFreePort(): Int {
-      try {
-        ServerSocket(0).use { socket ->
-          socket.reuseAddress = true
-          return socket.localPort
-        }
-      } catch (_: IOException) {}
-      error("Could not find a free TCP/IP port to start embedded Jetty HTTP Server on")
-    }
-
-    private fun isLocalPortInUse(port: Int): Boolean {
-      if (port <= 0 || port > MAX_PORT) return true
-      return try {
-        ServerSocket(port).close()
-        false
-      } catch (_: IOException) {
-        true
       }
     }
   }

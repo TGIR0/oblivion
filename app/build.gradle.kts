@@ -4,30 +4,33 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
     namespace = "org.bepass.oblivion"
     compileSdk = 37
-    ndkVersion = "29.0.14206865"
+    ndkVersion = "30.0.14904198"
 
     defaultConfig {
         applicationId = "org.bepass.oblivion"
         minSdk = 24
         targetSdk = 37
-        versionCode = 18
-        versionName = "8"
+        versionCode = 19
+        versionName = "9"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = false
     }
 
     signingConfigs {
-        create("release") {
-            val keystoreProps = providers.of(org.bepass.oblivion.gradle.OptionalPropertiesValueSource::class) {
+        val keystoreProps =
+            providers.of(org.bepass.oblivion.gradle.OptionalPropertiesValueSource::class) {
                 parameters.file.set(rootProject.layout.projectDirectory.file("keystore.properties"))
-            }
-            val props = keystoreProps.get()
-            if (props.isNotEmpty()) {
-                storeFile = file(props["storeFile"]!!)
+            }.get()
+        if (keystoreProps.isNotEmpty()) {
+            create("release") {
+                val props = keystoreProps
+                storeFile = rootProject.file(props["storeFile"]!!)
                 storePassword = props["storePassword"]!!
                 keyAlias = props["keyAlias"]!!
                 keyPassword = props["keyPassword"]!!
@@ -39,14 +42,21 @@ android {
         generateLocaleConfig = true
     }
 
+    lint {
+        disable += setOf(
+            "EnsureInitializerMetadata",
+            "MissingTranslation",
+        )
+    }
+
     buildFeatures {
         compose = true
         buildConfig = true
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_26
-        targetCompatibility = JavaVersion.VERSION_26
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     packaging {
@@ -59,6 +69,10 @@ android {
         }
     }
 
+    sourceSets.getByName("main").jniLibs.directories.add(
+        layout.buildDirectory.dir("generated/hev/jniLibs").get().asFile.absolutePath
+    )
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -67,7 +81,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            signingConfig = signingConfigs.getByName("release")
+            signingConfigs.findByName("release")?.let { signingConfig = it }
         }
     }
 }
@@ -80,16 +94,72 @@ androidComponents {
     }
 }
 
+val buildNativeCore =
+  tasks.register<Exec>("buildNativeCore") {
+    description = "Build the versioned native core AAR from pinned Go sources"
+    group = "build"
+    val script = rootProject.layout.projectDirectory.file("tun2socks/build-aar.ps1")
+    val nativeSources =
+      rootProject.fileTree("tun2socks") {
+        include("**/*.go", "go.mod", "go.sum", "build-aar.ps1")
+      }
+    inputs.files(nativeSources)
+    outputs.file(layout.projectDirectory.file("libs/tun2socks.aar"))
+    workingDir = rootProject.projectDir
+    commandLine(
+      if (System.getProperty("os.name").lowercase().contains("win")) "powershell" else "pwsh",
+      "-NoProfile",
+      "-NonInteractive",
+      "-ExecutionPolicy",
+      "Bypass",
+      "-File",
+      script.asFile.absolutePath,
+    )
+  }
+
+val buildHev =
+  tasks.register<Exec>("buildHev") {
+    description = "Build pinned hev-socks5-tunnel 2.15.0 from source"
+    group = "build"
+    val script = rootProject.layout.projectDirectory.file("native/hev/build-hev.ps1")
+    val configPatch =
+        rootProject.layout.projectDirectory.file("native/hev/oblivion-config-in-memory.patch")
+    val lifecyclePatch =
+        rootProject.layout.projectDirectory.file("native/hev/oblivion-lifecycle.patch")
+    val work = layout.buildDirectory.dir("native/hev")
+    val output = layout.buildDirectory.dir("generated/hev/jniLibs")
+    inputs.files(script, configPatch, lifecyclePatch)
+    outputs.dir(output)
+    workingDir = rootProject.projectDir
+    commandLine(
+      if (System.getProperty("os.name").lowercase().contains("win")) "powershell" else "pwsh",
+      "-NoProfile",
+      "-NonInteractive",
+      "-ExecutionPolicy",
+      "Bypass",
+      "-File",
+      script.asFile.absolutePath,
+      "-NdkDir",
+      androidComponents.sdkComponents.ndkDirectory.get().asFile.absolutePath,
+      "-WorkDir",
+      work.get().asFile.absolutePath,
+      "-OutputDir",
+      output.get().asFile.absolutePath,
+    )
+  }
+
+tasks.named("preBuild").configure { dependsOn(buildNativeCore, buildHev) }
+
 kotlin {
     compilerOptions {
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_26)
+        allWarningsAsErrors.set(true)
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
         apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_4)
         freeCompilerArgs.addAll(
             "-jvm-default=enable",
             "-opt-in=kotlin.RequiresOptIn",
             "-Xreturn-value-checker=check",
             "-Xname-based-destructuring=only-syntax",
-            "-opt-in=kotlin.experimental.collectionLiterals",
         )
     }
 }
@@ -101,7 +171,20 @@ java {
 }
 
 tasks.withType<JavaCompile>().configureEach {
-    options.compilerArgs.add("-Xlint:-deprecation")
+    // Waiver GENERATED-BUILDCONFIG-001, expires 2026-09-30: AGP emits a leading Javadoc
+    // comment that JDK 25 diagnoses as dangling. Project Java sources still use full -Xlint.
+    options.compilerArgs.addAll(listOf("-Xlint:all,-dangling-doc-comments", "-Werror"))
+    if (name.startsWith("hiltJavaCompile")) {
+        // Waiver HILT-PROCESSING-001, expires 2026-09-30: Hilt's generated aggregation
+        // annotations intentionally have no claiming processor in this javac round.
+        options.compilerArgs.add("-Xlint:-processing")
+    }
+}
+
+tasks.configureEach {
+    if (name == "lintAnalyzeDebugUnitTest" || name == "lintAnalyzeDebugAndroidTest") {
+        dependsOn("hiltJavaCompileRelease")
+    }
 }
 
 // Dependency locking: pin all transitive versions for reproducible builds
@@ -129,9 +212,13 @@ dependencies {
     implementation(libs.okhttp.dnsoverhttps)
     implementation(libs.mmkv)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.okio)
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.glide)
     implementation(libs.timber)
+    compileOnly(libs.errorprone.annotations)
     ksp(libs.hilt.compiler)
+    ksp(libs.kotlin.metadata.jvm)
     ksp(libs.glide.compiler)
     testImplementation(libs.bundles.testing.unit)
     androidTestImplementation(libs.bundles.testing.android)

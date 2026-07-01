@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.bepass.oblivion.R
+import org.bepass.oblivion.enums.VpnCoreType
 
 @Composable
 fun EditValueDialog(title: String, value: String, onDismiss: () -> Unit, onSave: (String) -> Unit) {
@@ -28,7 +29,9 @@ fun EditValueDialog(title: String, value: String, onDismiss: () -> Unit, onSave:
     onDismissRequest = onDismiss,
     title = { Text(title) },
     text = { OutlinedTextField(value = text, onValueChange = { text = it }, singleLine = true) },
-    confirmButton = { TextButton(onClick = { onSave(text.trim()) }) { Text(stringResource(R.string.update)) } },
+    confirmButton = {
+      TextButton(onClick = { onSave(text.trim()) }) { Text(stringResource(R.string.update)) }
+    },
     dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
   )
 }
@@ -48,11 +51,62 @@ fun OptionDialog(
       Column {
         options.forEachIndexed { index, option ->
           Row(
-            modifier = Modifier.fillMaxWidth().clickable { onSelected(index) }.padding(vertical = 8.dp),
+            modifier =
+              Modifier.fillMaxWidth().clickable { onSelected(index) }.padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
           ) {
             RadioButton(selected = index == selectedIndex, onClick = null)
             Text(option)
+          }
+        }
+      }
+    },
+    confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
+  )
+}
+
+@Composable
+fun CoreSelectionDialog(
+  modes: List<VpnCoreType>,
+  selectedStorageId: Int,
+  onDismiss: () -> Unit,
+  onSelected: (VpnCoreType) -> Unit,
+) {
+  AlertDialog(
+    onDismissRequest = onDismiss,
+    title = { Text(stringResource(R.string.core_title)) },
+    text = {
+      Column {
+        modes.forEach { mode ->
+          Row(
+            modifier =
+              Modifier.fillMaxWidth()
+                .then(
+                  if (mode.isReady) {
+                    Modifier.clickable { onSelected(mode) }
+                  } else {
+                    Modifier
+                  }
+                )
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+          ) {
+            RadioButton(
+              selected = mode.storageId == selectedStorageId,
+              enabled = mode.isReady,
+              onClick = null,
+            )
+            Column(Modifier.padding(start = 8.dp)) {
+              Text(stringResource(mode.labelRes))
+              Text(
+                text =
+                  stringResource(
+                    if (mode.isReady) mode.descriptionRes else mode.availabilityReasonRes
+                  ),
+                style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
+              )
+            }
           }
         }
       }
