@@ -10,6 +10,7 @@ import android.os.IBinder
 import android.os.Messenger
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
+import android.util.Log
 import android.widget.Toast
 import org.bepass.oblivion.R
 import org.bepass.oblivion.enums.ConnectionState
@@ -44,6 +45,7 @@ class QuickStartService : TileService() {
     }
 
     runCatching { unbindService(connection) }
+      .onFailure { Log.w("QuickStartService", "Unable to unbind VPN service", it) }
     serviceMessenger = null
   }
 

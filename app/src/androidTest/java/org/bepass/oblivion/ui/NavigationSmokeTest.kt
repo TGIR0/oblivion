@@ -11,7 +11,10 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.rule.GrantPermissionRule
+import java.util.Locale
+import org.bepass.oblivion.BuildConfig
 import org.bepass.oblivion.R
+import org.bepass.oblivion.utils.LocaleManager
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -40,7 +43,7 @@ class NavigationSmokeTest {
 
     // رفتن به تنظیمات
     composeRule.onNodeWithContentDescription(settingsText).performClick()
-    composeRule.onNodeWithTag(UiTestTags.SETTINGS).assertIsDisplayed()
+    awaitDisplayed(UiTestTags.SETTINGS)
     composeRule.onNodeWithText(settingsText).assertExists() // assertExists برای اطمینان از وجود گره
     composeRule.onNodeWithText(themeText).assertIsDisplayed()
     composeRule.onNodeWithText(fontSizeText).assertIsDisplayed()
@@ -56,16 +59,40 @@ class NavigationSmokeTest {
 
     // بازگشت
     composeRule.onNodeWithContentDescription(backText).performClick()
-    composeRule.onNodeWithTag(UiTestTags.HOME).assertIsDisplayed()
+    awaitDisplayed(UiTestTags.HOME)
 
     // رفتن به دربارهٔ برنامه
     composeRule.onNodeWithContentDescription(aboutAppText).performClick()
-    composeRule.onNodeWithTag(UiTestTags.INFO).assertIsDisplayed()
+    awaitDisplayed(UiTestTags.INFO)
     composeRule.onNodeWithText(aboutAppText).assertExists()
 
     // بازگشت
     composeRule.onNodeWithContentDescription(backText).performClick()
-    composeRule.onNodeWithTag(UiTestTags.HOME).assertIsDisplayed()
+    awaitDisplayed(UiTestTags.HOME)
+  }
+
+  @Test
+  fun persianAboutAndPrivacyRenderWithoutExternalErrorPage() {
+    val originalLocaleTag = LocaleManager.currentLocaleTag()
+    try {
+      setAppLocale("fa")
+      awaitHome()
+
+      val activity = composeRule.activity
+      val aboutText = activity.getString(R.string.aboutApp)
+      val privacyText = activity.getString(R.string.privacy_policy)
+      val privacyBody = activity.getString(R.string.privacy_policy_body)
+      val versionText = activity.getString(R.string.appVersion, BuildConfig.VERSION_NAME)
+
+      composeRule.onNodeWithContentDescription(aboutText).performClick()
+      awaitDisplayed(UiTestTags.INFO)
+      composeRule.onNodeWithText(versionText).assertIsDisplayed()
+
+      composeRule.onNodeWithText(privacyText).performClick()
+      composeRule.onNodeWithText(privacyBody).assertIsDisplayed()
+    } finally {
+      restoreAppLocale(originalLocaleTag)
+    }
   }
 
   @Test
@@ -151,7 +178,45 @@ class NavigationSmokeTest {
     if (hasTag(UiTestTags.SPLASH)) {
       composeRule.onNodeWithTag(UiTestTags.SPLASH).performClick()
     }
-    composeRule.waitUntil(timeoutMillis = 10_000) { hasTag(UiTestTags.HOME) }
-    composeRule.onNodeWithTag(UiTestTags.HOME).assertIsDisplayed()
+    awaitDisplayed(UiTestTags.HOME)
+  }
+
+  private fun awaitDisplayed(tag: String) {
+    composeRule.waitUntil(timeoutMillis = 10_000) {
+      runCatching {
+          composeRule.onNodeWithTag(tag).assertIsDisplayed()
+          true
+        }
+        .getOrDefault(false)
+    }
+    composeRule.onNodeWithTag(tag).assertIsDisplayed()
+  }
+
+  private fun setAppLocale(tag: String) {
+    composeRule.runOnUiThread {
+      val activity = composeRule.activity
+      LocaleManager.setAppLocale(activity, Locale.forLanguageTag(tag))
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+        activity.recreate()
+      }
+    }
+    composeRule.waitUntil(timeoutMillis = 10_000) {
+      composeRule.activity.resources.configuration.locales[0].language == tag
+    }
+  }
+
+  private fun restoreAppLocale(tag: String) {
+    composeRule.runOnUiThread {
+      val activity = composeRule.activity
+      if (tag.isBlank()) {
+        LocaleManager.setSystemDefaultLocale(activity)
+      } else {
+        LocaleManager.setAppLocale(activity, Locale.forLanguageTag(tag))
+      }
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+        activity.recreate()
+      }
+    }
+    composeRule.waitForIdle()
   }
 }

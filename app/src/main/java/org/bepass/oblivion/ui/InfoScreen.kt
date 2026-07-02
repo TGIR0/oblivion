@@ -1,7 +1,10 @@
 package org.bepass.oblivion.ui
 
+import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,9 +20,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,12 +41,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.bepass.oblivion.BuildConfig
 import org.bepass.oblivion.R
 
 @Composable
 fun InfoScreen(onBack: () -> Unit) {
   val context = LocalContext.current
-  Column(Modifier.fillMaxSize().testTag(UiTestTags.INFO)) {
+  var showPrivacyPolicy by remember { mutableStateOf(false) }
+
+  Column(
+    Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).testTag(UiTestTags.INFO)
+  ) {
     ScreenHeader(title = stringResource(R.string.aboutApp), onBack = onBack)
     Column(
       modifier =
@@ -64,9 +78,7 @@ fun InfoScreen(onBack: () -> Unit) {
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .clickable {
-              context.startActivity(
-                Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/bepass-org/oblivion"))
-              )
+              openExternalUri(context, "https://github.com/bepass-org/oblivion")
             }
             .padding(vertical = 8.dp, horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -99,21 +111,13 @@ fun InfoScreen(onBack: () -> Unit) {
 
       Spacer(modifier = Modifier.height(16.dp))
 
-      // Privacy Policy added to match new settings
       Row(
         modifier =
           Modifier.fillMaxWidth()
             .padding(horizontal = 4.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .clickable {
-              context.startActivity(
-                Intent(
-                  Intent.ACTION_VIEW,
-                  Uri.parse("https://github.com/bepass-org/oblivion/blob/main/PRIVACY.md"),
-                )
-              )
-            }
+            .clickable { showPrivacyPolicy = true }
             .padding(vertical = 8.dp, horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -124,7 +128,7 @@ fun InfoScreen(onBack: () -> Unit) {
           style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
         )
         Text(
-          text = "PRIVACY.md",
+          text = stringResource(R.string.details),
           color = MaterialTheme.colorScheme.onSurface,
           style =
             MaterialTheme.typography.bodyMedium.copy(
@@ -137,11 +141,36 @@ fun InfoScreen(onBack: () -> Unit) {
       Spacer(modifier = Modifier.height(16.dp))
 
       Text(
-        text = stringResource(R.string.appVersion),
+        text = stringResource(R.string.appVersion, BuildConfig.VERSION_NAME),
         style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         textAlign = TextAlign.Center,
       )
     }
+  }
+
+  if (showPrivacyPolicy) {
+    AlertDialog(
+      onDismissRequest = { showPrivacyPolicy = false },
+      title = { Text(stringResource(R.string.privacy_policy)) },
+      text = { Text(stringResource(R.string.privacy_policy_body)) },
+      confirmButton = {
+        TextButton(onClick = { showPrivacyPolicy = false }) {
+          Text(stringResource(android.R.string.ok))
+        }
+      },
+    )
+  }
+}
+
+private fun openExternalUri(context: Context, url: String) {
+  try {
+    context.startActivity(
+      Intent(Intent.ACTION_VIEW, Uri.parse(url)).addCategory(Intent.CATEGORY_BROWSABLE)
+    )
+  } catch (expected: ActivityNotFoundException) {
+    Toast.makeText(context, R.string.no_browser_available, Toast.LENGTH_LONG).show()
+  } catch (expected: SecurityException) {
+    Toast.makeText(context, R.string.no_browser_available, Toast.LENGTH_LONG).show()
   }
 }

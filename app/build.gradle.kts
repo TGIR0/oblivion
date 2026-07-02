@@ -1,3 +1,6 @@
+import org.cyclonedx.gradle.CyclonedxDirectTask
+import org.cyclonedx.model.Component
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
@@ -5,7 +8,11 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.cyclonedx)
 }
+
+group = "org.bepass"
+version = "9"
 
 android {
     namespace = "org.bepass.oblivion"
@@ -27,13 +34,30 @@ android {
             providers.of(org.bepass.oblivion.gradle.OptionalPropertiesValueSource::class) {
                 parameters.file.set(rootProject.layout.projectDirectory.file("keystore.properties"))
             }.get()
-        if (keystoreProps.isNotEmpty()) {
+        val environmentSigning =
+            mapOf(
+                "storeFile" to providers.environmentVariable("ANDROID_KEYSTORE_FILE").orNull,
+                "storePassword" to
+                    providers.environmentVariable("ANDROID_KEYSTORE_PASSWORD").orNull,
+                "keyAlias" to providers.environmentVariable("ANDROID_KEY_ALIAS").orNull,
+                "keyPassword" to providers.environmentVariable("ANDROID_KEY_PASSWORD").orNull,
+            ).mapValues { (_, value) -> value?.takeIf { it.isNotBlank() } }
+        val providedEnvironmentValues = environmentSigning.values.filterNotNull()
+        if (
+            providedEnvironmentValues.isNotEmpty() &&
+                providedEnvironmentValues.size != environmentSigning.size
+        ) {
+            throw GradleException("Incomplete Android release-signing environment")
+        }
+        val signingValues =
+            if (keystoreProps.isNotEmpty()) keystoreProps
+            else environmentSigning.mapValues { it.value.orEmpty() }.filterValues { it.isNotEmpty() }
+        if (signingValues.isNotEmpty()) {
             create("release") {
-                val props = keystoreProps
-                storeFile = rootProject.file(props["storeFile"]!!)
-                storePassword = props["storePassword"]!!
-                keyAlias = props["keyAlias"]!!
-                keyPassword = props["keyPassword"]!!
+                storeFile = rootProject.file(signingValues.getValue("storeFile"))
+                storePassword = signingValues.getValue("storePassword")
+                keyAlias = signingValues.getValue("keyAlias")
+                keyPassword = signingValues.getValue("keyPassword")
             }
         }
     }
@@ -149,6 +173,19 @@ val buildHev =
   }
 
 tasks.named("preBuild").configure { dependsOn(buildNativeCore, buildHev) }
+
+tasks.withType<CyclonedxDirectTask>().configureEach {
+    includeConfigs.set(listOf("releaseRuntimeClasspath"))
+    includeBuildEnvironment.set(false)
+    includeMetadataResolution.set(true)
+    includeLicenseText.set(false)
+    includeBomSerialNumber.set(true)
+    includeBuildSystem.set(true)
+    projectType.set(Component.Type.APPLICATION)
+    componentGroup.set("org.bepass")
+    componentName.set("oblivion")
+    componentVersion.set("9")
+}
 
 kotlin {
     compilerOptions {

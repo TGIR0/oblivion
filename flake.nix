@@ -36,6 +36,7 @@
             emulator
             platform-tools
             platforms-android-36
+            platforms-android-37
 
             # NDK matching the project's build.gradle requirement
             ndk-29-0-14206865
