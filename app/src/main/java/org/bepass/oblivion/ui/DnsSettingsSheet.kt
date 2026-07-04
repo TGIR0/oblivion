@@ -49,35 +49,59 @@ fun DnsSettingsSheet(onDismiss: () -> Unit, viewModel: SettingsViewModel = hiltV
     containerColor = MaterialTheme.colorScheme.surface,
     contentColor = MaterialTheme.colorScheme.onSurface,
   ) {
-    Column(Modifier.padding(20.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(
+      Modifier.padding(20.dp).verticalScroll(rememberScrollState()),
+      verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
       Text(stringResource(R.string.dnsText))
-      Text(state.runtimePlan.sectionSummaries.values.joinToString("\n").ifBlank { stringResource(R.string.dns_runtime_default) })
+      Text(
+        state.runtimePlan.sectionSummaries.values.joinToString("\n").ifBlank {
+          stringResource(R.string.dns_runtime_default)
+        }
+      )
       state.refreshMessage?.let { Text(it) }
       state.warnings.forEach { Text(stringResource(R.string.dns_warning_format, it)) }
       Button(enabled = !state.isRefreshing, onClick = viewModel::refreshDnsCatalog) {
-        Text(if (state.isRefreshing) stringResource(R.string.refreshing) else stringResource(R.string.refresh_dns_catalog))
+        Text(
+          if (state.isRefreshing) stringResource(R.string.refreshing)
+          else stringResource(R.string.refresh_dns_catalog)
+        )
       }
-      DnsSectionBlock(DnsSection.GLOBAL, viewModel, onProvider = { providerSection = it }, onManual = { section, input ->
-        manualSection = section
-        manualText = input
-      })
-      USER_CONFIGURABLE_DNS_SECTIONS.forEach { section ->
-        DnsSectionBlock(section, viewModel, onProvider = { providerSection = it }, onManual = { sec, input ->
-          manualSection = sec
+      DnsSectionBlock(
+        DnsSection.GLOBAL,
+        viewModel,
+        onProvider = { providerSection = it },
+        onManual = { section, input ->
+          manualSection = section
           manualText = input
-        })
+        },
+      )
+      USER_CONFIGURABLE_DNS_SECTIONS.forEach { section ->
+        DnsSectionBlock(
+          section,
+          viewModel,
+          onProvider = { providerSection = it },
+          onManual = { sec, input ->
+            manualSection = sec
+            manualText = input
+          },
+        )
       }
     }
   }
 
   providerSection?.let { section ->
     val options =
-      state.filteredProviders(DnsUiCatalogFilters(region = DnsCatalogRegionFilter.ALL))
+      state
+        .filteredProviders(DnsUiCatalogFilters(region = DnsCatalogRegionFilter.ALL))
         .filter { section in it.supportsInLayers }
         .flatMap { provider ->
-          provider.transports.filterNot { it == DnsTransport.SYSTEM }.sortedBy { it.name }.map {
-            Triple(provider.providerId, provider.label, it)
-          }
+          provider.transports
+            .filterNot { it == DnsTransport.SYSTEM }
+            .sortedBy { it.name }
+            .map {
+              Triple(provider.providerId, provider.label, it)
+            }
         }
     OptionDialog(
       title = section.displayName(),
@@ -95,15 +119,25 @@ fun DnsSettingsSheet(onDismiss: () -> Unit, viewModel: SettingsViewModel = hiltV
     AlertDialog(
       onDismissRequest = { manualSection = null },
       title = { Text(section.displayName()) },
-      text = { OutlinedTextField(value = manualText, onValueChange = { manualText = it }, modifier = Modifier.fillMaxWidth()) },
+      text = {
+        OutlinedTextField(
+          value = manualText,
+          onValueChange = { manualText = it },
+          modifier = Modifier.fillMaxWidth(),
+        )
+      },
       confirmButton = {
-        TextButton(onClick = {
-          if (viewModel.setDnsManual(section, manualText) == null) manualSection = null
-        }) {
+        TextButton(
+          onClick = {
+            if (viewModel.setDnsManual(section, manualText) == null) manualSection = null
+          }
+        ) {
           Text(stringResource(R.string.update))
         }
       },
-      dismissButton = { TextButton(onClick = { manualSection = null }) { Text(stringResource(R.string.cancel)) } },
+      dismissButton = {
+        TextButton(onClick = { manualSection = null }) { Text(stringResource(R.string.cancel)) }
+      },
     )
   }
 }

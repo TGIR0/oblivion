@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
 import javax.inject.Inject
@@ -174,7 +175,7 @@ constructor(
               }
             }
             time
-          } catch (e: Exception) {
+          } catch (expectedProbeFailure: IOException) {
             null
           }
         }

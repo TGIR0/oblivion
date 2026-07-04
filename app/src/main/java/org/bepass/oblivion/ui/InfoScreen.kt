@@ -3,7 +3,6 @@ package org.bepass.oblivion.ui
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -41,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import org.bepass.oblivion.BuildConfig
 import org.bepass.oblivion.R
 
@@ -166,7 +166,7 @@ fun InfoScreen(onBack: () -> Unit) {
 private fun openExternalUri(context: Context, url: String) {
   try {
     context.startActivity(
-      Intent(Intent.ACTION_VIEW, Uri.parse(url)).addCategory(Intent.CATEGORY_BROWSABLE)
+      Intent(Intent.ACTION_VIEW, url.toUri()).addCategory(Intent.CATEGORY_BROWSABLE)
     )
   } catch (expected: ActivityNotFoundException) {
     Toast.makeText(context, R.string.no_browser_available, Toast.LENGTH_LONG).show()

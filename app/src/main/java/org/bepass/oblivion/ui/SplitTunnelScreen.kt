@@ -1,5 +1,6 @@
 package org.bepass.oblivion.ui
 
+import android.content.pm.PackageManager
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -160,7 +161,7 @@ private fun SplitTunnelAppRow(
           val pm = context.packageManager
           val appInfo = pm.getApplicationInfo(app.packageName, 0)
           appInfo.loadIcon(pm).toBitmap(64, 64).asImageBitmap()
-        } catch (e: Exception) {
+        } catch (expectedMissingPackage: PackageManager.NameNotFoundException) {
           null
         }
       }
