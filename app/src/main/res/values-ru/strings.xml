@@ -1,37 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="stateText">Не подключен</string>
     <string name="basedOnWarp">Основано на Warp</string>
     <string name="aboutApp">О приложении</string>
     <string name="aboutAppDesc">"Это приложение предназначено для свободного доступа к интернету, и любое коммерческое использование запрещено.\n\n\n Интернет для всех или ни для кого!"</string>
-    <string name="appVersion">Версия приложения: 8</string>
+    <string name="appVersion">Версия приложения: %1$s</string>
     <string name="logApp">Журнал приложения</string>
     <string name="means" formatted="true">Означает \"неведение, незнание\"</string>
-    <string name="dontForget">Не забудьте!</string>
     <string name="segaro">#Segaro</string>
     <string name="yousef">#Yousef_Ghobadi</string>
     <string name="slogan">Интернет для всех или ни для кого</string>
     <string name="blackList">Черный список</string>
     <string name="disabledR">Отключено</string>
-    <string name="disabledRText">В режиме отключения весь трафик приложений проходит через VPN.</string>
-    <string name="enabledR">Включено</string>
-    <string name="enabledRText">В режиме включения трафик выбранных приложений не проходит через VPN.</string>
     <string name="showSystemAppsText">Показать системные приложения</string>
     <string name="settingsText">Настройки</string>
     <string name="endpointText">Конечная точка</string>
     <string name="endpointTextDesc">Комбинация IP или доменного имени с портом</string>
-    <string name="portTunText">Порт туннеля</string>
-    <string name="portTunTextDesc">Укажите порт туннеля для приложения</string>
     <string name="blackListTextDesc">Укажите, какие приложения не должны использовать VPN</string>
-    <string name="connectFromLanText">Подключение через LAN</string>
-    <string name="connectFromLanTextDesc">Возможность подключения других сетевых устройств</string>
-    <string name="chooseText">Выбрать страну</string>
-    <string name="chooseTextDesc">Страна для подключения к интернету</string>
-    <string name="licenseText">Лицензия</string>
-    <string name="licenseTextDesc">Если у вас есть лицензия (каждая лицензия удваивается)</string>
-    <string name="goolText">Gool</string>
-    <string name="goolTextDesc">Активировать Warp в Warp</string>
-    <string name="editSheetEndpoint">Изменить значение конечной точки</string>
     <string name="cancel">Отмена</string>
     <string name="update">Обновить</string>
     <string name="notConnected">Не подключено</string>
@@ -42,10 +26,6 @@
     <string name="dialBtText">Чтобы приложение работало правильно, отключите оптимизацию батареи для этого приложения.</string>
     <string name="goToSettings">Перейти к настройкам</string>
     <string name="copytoclip">Скопировать лог в буфер обмена</string>
-    <string name="endpointTypeText">Тип конечной точки</string>
-    <string name="endpointTypeTextDesc">Используется для нахождения IP конечной точки</string>
-    <string name="turn_on_dark_mode">Включить темный режим</string>
-    <string name="turn_on_dark_mode_desc">включить темный режим</string>
     <string name="copied_to_clipboard">Скопировано в буфер обмена</string>
     <string name="title">Заголовок</string>
     <string name="content">Конечная точка</string>
@@ -58,92 +38,63 @@
     <string name="running_in_proxy_mode_not_vpn">Работает в режиме прокси, а не VPN</string>
     <string name="reset_to_default_endpoint">Сбросить на стандартную конечную точку</string>
     <string name="delete">Удалить</string>
-    <string name="github_title">Github</string>
-    <string name="bepass_repo">Bepass/Oblivion</string>
     <string name="start_logging_here">Начните вести журнал здесь…</string>
-    <string name="getting_isp">Получение ISP…</string>
     <string name="back">Назад</string>
     <string name="permission_denied_vpn">В разрешении на запуск VPN отказано</string>
-    <string name="press_back_again">Нажмите назад еще раз для выхода</string>
-    <string-array name="countries">
-        <item>Австралия</item>
-        <item>Австрия</item>
-        <item>Бельгия</item>
-        <item>Болгария</item>
-        <item>Канада</item>
-        <item>Хорватия</item>
-        <item>Чехия</item>
-        <item>Дания</item>
-        <item>Эстония</item>
-        <item>Финляндия</item>
-        <item>Франция</item>
-        <item>Германия</item>
-        <item>Венгрия</item>
-        <item>Индия</item>
-        <item>Ирландия</item>
-        <item>Италия</item>
-        <item>Япония</item>
-        <item>Латвия</item>
-        <item>Нидерланды</item>
-        <item>Норвегия</item>
-        <item>Польша</item>
-        <item>Португалия</item>
-        <item>Румыния</item>
-        <item>Сербия</item>
-        <item>Сингапур</item>
-        <item>Словакия</item>
-        <item>Испания</item>
-        <item>Швеция</item>
-        <item>Швейцария</item>
-        <item>Великобритания</item>
-        <item>Соединенные Штаты</item>
-    </string-array>
     <string name="splashText">С усилиями #Юсеф_Кобади и десятков известных или анонимных активистов с целью обеспечения свободного доступа людей в интернет…</string>
     <string name="notification_warp">Warp</string>
-    <string name="notification_warp_in_warp">Warp в Warp</string>
     <string name="notification_proxy_suffix">на socks5 прокси на 127.0.0.1:%1$s</string>
     <string name="dns_runtime_default">План DNS использует профиль по умолчанию.</string>
     <string name="dns_warning_format">Предупреждение: %1$s</string>
-    <string name="dns_section_global">Глобальный DNS</string>
-    <string name="dns_section_tunnel_core">DNS ядра туннеля</string>
-    <string name="dns_section_vpn_interface">DNS интерфейса VPN</string>
-    <string name="dns_section_app_http">DNS для HTTP приложения</string>
-    <string name="dns_section_diagnostics">DNS диагностики</string>
-    <string name="dns_mode_inherit">Наследовать</string>
-    <string name="dns_mode_system">Системный</string>
-    <string name="dns_mode_provider">Провайдер</string>
-    <string name="dns_mode_manual">Вручную</string>
-    <string name="edit">Изменить</string>
-    <string name="remove">Удалить</string>
-    <string name="dns_manager_title">Управление DNS</string>
-    <string name="dns_provider_count">Публичных DNS: %1$d</string>
-    <string name="dns_search_providers">Поиск DNS</string>
-    <string name="dns_scan">Проверить</string>
-    <string name="dns_scan_progress">%1$d из %2$d</string>
-    <string name="dns_latency_format">%1$d мс</string>
-    <string name="dns_unavailable">Недоступен</string>
-    <string name="dns_not_tested">Не проверен</string>
-    <string name="dns_transport_plain">Обычный</string>
-    <string name="dns_transport_doh">DoH</string>
-    <string name="dns_transport_dot">DoT</string>
-    <string name="dns_filter_all">Все</string>
-    <string name="dns_filter_iran">Иран</string>
-    <string name="dns_filter_international">Мир</string>
-    <string name="dns_test_all">Проверить все</string>
-    <string name="dns_add">Добавить DNS</string>
-    <string name="dns_restore_defaults">Восстановить стандартные</string>
-    <string name="dns_add_title">Добавить DNS</string>
-    <string name="dns_edit_title">Изменить DNS</string>
-    <string name="dns_name">Название</string>
-    <string name="dns_plain_endpoint">IP-адреса</string>
-    <string name="dns_doh_endpoint">HTTPS URL</string>
-    <string name="dns_dot_endpoint">Имя хоста TLS</string>
-    <string name="dns_invalid_endpoint">Введите корректный адрес для этого типа DNS.</string>
-    <string name="dns_remove_title">Удалить DNS</string>
-    <string name="dns_remove_custom_message">Удалить %1$s навсегда?</string>
-    <string name="dns_remove_default_message">Скрыть %1$s? Его можно вернуть восстановлением стандартных.</string>
     <string name="core_title">Ядро VPN</string>
     <string name="core_title_desc">Выберите желаемое ядро VPN</string>
     <string name="scanner_section_title">Сканер чистого IP</string>
     <string name="scanner_section_desc">Сканирование конечных точек остается отключенным до появления официального подписанного манифеста провайдера</string>
+    <string name="whiteList">Белый список</string>
+    <string name="appearance_personalization">Внешний вид и персонализация</string>
+    <string name="themeText">Тема</string>
+    <string name="themeTextDesc">Выберите оформление Oblivion с сохранением фирменного оранжевого цвета.</string>
+    <string name="theme_oled">OLED</string>
+    <string name="theme_dark">Тёмная</string>
+    <string name="theme_light">Светлая</string>
+    <string name="font_size_text">Размер шрифта</string>
+    <string name="font_size_desc">Настройте размер текста приложения.</string>
+    <string name="font_size_small">Маленький</string>
+    <string name="font_size_default">Стандартный</string>
+    <string name="font_size_large">Большой</string>
+    <string name="select_language_desc">Выберите язык приложения.</string>
+    <string name="split_tunnel_search_hint">Поиск приложений</string>
+    <string name="selected_apps_format">Выбрано: %1$d • Показано: %2$d</string>
+    <string name="no_apps_match_filter">Нет приложений, соответствующих фильтру.</string>
+    <string name="system_default">Системный язык</string>
+    <string name="privacy_policy">Политика конфиденциальности</string>
+    <string name="privacy_policy_body">Oblivion хранит настройки и данные доступа к туннелю локально и по умолчанию не отправляет аналитику. При активном туннеле трафик поступает выбранным поставщикам туннеля и DNS. Для отображения публичного IP приложение обращается к api.country.is через туннель. Журналы остаются на устройстве, пока вы явно не скопируете или не отправите их.</string>
+    <string name="details">Подробности</string>
+    <string name="no_browser_available">Веб-браузер недоступен.</string>
+    <string name="quick_settings_connect_once">Откройте Oblivion один раз и выдайте разрешение VPN перед использованием быстрых настроек.</string>
+    <string name="dnsText">Пользовательский DNS</string>
+    <string name="dnsTextDesc">Укажите предпочитаемый DNS, например 1.1.1.1</string>
+    <string name="refresh_dns_catalog">Обновить каталог DNS</string>
+    <string name="refreshing">Обновление…</string>
+    <string name="core_warp">WARP</string>
+    <string name="core_warp_desc">Стандартное подключение Cloudflare WARP</string>
+    <string name="core_vwarp">VWarp</string>
+    <string name="core_vwarp_desc">MASQUE Connect-IP через HTTP/3 с безопасным резервом HTTP/2</string>
+    <string name="core_psiphon">Psiphon</string>
+    <string name="core_psiphon_desc">Туннель Psiphon с выбором страны</string>
+    <string name="core_psiphon_warp">Psiphon поверх WARP</string>
+    <string name="core_psiphon_warp_desc">Транспорт Psiphon направляется через WARP</string>
+    <string name="core_warp_over_psiphon">WARP поверх Psiphon</string>
+    <string name="core_warp_over_psiphon_desc">MASQUE HTTP/2 подключается через лицензированный Psiphon</string>
+    <string name="core_psiphon_mitm">Разрешённый фронтинг Psiphon</string>
+    <string name="core_psiphon_mitm_desc">Фронтинг ограничен подписанным манифестом разрешённых доменов</string>
+    <string name="core_wireguard">WireGuard</string>
+    <string name="core_wireguard_desc">Стандартный пользовательский профиль WireGuard</string>
+    <string name="core_gate_warp">Отключено до прохождения тестов на устройствах, утечки и длительную стабильность</string>
+    <string name="core_gate_masque">Отключено: производственный адаптер MASQUE ещё не интегрирован</string>
+    <string name="core_gate_psiphon">Отключено: требуются письменное разрешение и действительные идентификаторы Psiphon</string>
+    <string name="core_gate_chain">Отключено: полная цепочка транспорта ещё не прошла тесты выпуска</string>
+    <string name="core_gate_fronted">Отключено: требуются подписанный манифест и разрешённые фронт-домены</string>
+    <string name="core_gate_wireguard">Отключено: производственный адаптер профиля пользователя ещё не интегрирован</string>
+    <string name="endpoint_advanced_warning">Расширенная настройка: принимаются только официальные диапазоны Cloudflare WARP и порты 500, 1701, 2408 или 4500.</string>
 </resources>

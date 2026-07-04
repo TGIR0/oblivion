@@ -1,22 +1,17 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
   <string name="app_name" translatable="false">Oblivion</string>
-  <string name="stateText">Not Connected</string>
   <string name="basedOnWarp">Based on Warp</string>
   <string name="aboutApp">About the App</string>
   <string name="aboutAppDesc">"This application is designed to access the internet freely, and any commercial use of it is prohibited.\n\n\n Internet for all, or no one! "</string>
-  <string name="appVersion">App Version: 8</string>
+  <string name="appVersion">App Version: %1$s</string>
   <string name="logApp">App Log</string>
   <string name="means" formatted="true">Means \"unawareness, ignorance\"</string>
-  <string name="dontForget">Don\'t Forget!</string>
   <string name="segaro">#Segaro</string>
   <string name="yousef">#Yousef_Ghobadi</string>
   <string name="slogan">Internet for All, or No One</string>
   <string name="blackList">Blacklist</string>
   <string name="whiteList">Whitelist</string>
   <string name="disabledR">Disabled</string>
-  <string name="disabledRText">In disabled mode, traffic of all apps passes through VPN.</string>
-  <string name="enabledR">Enabled</string>
-  <string name="enabledRText">In enabled mode, traffic of selected apps does not pass through VPN.</string>
   <string name="showSystemAppsText">Show System Apps</string>
   <string name="settingsText">Settings</string>
   <string name="appearance_personalization">Appearance &amp; personalization</string>
@@ -33,36 +28,20 @@
   <string name="select_language_desc">Choose the app language.</string>
   <string name="endpointText">Endpoint</string>
   <string name="endpointTextDesc">Combination of IP or domain name, along with port</string>
-  <string name="portTunText">Tunnel Port</string>
-  <string name="portTunTextDesc">Specify the tunnel port for the app</string>
   <string name="blackListTextDesc">Specify which apps should not use VPN</string>
   <string name="split_tunnel_search_hint">Search apps</string>
-  <string name="selected_apps_format">%1$d selected • %2$d visible</string>
+  <string name="selected_apps_format">Selected: %1$d • Visible: %2$d</string>
   <string name="no_apps_match_filter">No apps match this filter.</string>
-  <string name="connectFromLanText">Connect from LAN</string>
-  <string name="connectFromLanTextDesc">Ability to connect other network devices</string>
-  <string name="chooseText">Choose Country</string>
-  <string name="chooseTextDesc">Country to connect to the internet from</string>
-  <string name="licenseText">License</string>
-  <string name="licenseTextDesc">If you have a license (each license is doubled)</string>
-  <string name="goolText">Gool</string>
-  <string name="goolTextDesc">Activate Warp In Warp</string>
-  <string name="editSheetEndpoint">Change Endpoint Value</string>
   <string name="cancel">Cancel</string>
   <string name="update">Update</string>
   <string name="notConnected">Not Connected</string>
   <string name="connecting">Connecting…</string>
   <string name="connected">Connected</string>
-  <string name="disconnected">Disconnected</string>
   <string name="batteryOpL">Disable Battery optimization</string>
   <string name="batteryOpLText">Disabling battery optimization for better experience</string>
   <string name="dialBtText"> To ensure the app works properly, please disable battery optimization for this app. </string>
   <string name="goToSettings"> Go to Settings </string>
   <string name="copytoclip">Copy log to clipboard</string>
-  <string name="endpointTypeText">Endpoint Type</string>
-  <string name="endpointTypeTextDesc">Used to find the endpoint IP</string>
-  <string name="turn_on_dark_mode">Turn on dark mode</string>
-  <string name="turn_on_dark_mode_desc">turn on dark mode</string>
   <string name="copied_to_clipboard">Copied to clipboard</string>
   <string name="title">Title</string>
   <string name="content">Endpoint</string>
@@ -76,86 +55,14 @@
   <string name="running_in_proxy_mode_not_vpn">Running in proxy mode, not VPN</string>
   <string name="reset_to_default_endpoint">Reset to Default Endpoint</string>
   <string name="delete">Delete</string>
-  <string name="github_title">Github</string>
-  <string name="bepass_repo">Bepass/Oblivion</string>
   <string name="privacy_policy">Privacy Policy</string>
+  <string name="privacy_policy_body">Oblivion stores settings and tunnel credentials locally and does not send analytics by default. When a tunnel is active, traffic necessarily reaches the selected tunnel and DNS providers. The public-IP display requests api.country.is through the tunnel. Logs remain on the device unless you explicitly copy or share them.</string>
+  <string name="details">Details</string>
+  <string name="no_browser_available">No web browser is available.</string>
   <string name="start_logging_here">Start logging here…</string>
-  <string name="getting_isp">Getting ISP…</string>
   <string name="back">Back</string>
   <string name="permission_denied_vpn">Permission denied to start VPN</string>
-  <string name="press_back_again">Press back again to exit</string>
   <string name="quick_settings_connect_once">Open Oblivion once to grant VPN permission before using Quick Settings.</string>
-  <string-array name="countries">
-    <item>Australia</item>
-    <item>Austria</item>
-    <item>Belgium</item>
-    <item>Bulgaria</item>
-    <item>Canada</item>
-    <item>Croatia</item>
-    <item>Czechia</item>
-    <item>Denmark</item>
-    <item>Estonia</item>
-    <item>Finland</item>
-    <item>France</item>
-    <item>Germany</item>
-    <item>Hungary</item>
-    <item>India</item>
-    <item>Ireland</item>
-    <item>Italy</item>
-    <item>Japan</item>
-    <item>Latvia</item>
-    <item>Netherlands</item>
-    <item>Norway</item>
-    <item>Poland</item>
-    <item>Portugal</item>
-    <item>Romania</item>
-    <item>Serbia</item>
-    <item>Singapore</item>
-    <item>Slovakia</item>
-    <item>Spain</item>
-    <item>Sweden</item>
-    <item>Switzerland</item>
-    <item>United Kingdom</item>
-    <item>United States</item>
-  </string-array>
-  <string-array name="englishCountries">
-    <item>Australia</item>
-    <item>Austria</item>
-    <item>Belgium</item>
-    <item>Bulgaria</item>
-    <item>Canada</item>
-    <item>Croatia</item>
-    <item>Czechia</item>
-    <item>Denmark</item>
-    <item>Estonia</item>
-    <item>Finland</item>
-    <item>France</item>
-    <item>Germany</item>
-    <item>Hungary</item>
-    <item>India</item>
-    <item>Ireland</item>
-    <item>Italy</item>
-    <item>Japan</item>
-    <item>Latvia</item>
-    <item>Netherlands</item>
-    <item>Norway</item>
-    <item>Poland</item>
-    <item>Portugal</item>
-    <item>Romania</item>
-    <item>Serbia</item>
-    <item>Singapore</item>
-    <item>Slovakia</item>
-    <item>Spain</item>
-    <item>Sweden</item>
-    <item>Switzerland</item>
-    <item>United Kingdom</item>
-    <item>United States</item>
-  </string-array>
-  <string-array name="endpointType">
-    <item>Auto</item>
-    <item>IPv4</item>
-    <item>IPv6</item>
-  </string-array>
   <string-array name="allowed_languages">
     <item>en</item> <!-- English -->
     <item>fa</item> <!-- Persian -->
@@ -169,38 +76,6 @@
   <string name="dns_warning_format">Warning: %1$s</string>
   <string name="refresh_dns_catalog">Refresh DNS catalog</string>
   <string name="refreshing">Refreshing…</string>
-  <string name="no_dns_providers">No DNS providers are available.</string>
-  <string name="dns_section_global">Global DNS</string>
-  <string name="dns_section_tunnel_core">Tunnel core DNS</string>
-  <string name="dns_section_vpn_interface">VPN interface DNS</string>
-  <string name="dns_section_app_http">App HTTP DNS</string>
-  <string name="dns_section_diagnostics">Diagnostics DNS</string>
-  <string name="dns_mode_inherit">Inherit</string>
-  <string name="dns_mode_system">System</string>
-  <string name="dns_mode_provider">Provider</string>
-  <string name="dns_mode_manual">Manual</string>
-  <string name="dns_provider_count">%1$d public DNS providers</string>
-  <string name="dns_search_providers">Search DNS providers</string>
-  <string name="dns_scan">Scan</string>
-  <string name="dns_scan_progress">%1$d / %2$d</string>
-  <string name="dns_latency_format">%1$d ms</string>
-  <string name="dns_unavailable">Unavailable</string>
-  <string name="dns_not_tested">Not tested</string>
-  <string name="dns_transport_plain">Plain</string>
-  <string name="dns_transport_doh">DoH</string>
-  <string name="dns_transport_dot">DoT</string>
-  <string name="dns_filter_all">All</string>
-  <string name="dns_filter_iran">Iran</string>
-  <string name="dns_filter_international">Global</string>
-  <string name="regionText">Region Selection</string>
-  <string name="regionTextDesc">Optimize for specific regions (Iran, Global)</string>
-  <string-array name="regions">
-    <item>Global</item>
-    <item>Iran (Optimized)</item>
-  </string-array>
-  <string name="masqueText">Masque (Coming Soon)</string>
-  <string name="masqueTextDesc">Activate Masque (HTTP/3)</string>
-
   <string name="core_title">VPN Core</string>
   <string name="core_title_desc">Select the VPN core to use</string>
   <string name="core_warp">Warp</string>
@@ -223,56 +98,10 @@
   <string name="core_gate_chain">Disabled: the complete chained transport has not passed release tests</string>
   <string name="core_gate_fronted">Disabled: signed manifest and authorized front domains are required</string>
   <string name="core_gate_wireguard">Disabled: production user-profile adapter is not integrated</string>
-  <string name="wg_private_key">Private Key</string>
-  <string name="wg_private_key_desc">Base64-encoded WireGuard private key</string>
-  <string name="wg_peer_public_key">Peer Public Key</string>
-  <string name="wg_peer_public_key_desc">Base64-encoded peer public key</string>
-  <string name="core_in_development">In Development</string>
   <string name="splashText">With the efforts of #Yousef_Ghobadi and dozens of well-known or anonymous activists, for the purpose of providing free access to the internet for people…</string>
   <string name="notification_warp">Warp</string>
-  <string name="notification_warp_in_warp">Warp in Warp</string>
   <string name="notification_proxy_suffix">on socks5 proxy at 127.0.0.1:%1$s</string>
-  <string name="proxy_socks5">socks5</string>
-  <string name="proxy_socks5_lan">socks5 over LAN</string>
-  <string name="connected_proxy_format">%1$s\n%2$s on %3$s:%4$d</string>
-  <string name="privacy_policy_file">PRIVACY.md</string>
-  <string name="isp_label">ISP: %1$s</string>
-  <string name="isp_unknown">Unknown</string>
-  <string name="error_fetching_isp">Error fetching ISP information.</string>
-  <string name="endpoint_suggested">Suggested Endpoint (Best for Iran)</string>
-  <string name="endpoint_masque">Masque (HTTP/3) Endpoint</string>
-  <string name="endpoint_ipv6">IPv6 Endpoint</string>
-  <string name="endpoint_default">Default</string>
   <string name="endpoint_advanced_warning">Advanced: only official Cloudflare WARP address ranges and ports 500, 1701, 2408 or 4500 are accepted.</string>
-  <string name="export_no_identity">No WARP identity found. Please connect first!</string>
-  <string name="export_saved_config">Saved config to Downloads/%1$s</string>
-  <string name="export_failed">Export Failed: %1$s</string>
-
-  <string name="scanner_title">Clean IP Scanner</string>
-  <string name="scanner_description">Scan CDN edges to find unblocked/clean IPs for tunneling.</string>
-  <string name="scanner_select_target">Select CDN to scan:</string>
-  <string name="scanner_cloudflare">Cloudflare</string>
-  <string name="scanner_akamai">Akamai</string>
-  <string name="scanner_fastly">Fastly</string>
-  <string name="scanner_all">Scan All</string>
-  <string name="scanner_test_mitm">Verify authorized front manifest</string>
-  <string name="scanner_open">Open IP Scanner</string>
   <string name="scanner_section_title">Clean IP Scanner</string>
   <string name="scanner_section_desc">Endpoint scanning stays disabled until an official signed provider manifest is available</string>
-  <string name="edit">Edit</string>
-  <string name="remove">Remove</string>
-  <string name="dns_manager_title">DNS Manager</string>
-  <string name="dns_test_all">Test all</string>
-  <string name="dns_add">Add DNS</string>
-  <string name="dns_restore_defaults">Restore defaults</string>
-  <string name="dns_add_title">Add DNS</string>
-  <string name="dns_edit_title">Edit DNS</string>
-  <string name="dns_name">Name</string>
-  <string name="dns_plain_endpoint">IP addresses</string>
-  <string name="dns_doh_endpoint">HTTPS URL</string>
-  <string name="dns_dot_endpoint">TLS hostname</string>
-  <string name="dns_invalid_endpoint">Enter a valid endpoint for this DNS type.</string>
-  <string name="dns_remove_title">Remove DNS</string>
-  <string name="dns_remove_custom_message">Remove %1$s permanently?</string>
-  <string name="dns_remove_default_message">Hide %1$s? Restore defaults will bring it back.</string>
 </resources>

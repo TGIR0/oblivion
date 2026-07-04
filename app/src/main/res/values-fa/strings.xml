@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="stateText">متصل نیستید</string>
     <string name="basedOnWarp">بر پایه وارپ</string>
     <string name="aboutApp">درباره برنامه</string>
     <string name="aboutAppDesc">"این برنامه با هدف دسترسی به اینترنت آزاد تهیه شده و هرگونه استفاده تجاری از آن مجاز نیست.\n\n\n اینترنت برای همه، یا هیچ‌کس! "</string>
-    <string name="appVersion">نسخه برنامه: 8</string>
+    <string name="appVersion">نسخه برنامه: %1$s</string>
+    <string name="privacy_policy">سیاست حفظ حریم خصوصی</string>
+    <string name="privacy_policy_body">Oblivion تنظیمات و اطلاعات هویتی تونل را فقط روی دستگاه نگه می‌دارد و به‌صورت پیش‌فرض دادهٔ تحلیلی ارسال نمی‌کند. هنگام فعال بودن تونل، ترافیک ناگزیر به ارائه‌دهندهٔ تونل و DNS انتخاب‌شده می‌رسد. نمایش IP عمومی از طریق تونل به api.country.is درخواست می‌فرستد. لاگ‌ها تا زمانی که خودتان آن‌ها را کپی یا هم‌رسانی نکنید روی دستگاه باقی می‌مانند.</string>
+    <string name="details">جزئیات</string>
+    <string name="no_browser_available">هیچ مرورگر وبی در دسترس نیست.</string>
     <string name="logApp">لاگ برنامه</string>
     <string name="means">یعنی "فراموشی، بی‌خیالی"</string>
-    <string name="dontForget">فراموش نکنید!</string>
     <string name="segaro">#سگارو</string>
     <string name="yousef">#یوسف_قبادی</string>
     <string name="slogan">اینترنت برای همه، یا هیچکس</string>
     <string name="blackList">لیست سیاه</string>
     <string name="disabledR">غیرفعال</string>
-    <string name="disabledRText">در حالت غیرفعال، ترافیک تمامی برنامه‌ها از VPN عبور می‌کند.</string>
-    <string name="enabledR">فعال</string>
-    <string name="enabledRText">در حالت فعال، ترافیک برنامه‌های انتخابی از VPN عبور نمی‌کند.</string>
     <string name="showSystemAppsText">نمایش برنامه‌های سیستمی</string>
     <string name="settingsText">تنظیمات</string>
     <string name="appearance_personalization">ظاهر و شخصی‌سازی</string>
@@ -33,18 +32,7 @@
     <string name="system_default">پیش‌فرض سیستم</string>
     <string name="endpointText">اندپوینت</string>
     <string name="endpointTextDesc">ترکیبی از IP یا نام دامنه، به‌همراه پورت</string>
-    <string name="portTunText">پورت تونل</string>
-    <string name="portTunTextDesc">تعیین پورت تونل برنامه</string>
     <string name="blackListTextDesc">تعیین کنید چه برنامه‌هایی از VPN استفاده نکنند</string>
-    <string name="connectFromLanText">اتصال از LAN</string>
-    <string name="connectFromLanTextDesc">امکان اتصال سایر دستگاه‌های شبکه</string>
-    <string name="chooseText">انتخاب کشور</string>
-    <string name="chooseTextDesc">کشوری که از آن به اینترنت متصل می‌شوید</string>
-    <string name="licenseText">لایسنس</string>
-    <string name="licenseTextDesc">اگر لایسنس دارید (هر لایسنس 2x می‌شود)</string>
-    <string name="goolText">گول</string>
-    <string name="goolTextDesc">فعال‌سازی Warp In Warp</string>
-    <string name="editSheetEndpoint">تغییر مقدار Endpoint</string>
     <string name="cancel">انصراف</string>
     <string name="update">به‌روزرسانی</string>
     <string name="notConnected">متصل نیستید</string>
@@ -55,10 +43,6 @@
     <string name="dialBtText">برای اطمینان از عملکرد صحیح برنامه، لطفاً بهینه‌سازی باتری برای این برنامه را غیرفعال کنید.</string>
     <string name="goToSettings">به تنظیمات بروید</string>
     <string name="copytoclip">کپی کردن لاگ به کلیپ‌بورد</string>
-    <string name="turn_on_dark_mode">حالت تاریک</string>
-    <string name="turn_on_dark_mode_desc">اعمال کردن تم تاریک</string>
-    <string name="endpointTypeText">نوع نقطه اندپوینت</string>
-    <string name="endpointTypeTextDesc">برای یافتن IP نقطه اندپوینت استفاده می‌شود</string>
     <string name="copied_to_clipboard">کپی شد به کلیپ بورد</string>
     <string name="title">عنوان</string>
     <string name="content">اندپوینت</string>
@@ -71,90 +55,14 @@
     <string name="running_in_proxy_mode_not_vpn">در حال اجرا در حالت پراکسی، نه VPN</string>
     <string name="reset_to_default_endpoint">بازنشانی به نقطه پیش‌فرض</string>
     <string name="delete">حذف</string>
-    <string name="github_title">گیت‌هاب</string>
-    <string name="bepass_repo">Bepass/Oblivion</string>
     <string name="start_logging_here">از اینجا شروع به ثبت لاگ کنید…</string>
-    <string name="getting_isp">در حال دریافت ISP…</string>
     <string name="back">بازگشت</string>
     <string name="permission_denied_vpn">مجوز ایجاد VPN رد شد</string>
-    <string name="press_back_again">برای خروج، دوباره بازگشت را فشار دهید</string>
-    <string-array name="countries">
-        <item>استرالیا</item>
-        <item>اتریش</item>
-        <item>بلژیک</item>
-        <item>بلغارستان</item>
-        <item>کانادا</item>
-        <item>کرواسی</item>
-        <item>چک</item>
-        <item>دانمارک</item>
-        <item>استونی</item>
-        <item>فنلاند</item>
-        <item>فرانسه</item>
-        <item>آلمان</item>
-        <item>مجارستان</item>
-        <item>هند</item>
-        <item>ایرلند</item>
-        <item>ایتالیا</item>
-        <item>ژاپن</item>
-        <item>لتونی</item>
-        <item>هلند</item>
-        <item>نروژ</item>
-        <item>لهستان</item>
-        <item>پرتغال</item>
-        <item>رومانی</item>
-        <item>صربستان</item>
-        <item>سنگاپور</item>
-        <item>اسلواکی</item>
-        <item>اسپانیا</item>
-        <item>سوئد</item>
-        <item>سوئیس</item>
-        <item>بریتانیا</item>
-        <item>ایالات متحده</item>
-    </string-array>
     <string name="splashText">با تلاش #یوسف_قبادی و ده‌ها نفر از فعالان شناخته‌شده یا ناشناس، به‌منظور دسترسی آزاد مردم به اینترنت …</string>
     <string name="notification_warp">وارپ</string>
-    <string name="notification_warp_in_warp">وارپ در وارپ</string>
     <string name="notification_proxy_suffix">روی پراکسی socks5 در 127.0.0.1:%1$s</string>
     <string name="dns_runtime_default">طرح اجرایی DNS از نمایه پیش‌فرض استفاده می‌کند.</string>
     <string name="dns_warning_format">هشدار: %1$s</string>
-    <string name="dns_section_global">DNS سراسری</string>
-    <string name="dns_section_tunnel_core">DNS هسته تونل</string>
-    <string name="dns_section_vpn_interface">DNS رابط VPN</string>
-    <string name="dns_section_app_http">DNS ارتباط HTTP برنامه</string>
-    <string name="dns_section_diagnostics">DNS عیب‌یابی</string>
-    <string name="dns_mode_inherit">پیروی</string>
-    <string name="dns_mode_system">سیستم</string>
-    <string name="dns_mode_provider">ارائه‌دهنده</string>
-    <string name="dns_mode_manual">دستی</string>
-    <string name="dns_provider_count">%1$d ارائه‌دهنده DNS عمومی</string>
-    <string name="dns_search_providers">جست‌وجوی ارائه‌دهنده DNS</string>
-    <string name="dns_scan">اسکن</string>
-    <string name="dns_scan_progress">%1$d از %2$d</string>
-    <string name="dns_latency_format">%1$d میلی‌ثانیه</string>
-    <string name="dns_unavailable">خارج از دسترس</string>
-    <string name="dns_not_tested">تست نشده</string>
-    <string name="dns_transport_plain">ساده</string>
-    <string name="dns_transport_doh">DoH</string>
-    <string name="dns_transport_dot">DoT</string>
-    <string name="dns_filter_all">همه</string>
-    <string name="dns_filter_iran">ایران</string>
-    <string name="dns_filter_international">جهانی</string>
-    <string name="edit">ویرایش</string>
-    <string name="remove">حذف</string>
-    <string name="dns_manager_title">مدیریت DNS</string>
-    <string name="dns_test_all">تست همه</string>
-    <string name="dns_add">افزودن DNS</string>
-    <string name="dns_restore_defaults">بازیابی پیش‌فرض‌ها</string>
-    <string name="dns_add_title">افزودن DNS</string>
-    <string name="dns_edit_title">ویرایش DNS</string>
-    <string name="dns_name">نام</string>
-    <string name="dns_plain_endpoint">آدرس‌های IP</string>
-    <string name="dns_doh_endpoint">نشانی HTTPS</string>
-    <string name="dns_dot_endpoint">نام میزبان TLS</string>
-    <string name="dns_invalid_endpoint">یک نشانی معتبر برای این نوع DNS وارد کنید.</string>
-    <string name="dns_remove_title">حذف DNS</string>
-    <string name="dns_remove_custom_message">%1$s برای همیشه حذف شود؟</string>
-    <string name="dns_remove_default_message">%1$s پنهان شود؟ با بازیابی پیش‌فرض‌ها برمی‌گردد.</string>
 
     <string name="core_title">هسته VPN</string>
     <string name="core_title_desc">هسته VPN مورد نظر را انتخاب کنید</string>
@@ -178,8 +86,16 @@
     <string name="core_gate_chain">غیرفعال: زنجیرهٔ کامل انتقال هنوز تست‌های انتشار را نگذرانده است</string>
     <string name="core_gate_fronted">غیرفعال: مانیفست امضاشده و دامنه‌های مجاز لازم است</string>
     <string name="core_gate_wireguard">غیرفعال: آداپتور نهایی پروفایل کاربر هنوز یکپارچه نشده است</string>
-    <string name="core_in_development">در حال توسعه</string>
     <string name="scanner_section_title">اسکنر آی‌پی تمیز</string>
     <string name="scanner_section_desc">اسکن نقاط پایانی تا زمان در دسترس بودن فایل مانیفست رسمی و امضاشده غیرفعال می‌ماند.</string>
     <string name="endpoint_advanced_warning">پیشرفته: فقط بازه‌های رسمی WARP کلادفلر و پورت‌های ۵۰۰، ۱۷۰۱، ۲۴۰۸ یا ۴۵۰۰ پذیرفته می‌شوند.</string>
+    <string name="whiteList">فهرست سفید</string>
+    <string name="split_tunnel_search_hint">جست‌وجوی برنامه‌ها</string>
+    <string name="selected_apps_format">انتخاب‌شده: %1$d • قابل نمایش: %2$d</string>
+    <string name="no_apps_match_filter">هیچ برنامه‌ای با این فیلتر مطابقت ندارد.</string>
+    <string name="quick_settings_connect_once">برای اعطای مجوز VPN پیش از استفاده از تنظیمات سریع، یک‌بار Oblivion را باز کنید.</string>
+    <string name="dnsText">DNS سفارشی</string>
+    <string name="dnsTextDesc">DNS دلخواه خود را تنظیم کنید؛ برای نمونه 1.1.1.1</string>
+    <string name="refresh_dns_catalog">به‌روزرسانی فهرست DNS</string>
+    <string name="refreshing">در حال به‌روزرسانی…</string>
 </resources>
