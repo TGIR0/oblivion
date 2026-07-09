@@ -8,10 +8,10 @@ import android.content.Context
 import android.content.Intent
 import android.os.PowerManager
 import android.provider.Settings
-import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import org.bepass.oblivion.R
+import org.bepass.oblivion.logging.SecureLog as Log
 
 private const val TAG = "BatteryOptimization"
 
@@ -35,35 +35,40 @@ fun isBatteryOptimizationEnabled(context: Context): Boolean {
 fun requestIgnoreBatteryOptimizations(context: Context) {
   val packageName = context.packageName
   val powerManager = ContextCompat.getSystemService(context, PowerManager::class.java)
+  if (powerManager == null || powerManager.isIgnoringBatteryOptimizations(packageName)) return
 
-  if (powerManager != null && !powerManager.isIgnoringBatteryOptimizations(packageName)) {
-    try {
-      // Method 1: Try the direct system dialog (Requires REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-      // permission)
-      val intent =
-        Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-          data = "package:$packageName".toUri()
-          if (context !is Activity) {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-          }
-        }
-      context.startActivity(intent)
-    } catch (e: Exception) {
-      Log.e(TAG, "Direct battery optimization request failed. Trying fallback.", e)
-
-      // Method 2: Fallback to the general list of apps
-      try {
-        val intent =
-          Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS).apply {
-            if (context !is Activity) {
-              flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            }
-          }
-        context.startActivity(intent)
-      } catch (ex: ActivityNotFoundException) {
-        Log.e(TAG, "Battery optimization settings not found.", ex)
-      }
+  val directIntent =
+    Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+      data = "package:$packageName".toUri()
+      addNewTaskFlagWhenNeeded(context)
     }
+  if (!startBatterySettings(context, directIntent, "Direct battery optimization request failed")) {
+    val fallbackIntent =
+      Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS).apply {
+        addNewTaskFlagWhenNeeded(context)
+      }
+    startBatterySettings(context, fallbackIntent, "Battery optimization settings not found")
+  }
+}
+
+private fun Intent.addNewTaskFlagWhenNeeded(context: Context) {
+  if (context !is Activity) flags = Intent.FLAG_ACTIVITY_NEW_TASK
+}
+
+private fun startBatterySettings(
+  context: Context,
+  intent: Intent,
+  failureMessage: String,
+): Boolean {
+  return try {
+    context.startActivity(intent)
+    true
+  } catch (notFound: ActivityNotFoundException) {
+    Log.e(TAG, failureMessage, notFound)
+    false
+  } catch (securityFailure: SecurityException) {
+    Log.e(TAG, failureMessage, securityFailure)
+    false
   }
 }
 
@@ -90,7 +95,7 @@ fun showBatteryOptimizationDialog(context: Context) {
         .create()
 
     dialog.show()
-  } catch (e: Exception) {
-    Log.e(TAG, "Error showing battery optimization dialog", e)
+  } catch (dialogFailure: RuntimeException) {
+    Log.e(TAG, "Error showing battery optimization dialog", dialogFailure)
   }
 }
