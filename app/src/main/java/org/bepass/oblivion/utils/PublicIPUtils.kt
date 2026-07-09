@@ -1,6 +1,5 @@
 package org.bepass.oblivion.utils
 
-import android.util.Log
 import java.net.InetSocketAddress
 import java.net.Proxy
 import java.util.concurrent.TimeUnit
@@ -11,6 +10,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.bepass.oblivion.logging.SecureLog as Log
 import org.bepass.oblivion.model.IPDetails
 import org.json.JSONObject
 

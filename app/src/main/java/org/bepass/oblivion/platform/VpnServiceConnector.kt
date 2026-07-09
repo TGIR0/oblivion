@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.bepass.oblivion.enums.ConnectionState
+import org.bepass.oblivion.logging.SecureLog as Log
 import org.bepass.oblivion.service.OblivionVpnService
 
 @Singleton
@@ -52,7 +53,8 @@ class VpnServiceConnector @Inject constructor(@ApplicationContext private val co
         connection,
         Context.BIND_AUTO_CREATE,
       )
-    } catch (e: SecurityException) {
+    } catch (securityFailure: SecurityException) {
+      Log.w(TAG, "VPN service binding was denied", securityFailure)
       isBound = false
     }
   }
@@ -69,5 +71,9 @@ class VpnServiceConnector @Inject constructor(@ApplicationContext private val co
     context.unbindService(connection)
     isBound = false
     serviceMessenger = null
+  }
+
+  private companion object {
+    const val TAG = "VpnServiceConnector"
   }
 }

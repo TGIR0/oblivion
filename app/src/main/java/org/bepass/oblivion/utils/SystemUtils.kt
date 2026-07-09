@@ -1,6 +1,7 @@
 package org.bepass.oblivion.utils
 
 import android.app.Activity
+import android.content.res.Resources
 import android.os.Build
 import android.view.View
 import android.view.Window
@@ -35,9 +36,9 @@ object SystemUtils {
     try {
       val color = ContextCompat.getColor(activity, colorRes)
       window.statusBarColor = color
-    } catch (e: Exception) {
+    } catch (resourceFailure: Resources.NotFoundException) {
       // Resource not found – log and do not crash
-      Timber.e(e, "Failed to set status bar color from resource %s", colorRes)
+      Timber.e(resourceFailure, "Failed to set status bar color from resource %s", colorRes)
     }
 
     // 2. Adjust icon appearance for contrast

@@ -1,8 +1,12 @@
 package org.bepass.oblivion.ui
 
 import android.Manifest
+import android.content.ComponentName
+import android.content.pm.PackageManager
+import android.net.VpnService
 import android.os.Build
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -14,7 +18,10 @@ import androidx.test.rule.GrantPermissionRule
 import java.util.Locale
 import org.bepass.oblivion.BuildConfig
 import org.bepass.oblivion.R
+import org.bepass.oblivion.enums.VpnCoreType
+import org.bepass.oblivion.service.OblivionVpnService
 import org.bepass.oblivion.utils.LocaleManager
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -93,6 +100,35 @@ class NavigationSmokeTest {
     } finally {
       restoreAppLocale(originalLocaleTag)
     }
+  }
+
+  @Test
+  fun unapprovedModesDisableVpnSwitchAndAlwaysOnAdvertisement() {
+    awaitHome()
+    val activity = composeRule.activity
+    val selectedCore = VpnCoreType.getCurrent()
+
+    composeRule.onNodeWithTag(UiTestTags.VPN_SWITCH).assertIsNotEnabled()
+    composeRule
+      .onNodeWithText(activity.getString(selectedCore.availabilityReasonRes))
+      .assertIsDisplayed()
+
+    val serviceInfo =
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        activity.packageManager.getServiceInfo(
+          ComponentName(activity, OblivionVpnService::class.java),
+          PackageManager.ComponentInfoFlags.of(PackageManager.GET_META_DATA.toLong()),
+        )
+      } else {
+        @Suppress("DEPRECATION")
+        activity.packageManager.getServiceInfo(
+          ComponentName(activity, OblivionVpnService::class.java),
+          PackageManager.GET_META_DATA,
+        )
+      }
+    assertFalse(
+      serviceInfo.metaData.getBoolean(VpnService.SERVICE_META_DATA_SUPPORTS_ALWAYS_ON, true)
+    )
   }
 
   @Test

@@ -1,6 +1,5 @@
 package org.bepass.oblivion.di
 
-import android.util.Log
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -10,6 +9,7 @@ import javax.inject.Singleton
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
 import org.bepass.oblivion.dns.AppDnsResolverFactory
+import org.bepass.oblivion.logging.SecureLog as Log
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -38,8 +38,12 @@ object NetworkModule {
 
     try {
       builder.dns(AppDnsResolverFactory.createAppHttpDns())
-    } catch (e: Throwable) {
-      Log.w(TAG, "Failed to initialize configurable app DNS; falling back to system DNS", e)
+    } catch (initializationFailure: Exception) {
+      Log.w(
+        TAG,
+        "Failed to initialize configurable app DNS; falling back to system DNS",
+        initializationFailure,
+      )
     }
 
     return builder.build()
