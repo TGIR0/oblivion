@@ -1,16 +1,36 @@
-# Tun2socks Placeholder
+# Oblivion native bridge
 
-The native `tun2socks`/Warp core has been removed.
+This module contains the production contract and security gates for the replacement native core.
+It contains WARP and standard WireGuard adapters based on official `wireguard-go`, VWarp MASQUE
+through the pinned usque adapter, reusable encrypted identity storage, an authenticated loopback
+SOCKS5 server, and real tunnel health verification. Psiphon and all Psiphon chain modes return
+`CORE_UNAVAILABLE`. Android keeps every mode disabled until its live release gates pass.
 
-This directory now keeps only the minimal Go package shape and exported API names
-so a future core can be dropped in without rediscovering the Android integration
-surface from scratch.
+Public gomobile API:
 
-There is no gomobile/AAR build step at the moment. The Android app uses the
-Kotlin placeholder in `app/src/main/java/tun2socks/` and fails fast when the VPN
-core is started.
-
-You can still validate the empty Go package with:
-```sh
-go test ./...
+```text
+NewEngine(listener, socketProtector, secureStore)
+ValidateConfig(configJson)
+Engine.Start(configJson)
+Engine.Stop()
+Engine.GetStatus()
+VerifyFeatureManifest(envelopeJson, publicKey, minimumSequence, now)
+VerifyFeatureManifestKeyset(envelopeJson, publicKeysJson, minimumSequence, now)
 ```
+
+Production `NewEngine` instances require a signed remote-policy configuration. `Start` verifies
+the exact envelope, expiry, sequence, same-sequence payload hash, selected-mode entry, and
+kill-switch before constructing a transport session. The accepted sequence and payload hash are
+stored together through `SecureStore`.
+
+Build and verify:
+
+```text
+go test -race ./...
+go vet ./...
+staticcheck ./...
+govulncheck ./...
+./build-aar.ps1
+```
+
+The generated AAR is written to `app/libs` and is intentionally ignored by Git.
