@@ -1,0 +1,124 @@
+name: Reproducibility
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Independent build ${{ matrix.runner }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [1, 2]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Setup JDK
+        uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520 # v5
+        with:
+          distribution: temurin
+          java-version: "26"
+
+      - name: Setup Go
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: "1.26.4"
+          cache: false
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+
+      - name: Install locked native build tools
+        run: |
+          sdkmanager "platforms;android-37" "ndk;30.0.14904198"
+          go install golang.org/x/mobile/cmd/gomobile@v0.0.0-20260611195102-4dd8f1dbf5d2
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5
+        with:
+          cache-disabled: true
+
+      - name: Build unsigned artifacts
+        env:
+          SOURCE_DATE_EPOCH: "0"
+          TZ: UTC
+          LC_ALL: C.UTF-8
+        run: |
+          ./gradlew \
+            :app:assembleOssRelease \
+            :app:bundlePlayRelease \
+            --warning-mode all \
+            --no-build-cache \
+            --no-configuration-cache \
+            --no-daemon
+
+      - name: Collect deterministic inputs
+        run: |
+          mkdir -p reproducibility
+          cp app/libs/tun2socks.aar reproducibility/tun2socks.aar
+          cp \
+            app/build/outputs/apk/oss/release/Oblivion-ossRelease-universal.apk \
+            reproducibility/oblivion-oss-universal.apk
+          cp \
+            app/build/outputs/bundle/playRelease/*.aab \
+            reproducibility/oblivion-play.aab
+          (
+            cd reproducibility
+            sha256sum * > SHA256SUMS
+          )
+
+      - name: Upload independent artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: reproducibility-build-${{ matrix.runner }}
+          path: reproducibility
+          compression-level: 0
+          if-no-files-found: error
+
+  compare:
+    name: Compare unsigned hashes
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build 1
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: reproducibility-build-1
+          path: build-1
+
+      - name: Download build 2
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: reproducibility-build-2
+          path: build-2
+
+      - name: Verify both artifact sets
+        run: |
+          set -euo pipefail
+          (
+            cd build-1
+            sha256sum --check SHA256SUMS
+          )
+          (
+            cd build-2
+            sha256sum --check SHA256SUMS
+          )
+          diff --unified build-1/SHA256SUMS build-2/SHA256SUMS \
+            | tee reproducibility-diff.txt
+
+      - name: Upload comparison evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: reproducibility-comparison
+          path: reproducibility-diff.txt
+          if-no-files-found: error

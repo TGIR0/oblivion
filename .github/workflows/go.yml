@@ -31,6 +31,12 @@ jobs:
           ./native/usque/prepare-usque.ps1 `
             -WorkDir "$env:GITHUB_WORKSPACE/build/native/usque"
 
+      - name: Verify pinned warp-plus Android patch
+        shell: pwsh
+        run: |
+          ./native/warp-plus/prepare-warp-plus.ps1 `
+            -WorkDir "$env:GITHUB_WORKSPACE/build/native/warp-plus"
+
       - name: Test with race detector
         working-directory: tun2socks
         run: go test -race -coverprofile=coverage.out ./...
@@ -49,9 +55,22 @@ jobs:
         working-directory: tun2socks
         run: govulncheck ./...
 
+      - name: Reachable vulnerability scan (warp-plus fork)
+        working-directory: build/native/warp-plus/source
+        run: govulncheck ./warp
+
+      - name: Reachable vulnerability scan (usque fork)
+        working-directory: build/native/usque/source
+        run: govulncheck ./api
+
       - name: Staticcheck
         working-directory: tun2socks
         run: staticcheck ./...
+
+      - name: Staticcheck controlled forks
+        run: |
+          (cd build/native/warp-plus/source && staticcheck ./warp/...)
+          (cd build/native/usque/source && staticcheck ./api/...)
 
       - name: Generate native CycloneDX SBOM
         working-directory: tun2socks

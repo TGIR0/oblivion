@@ -44,10 +44,13 @@ jobs:
           ./gradlew \
             verifyCorePins \
             spotlessCheck \
+            :app:detekt \
             :app:assembleDebug \
-            :app:lintDebug \
+            :app:lintOssDebug \
+            :app:lintPlayDebug \
             :app:check \
             :app:cyclonedxDirectBom \
+            -Poblivion.abiSplits=true \
             --warning-mode all \
             --no-daemon
 
@@ -98,7 +101,12 @@ jobs:
           target: google_apis
           arch: x86_64
           disable-animations: true
-          script: ./gradlew :app:connectedDebugAndroidTest --warning-mode all --no-daemon
+          script: >-
+            ./gradlew
+            :app:connectedOssDebugAndroidTest
+            :app:connectedPlayDebugAndroidTest
+            --warning-mode all
+            --no-daemon
 
   version_audit:
     if: github.event_name == 'schedule'
