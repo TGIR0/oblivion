@@ -1,3 +1,4 @@
+import com.android.build.api.variant.FilterConfiguration
 import org.cyclonedx.gradle.CyclonedxDirectTask
 import org.cyclonedx.model.Component
 
@@ -9,10 +10,25 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.cyclonedx)
+    alias(libs.plugins.detekt)
 }
 
 group = "org.bepass"
 version = "9"
+
+fun String.asBuildConfigString(): String =
+    "\"" + replace("\\", "\\\\").replace("\"", "\\\"") + "\""
+
+val featureManifestUrl =
+    providers
+        .gradleProperty("oblivion.featureManifestUrl")
+        .orElse(providers.environmentVariable("OBLIVION_FEATURE_MANIFEST_URL"))
+        .orElse("")
+val featureManifestKeysJson =
+    providers
+        .gradleProperty("oblivion.featureManifestKeysJson")
+        .orElse(providers.environmentVariable("OBLIVION_FEATURE_MANIFEST_KEYS_JSON"))
+        .orElse("[]")
 
 android {
     namespace = "org.bepass.oblivion"
@@ -27,6 +43,16 @@ android {
         versionName = "9"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = false
+        buildConfigField(
+            "String",
+            "FEATURE_MANIFEST_URL",
+            featureManifestUrl.get().asBuildConfigString(),
+        )
+        buildConfigField(
+            "String",
+            "FEATURE_MANIFEST_KEYS_JSON",
+            featureManifestKeysJson.get().asBuildConfigString(),
+        )
     }
 
     signingConfigs {
@@ -34,31 +60,57 @@ android {
             providers.of(org.bepass.oblivion.gradle.OptionalPropertiesValueSource::class) {
                 parameters.file.set(rootProject.layout.projectDirectory.file("keystore.properties"))
             }.get()
-        val environmentSigning =
-            mapOf(
-                "storeFile" to providers.environmentVariable("ANDROID_KEYSTORE_FILE").orNull,
-                "storePassword" to
-                    providers.environmentVariable("ANDROID_KEYSTORE_PASSWORD").orNull,
-                "keyAlias" to providers.environmentVariable("ANDROID_KEY_ALIAS").orNull,
-                "keyPassword" to providers.environmentVariable("ANDROID_KEY_PASSWORD").orNull,
-            ).mapValues { (_, value) -> value?.takeIf { it.isNotBlank() } }
-        val providedEnvironmentValues = environmentSigning.values.filterNotNull()
-        if (
-            providedEnvironmentValues.isNotEmpty() &&
-                providedEnvironmentValues.size != environmentSigning.size
-        ) {
-            throw GradleException("Incomplete Android release-signing environment")
-        }
-        val signingValues =
-            if (keystoreProps.isNotEmpty()) keystoreProps
-            else environmentSigning.mapValues { it.value.orEmpty() }.filterValues { it.isNotEmpty() }
-        if (signingValues.isNotEmpty()) {
-            create("release") {
-                storeFile = rootProject.file(signingValues.getValue("storeFile"))
-                storePassword = signingValues.getValue("storePassword")
-                keyAlias = signingValues.getValue("keyAlias")
-                keyPassword = signingValues.getValue("keyPassword")
+
+        fun environmentSigning(prefix: String): Map<String, String> {
+            val values =
+                mapOf(
+                    "storeFile" to
+                        providers.environmentVariable("${prefix}_ANDROID_KEYSTORE_FILE").orNull,
+                    "storePassword" to
+                        providers.environmentVariable("${prefix}_ANDROID_KEYSTORE_PASSWORD").orNull,
+                    "keyAlias" to
+                        providers.environmentVariable("${prefix}_ANDROID_KEY_ALIAS").orNull,
+                    "keyPassword" to
+                        providers.environmentVariable("${prefix}_ANDROID_KEY_PASSWORD").orNull,
+                ).mapValues { (_, value) -> value?.takeIf { it.isNotBlank() } }
+            val provided = values.values.filterNotNull()
+            if (provided.isNotEmpty() && provided.size != values.size) {
+                throw GradleException("Incomplete $prefix Android release-signing environment")
             }
+            return values.mapValues { it.value.orEmpty() }.filterValues { it.isNotEmpty() }
+        }
+
+        mapOf(
+                "playRelease" to environmentSigning("PLAY"),
+                "ossRelease" to
+                    environmentSigning("OSS").ifEmpty {
+                        keystoreProps
+                    },
+            )
+            .forEach { (name, signingValues) ->
+                if (signingValues.isNotEmpty()) {
+                    create(name) {
+                        storeFile = rootProject.file(signingValues.getValue("storeFile"))
+                        storePassword = signingValues.getValue("storePassword")
+                        keyAlias = signingValues.getValue("keyAlias")
+                        keyPassword = signingValues.getValue("keyPassword")
+                    }
+                }
+            }
+    }
+
+    flavorDimensions += "distribution"
+    productFlavors {
+        create("play") {
+            dimension = "distribution"
+            applicationId = "org.bepass.oblivion"
+            signingConfigs.findByName("playRelease")?.let { signingConfig = it }
+        }
+        create("oss") {
+            dimension = "distribution"
+            applicationId = "org.bepass.oblivion.oss"
+            versionNameSuffix = "-oss"
+            signingConfigs.findByName("ossRelease")?.let { signingConfig = it }
         }
     }
 
@@ -67,10 +119,7 @@ android {
     }
 
     lint {
-        disable += setOf(
-            "EnsureInitializerMetadata",
-            "MissingTranslation",
-        )
+        warningsAsErrors = true
     }
 
     buildFeatures {
@@ -90,6 +139,23 @@ android {
                 "META-INF/LGPL2.1",
                 "META-INF/*.kotlin_module",
             )
+        }
+    }
+
+    splits {
+        abi {
+            isEnable =
+                providers.gradleProperty("oblivion.abiSplits").map(String::toBoolean).orElse(false)
+                    .get()
+            reset()
+            include("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
+            isUniversalApk = true
+        }
+    }
+
+    bundle {
+        language {
+            enableSplit = false
         }
     }
 
@@ -113,7 +179,11 @@ android {
 androidComponents {
     onVariants(selector().all()) { variant ->
         variant.outputs.forEach { output ->
-            output.outputFileName.set("Oblivion.apk")
+            val abi =
+                output.filters
+                    .firstOrNull { it.filterType == FilterConfiguration.FilterType.ABI }
+                    ?.identifier ?: "universal"
+            output.outputFileName.set("Oblivion-${variant.name}-$abi.apk")
         }
     }
 }
@@ -127,7 +197,18 @@ val buildNativeCore =
       rootProject.fileTree("tun2socks") {
         include("**/*.go", "go.mod", "go.sum", "build-aar.ps1")
       }
-    inputs.files(nativeSources)
+    val usqueInputs =
+      files(
+        rootProject.layout.projectDirectory.file("native/core-upstreams.json"),
+        rootProject.layout.projectDirectory.file("native/usque/prepare-usque.ps1"),
+        rootProject.layout.projectDirectory.file("native/usque/oblivion-android.patch"),
+        rootProject.layout.projectDirectory.file("native/usque/oblivion-lifecycle.patch"),
+        rootProject.layout.projectDirectory.file("native/usque/oblivion-cloudflare-client.patch"),
+          rootProject.layout.projectDirectory.file("native/warp-plus/prepare-warp-plus.ps1"),
+          rootProject.layout.projectDirectory.file("native/warp-plus/oblivion-client.patch"),
+          rootProject.layout.projectDirectory.file("native/warp-plus/oblivion-dependencies.patch"),
+        )
+    inputs.files(nativeSources, usqueInputs)
     outputs.file(layout.projectDirectory.file("libs/tun2socks.aar"))
     workingDir = rootProject.projectDir
     commandLine(
@@ -175,7 +256,7 @@ val buildHev =
 tasks.named("preBuild").configure { dependsOn(buildNativeCore, buildHev) }
 
 tasks.withType<CyclonedxDirectTask>().configureEach {
-    includeConfigs.set(listOf("releaseRuntimeClasspath"))
+    includeConfigs.set(listOf("ossReleaseRuntimeClasspath", "playReleaseRuntimeClasspath"))
     includeBuildEnvironment.set(false)
     includeMetadataResolution.set(true)
     includeLicenseText.set(false)
@@ -219,8 +300,14 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 tasks.configureEach {
-    if (name == "lintAnalyzeDebugUnitTest" || name == "lintAnalyzeDebugAndroidTest") {
-        dependsOn("hiltJavaCompileRelease")
+    if (
+        name.startsWith("lintAnalyze") &&
+            (name.endsWith("UnitTest") || name.endsWith("AndroidTest"))
+    ) {
+        // Lint's shared UAST model can include generated roots from both distribution flavors.
+        // Materialize both Hilt component trees before any test-source analysis to prevent a
+        // cross-variant file-not-found race when OSS and Play lint tasks execute in parallel.
+        dependsOn("hiltJavaCompileOssDebug", "hiltJavaCompilePlayDebug")
     }
 }
 

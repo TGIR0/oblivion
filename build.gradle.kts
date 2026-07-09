@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.spotless)
     alias(libs.plugins.dependency.analysis) apply false
-    alias(libs.plugins.cyclonedx)
+    alias(libs.plugins.cyclonedx) apply false
     alias(libs.plugins.kotlin.serialization) apply false
 }
 
@@ -36,6 +36,8 @@ spotless {
                     ".github/**/*.yaml",
                     "gradle/**/*.toml",
                     "gradle/**/*.properties",
+                    "scripts/**/*.py",
+                    "scripts/**/*.sh",
                 )
                 exclude("**/build/**", "**/.gradle/**")
             }
@@ -75,4 +77,78 @@ tasks.register<Exec>("checkDeps") {
     description = "Check for available dependency version updates (dry-run)"
     workingDir = rootProject.projectDir
     commandLine(psExec, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "update_deps.ps1")
+}
+
+tasks.register<Exec>("verifyCorePins") {
+    description = "Verify exact native core source pins without network access"
+    workingDir = rootProject.projectDir
+    commandLine(
+        psExec,
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "native/verify-core-upstreams.ps1",
+    )
+}
+
+tasks.register<Exec>("verifyCoreUpstreamDrift") {
+    description = "Compare locked native core refs with their authoritative remotes"
+    workingDir = rootProject.projectDir
+    commandLine(
+        psExec,
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "native/verify-core-upstreams.ps1",
+        "-CheckRemote",
+    )
+}
+
+tasks.register<Exec>("verifyUsquePatch") {
+    description = "Prepare the pinned usque source and verify the Android protection patch"
+    workingDir = rootProject.projectDir
+    val script = layout.projectDirectory.file("native/usque/prepare-usque.ps1")
+    val patch = layout.projectDirectory.file("native/usque/oblivion-android.patch")
+    val lifecyclePatch = layout.projectDirectory.file("native/usque/oblivion-lifecycle.patch")
+    val clientPatch =
+        layout.projectDirectory.file("native/usque/oblivion-cloudflare-client.patch")
+    val lock = layout.projectDirectory.file("native/core-upstreams.json")
+    val work = layout.buildDirectory.dir("native/usque")
+    inputs.files(script, patch, lifecyclePatch, clientPatch, lock)
+    outputs.file(work.map { it.file("verified.json") })
+    commandLine(
+        psExec,
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        script.asFile.absolutePath,
+        "-WorkDir",
+        work.get().asFile.absolutePath,
+    )
+}
+
+tasks.register<Exec>("verifyWarpPlusPatch") {
+    description = "Prepare the pinned warp-plus source and verify the Android client patch"
+    workingDir = rootProject.projectDir
+    val script = layout.projectDirectory.file("native/warp-plus/prepare-warp-plus.ps1")
+    val patch = layout.projectDirectory.file("native/warp-plus/oblivion-client.patch")
+    val lock = layout.projectDirectory.file("native/core-upstreams.json")
+    val work = layout.buildDirectory.dir("native/warp-plus")
+    inputs.files(script, patch, lock)
+    outputs.file(work.map { it.file("verified.json") })
+    commandLine(
+        psExec,
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        script.asFile.absolutePath,
+        "-WorkDir",
+        work.get().asFile.absolutePath,
+    )
 }
