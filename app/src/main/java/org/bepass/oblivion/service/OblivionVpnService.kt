@@ -26,7 +26,6 @@ import android.os.ParcelFileDescriptor
 import android.os.PowerManager
 import android.os.RemoteException
 import android.os.SystemClock
-import android.util.Log
 import androidx.annotation.MainThread
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
@@ -43,6 +42,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.max
 import kotlin.math.min
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -60,10 +60,12 @@ import org.bepass.oblivion.dns.AppDnsResolverFactory
 import org.bepass.oblivion.enums.ConnectionState
 import org.bepass.oblivion.enums.SplitTunnelMode
 import org.bepass.oblivion.enums.VpnCoreType
+import org.bepass.oblivion.logging.SecureLog as Log
 import org.bepass.oblivion.model.PsiphonConfigV2
 import org.bepass.oblivion.model.TunnelConfigV2
 import org.bepass.oblivion.model.VpnConfig
 import org.bepass.oblivion.security.AndroidSecureStore
+import org.bepass.oblivion.security.RemotePolicyRepository
 import org.bepass.oblivion.ui.MainActivity
 import org.bepass.oblivion.utils.FileManager
 import org.bepass.oblivion.utils.HostPortParser
@@ -89,14 +91,18 @@ class OblivionVpnService : VpnService() {
 
   private val networkLock = Any()
   private val nonVpnNetworks = HashSet<Network>()
+  private val reconnectLock = Any()
+  private var reconnectPending = false
 
   private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
   private var coreJob: Job? = null
   private var connectVerifyJob: Job? = null
   private var networkLossJob: Job? = null
+  private var reconnectJob: Job? = null
   private var nativeEngine: Engine? = null
   private var hevTunnel: TProxyService? = null
   private val secureStore by lazy { AndroidSecureStore(applicationContext) }
+  private val remotePolicyRepository by lazy { RemotePolicyRepository(applicationContext) }
   private val nativeListener =
     object : EngineListener {
       override fun onStateChanged(statusJSON: String) {
@@ -159,17 +165,48 @@ class OblivionVpnService : VpnService() {
 
   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
     val action = intent?.action
-    if (intent != null) {
-      serviceIntent = intent
+    val systemAlwaysOnStart =
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        isAlwaysOn
+      } else {
+        action != FLAG_VPN_START && action != FLAG_VPN_STOP
+      }
+    val decision =
+      VpnServiceStartPolicy.decide(
+        action = action,
+        alwaysOn = systemAlwaysOnStart,
+        selectedCoreReady = VpnCoreType.getCurrent().isReady,
+      )
+    Log.d(
+      TAG,
+      "onStartCommand action=$action directive=${decision.directive} reason=${decision.reason}",
+    )
+
+    when (decision.directive) {
+      VpnStartDirective.START_APP -> {
+        serviceIntent = checkNotNull(intent)
+        start()
+      }
+      VpnStartDirective.START_ALWAYS_ON -> {
+        serviceIntent =
+          Intent(this, OblivionVpnService::class.java).apply {
+            this.action = FLAG_VPN_START
+            putExtra("config", FileManager.getVpnConfig())
+          }
+        start()
+      }
+      VpnStartDirective.STOP -> requestStop(stopSelf = true, reason = decision.reason)
+      VpnStartDirective.IGNORE -> {
+        Log.w(TAG, "VPN service start ignored: ${decision.reason}")
+        stopSelf(startId)
+      }
     }
 
-    Log.d(TAG, "onStartCommand called with action: $action, lastKnownState: $lastKnownState")
-    when (action) {
-      FLAG_VPN_START -> start()
-      FLAG_VPN_STOP -> requestStop(stopSelf = true, reason = "user_stop")
+    return when (decision.restartMode) {
+      VpnRestartMode.REDELIVER_INTENT -> START_REDELIVER_INTENT
+      VpnRestartMode.STICKY -> START_STICKY
+      VpnRestartMode.NOT_STICKY -> START_NOT_STICKY
     }
-
-    return START_STICKY
   }
 
   override fun onCreate() {
@@ -240,7 +277,7 @@ class OblivionVpnService : VpnService() {
             bindAddress = "127.0.0.1:0"
           }
           withContext(Dispatchers.Main) { startNetworkMonitoring() }
-          configure()
+          configure(reuseVpnInterface = false)
         } catch (expected: Throwable) {
           Log.e(TAG, "Error in start execution", expected)
           requestStop(stopSelf = true, reason = "start_failed")
@@ -271,77 +308,77 @@ class OblivionVpnService : VpnService() {
     }
   }
 
-  private suspend fun configure() {
-    try {
-      val intent = checkNotNull(serviceIntent) { "Missing serviceIntent" }
-      val bAddress = requireNotNull(bindAddress) { "Missing bindAddress" }
+  private suspend fun configure(reuseVpnInterface: Boolean) {
+    val intent = checkNotNull(serviceIntent) { "Missing serviceIntent" }
+    val bAddress = requireNotNull(bindAddress) { "Missing bindAddress" }
 
-      val configExtra =
-        androidx.core.content.IntentCompat.getParcelableExtra(
-          intent,
-          "config",
-          VpnConfig::class.java,
-        )
-      var config =
-        configExtra?.copy(bindAddress = bAddress) ?: VpnConfig.fromIntent(intent, bAddress)
+    val configExtra =
+      androidx.core.content.IntentCompat.getParcelableExtra(intent, "config", VpnConfig::class.java)
+    var config = configExtra?.copy(bindAddress = bAddress) ?: VpnConfig.fromIntent(intent, bAddress)
 
-      val coreType = VpnCoreType.getCurrent()
-      val nativeConfig =
-        TunnelConfigV2(
-          mode = coreType.tunnelMode,
-          proxyOnly = true,
-          mtu = VPN_MTU,
-          dns = parseDns(config.vpnDns),
-          endpoint = config.endpoint,
-          psiphon = PsiphonConfigV2(country = config.psiphonCountry),
-        )
-      val configJson = Json.encodeToString(nativeConfig)
-      val engine =
-        Tun2socks.newEngine(
-          nativeListener,
-          SocketProtector { fd -> protect(fd.toInt()) },
-          nativeSecureStore,
-        )
-      nativeEngine = engine
-      engine.validateConfig(configJson)
-      val startResult = withContext(Dispatchers.IO) { engine.start(configJson) }
-      val proxyAddress =
-        HostPortParser.parseOrNull(startResult.proxyAddress)
-          ?: error("Native core returned an invalid proxy address")
-      config = config.copy(bindAddress = startResult.proxyAddress)
-      bindAddress = startResult.proxyAddress
-      currentConfig = config
-      FileManager.set(FileManager.KeyHolder.RUNTIME_SOCKS_PORT, proxyAddress.port())
-      FileManager.set(FileManager.KeyHolder.RUNTIME_BIND_ADDRESS, startResult.proxyAddress)
+    val coreType = VpnCoreType.getCurrent()
+    val remotePolicy = remotePolicyRepository.resolve(coreType.tunnelMode)
+    val nativeConfig =
+      TunnelConfigV2(
+        mode = coreType.tunnelMode,
+        proxyOnly = true,
+        mtu = VPN_MTU,
+        dns = parseDns(config.vpnDns),
+        endpoint = config.endpoint,
+        remotePolicy = remotePolicy,
+        psiphon = PsiphonConfigV2(country = config.psiphonCountry),
+      )
+    val configJson = Json.encodeToString(nativeConfig)
+    val engine =
+      Tun2socks.newEngine(
+        nativeListener,
+        SocketProtector { fd -> protect(fd.toInt()) },
+        nativeSecureStore,
+      )
+    nativeEngine = engine
+    engine.validateConfig(configJson)
+    val startResult = withContext(Dispatchers.IO) { engine.start(configJson) }
+    val proxyAddress =
+      HostPortParser.parseOrNull(startResult.proxyAddress)
+        ?: error("Native core returned an invalid proxy address")
+    config = config.copy(bindAddress = startResult.proxyAddress)
+    bindAddress = startResult.proxyAddress
+    currentConfig = config
+    FileManager.set(FileManager.KeyHolder.RUNTIME_SOCKS_PORT, proxyAddress.port())
+    FileManager.set(FileManager.KeyHolder.RUNTIME_BIND_ADDRESS, startResult.proxyAddress)
 
-      if (!config.proxyMode) {
-        val builder = Builder()
-        configureVpnBuilder(builder, config.vpnDns)
-        Log.i(TAG, "Establishing VPN interface...")
-        vpnInterface = builder.establish()
-        val iface = requireNotNull(vpnInterface) { "failed to establish VPN interface" }
-        val hev = TProxyService()
-        hev.TProxyStartService(
-          buildHevConfig(
-            proxyAddress.host(),
-            proxyAddress.port(),
-            startResult.proxyUsername,
-            startResult.proxyPassword,
-          ),
-          iface.fd,
-        )
-        delay(HEV_START_SETTLE_MS)
-        check(hev.TProxyIsRunning()) { "HEV exited during startup" }
-        hevTunnel = hev
-      }
-
-      Log.i(TAG, "Core proxy and TUN adapter are ready (mode=${coreType.modeId})")
-      startConnectVerification()
-      updateNotification()
-    } catch (expected: Throwable) {
-      Log.e(TAG, "Configuration failed", expected)
-      requestStop(stopSelf = true, reason = "configure_failed")
+    if (!config.proxyMode) {
+      val iface =
+        if (reuseVpnInterface) {
+          requireNotNull(vpnInterface) { "VPN interface is unavailable during reconnect" }
+        } else {
+          check(vpnInterface == null) { "VPN interface already exists" }
+          val builder = Builder()
+          configureVpnBuilder(builder, config.vpnDns)
+          Log.i(TAG, "Establishing VPN interface...")
+          requireNotNull(builder.establish()) { "failed to establish VPN interface" }
+            .also {
+              vpnInterface = it
+            }
+        }
+      val hev = TProxyService()
+      hev.TProxyStartService(
+        buildHevConfig(
+          proxyAddress.host(),
+          proxyAddress.port(),
+          startResult.proxyUsername,
+          startResult.proxyPassword,
+        ),
+        iface.fd,
+      )
+      delay(HEV_START_SETTLE_MS)
+      check(hev.TProxyIsRunning()) { "HEV exited during startup" }
+      hevTunnel = hev
     }
+
+    Log.i(TAG, "Core proxy and TUN adapter are ready (mode=${coreType.modeId})")
+    startConnectVerification()
+    updateNotification()
   }
 
   private fun parseDns(value: String): List<String> =
@@ -536,6 +573,11 @@ class OblivionVpnService : VpnService() {
             networkLossJob?.cancel()
             networkLossJob = null
           }
+          val shouldReconnect =
+            synchronized(reconnectLock) {
+              reconnectPending && reconnectJob?.isActive != true
+            }
+          if (shouldReconnect) scheduleReconnect()
         }
 
         override fun onLost(network: Network) {
@@ -573,10 +615,90 @@ class OblivionVpnService : VpnService() {
           lastKnownState == ConnectionState.CONNECTING ||
             lastKnownState == ConnectionState.CONNECTED
         ) {
-          requestStop(stopSelf = true, reason = "network_lost")
+          enterFailClosedReconnect()
         }
       }
     }
+  }
+
+  private fun enterFailClosedReconnect() {
+    if (synchronized(stopLock) { stopping }) return
+    val shouldEnter =
+      synchronized(reconnectLock) {
+        if (reconnectPending || reconnectJob?.isActive == true) {
+          false
+        } else {
+          reconnectPending = true
+          true
+        }
+      }
+    if (!shouldEnter) return
+
+    stopConnectVerification()
+    coreJob?.cancel()
+    coreJob = null
+    setLastKnownState(ConnectionState.CONNECTING)
+    updateNotification()
+    acquireWakeLock()
+    synchronized(reconnectLock) {
+      val teardownJob =
+        serviceScope.launch(start = CoroutineStart.LAZY) {
+          stopCoreDataPlane()
+          val hasNetwork = synchronized(networkLock) { nonVpnNetworks.isNotEmpty() }
+          synchronized(reconnectLock) { reconnectJob = null }
+          if (hasNetwork) scheduleReconnect()
+        }
+      reconnectJob = teardownJob
+      teardownJob.start()
+    }
+  }
+
+  private fun scheduleReconnect() {
+    synchronized(reconnectLock) {
+      if (!reconnectPending || reconnectJob?.isActive == true) return
+      reconnectJob = serviceScope.launch {
+        var backoffMs = RECONNECT_INITIAL_BACKOFF_MS
+        try {
+          while (kotlin.coroutines.coroutineContext.isActive) {
+            if (synchronized(stopLock) { stopping }) return@launch
+            if (synchronized(networkLock) { nonVpnNetworks.isEmpty() }) return@launch
+            try {
+              bindAddress = "127.0.0.1:0"
+              configure(reuseVpnInterface = true)
+              synchronized(reconnectLock) { reconnectPending = false }
+              return@launch
+            } catch (expected: Throwable) {
+              Log.w(TAG, "Fail-closed reconnect attempt failed", expected)
+              stopCoreDataPlane()
+            }
+            delay(backoffMs)
+            backoffMs = min(backoffMs * 2, RECONNECT_MAX_BACKOFF_MS)
+          }
+        } finally {
+          synchronized(reconnectLock) { reconnectJob = null }
+        }
+      }
+    }
+  }
+
+  private fun stopCoreDataPlane() {
+    val hev = hevTunnel
+    hevTunnel = null
+    try {
+      hev?.TProxyStopService()
+    } catch (expected: Throwable) {
+      Log.w(TAG, "HEV stop during reconnect failed", expected)
+    }
+    val engine = nativeEngine
+    nativeEngine = null
+    try {
+      engine?.stop()
+    } catch (expected: Throwable) {
+      Log.w(TAG, "Native core stop during reconnect failed", expected)
+    }
+    currentConfig = null
+    FileManager.set(FileManager.KeyHolder.RUNTIME_SOCKS_PORT, 0)
+    FileManager.set(FileManager.KeyHolder.RUNTIME_BIND_ADDRESS, "")
   }
 
   private fun stopNetworkMonitoring() {
@@ -614,6 +736,11 @@ class OblivionVpnService : VpnService() {
     pingCounter = 0
     coreJob?.cancel()
     coreJob = null
+    synchronized(reconnectLock) {
+      reconnectPending = false
+      reconnectJob?.cancel()
+      reconnectJob = null
+    }
     stopConnectVerification()
     stopNetworkMonitoring()
     val hev = hevTunnel
@@ -904,6 +1031,8 @@ class OblivionVpnService : VpnService() {
     private const val CONNECT_VERIFY_MAX_BACKOFF_MS = 5_000L
     private const val CONNECT_VERIFY_URL = "https://www.gstatic.com/generate_204"
     private const val NETWORK_LOSS_GRACE_MS = 5_000L
+    private const val RECONNECT_INITIAL_BACKOFF_MS = 1_000L
+    private const val RECONNECT_MAX_BACKOFF_MS = 30_000L
     private const val LOG_ROTATE_MAX_BYTES = 2L * 1024L * 1024L
     private const val LOG_ROTATE_MAX_FILES = 3
     private const val PRIVATE_VLAN4_CLIENT = "172.19.0.1"
