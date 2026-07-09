@@ -3,6 +3,7 @@ package org.bepass.oblivion.dns
 import java.net.URI
 import java.net.URISyntaxException
 import java.net.URLDecoder
+import java.net.UnknownHostException
 import java.nio.charset.StandardCharsets
 import java.util.Locale
 import kotlin.text.Regex
@@ -22,12 +23,7 @@ object DnsUriParser {
 
   fun parseBulk(rawInput: String): ValidationResult {
     val tokens =
-      rawInput
-        .split(splitRegex)
-        .asSequence()
-        .map { it.trim() }
-        .filter { it.isNotBlank() }
-        .toList()
+      rawInput.split(splitRegex).asSequence().map { it.trim() }.filter { it.isNotBlank() }.toList()
 
     if (tokens.isEmpty()) {
       return ValidationResult(emptyList(), listOf("Empty DNS input"))
@@ -73,11 +69,12 @@ object DnsUriParser {
     val uri =
       try {
         URI(raw)
-      } catch (e: URISyntaxException) {
-        throw IllegalArgumentException("Invalid DNS URI")
+      } catch (syntaxFailure: URISyntaxException) {
+        throw IllegalArgumentException("Invalid DNS URI", syntaxFailure)
       }
 
-    val scheme = uri.scheme?.lowercase(Locale.ROOT) ?: throw IllegalArgumentException("Missing URI scheme")
+    val scheme =
+      uri.scheme?.lowercase(Locale.ROOT) ?: throw IllegalArgumentException("Missing URI scheme")
     val transport =
       when (scheme) {
         "udp" -> DnsTransport.UDP
@@ -102,7 +99,8 @@ object DnsUriParser {
 
     val path =
       when (transport) {
-        DnsTransport.DOH, DnsTransport.DOH3 -> uri.rawPath?.takeIf { it.isNotBlank() } ?: "/dns-query"
+        DnsTransport.DOH,
+        DnsTransport.DOH3 -> uri.rawPath?.takeIf { it.isNotBlank() } ?: "/dns-query"
         else -> null
       }
 
@@ -134,10 +132,12 @@ object DnsUriParser {
     val decoded = URLDecoder.decode(authority, StandardCharsets.UTF_8.name())
     val noUserInfo = decoded.substringAfterLast('@')
     return when {
-      noUserInfo.startsWith("[") -> noUserInfo.substringAfter("[").substringBefore("]")
-      noUserInfo.count { it == ':' } > 1 -> noUserInfo
-      else -> noUserInfo.substringBefore(":")
-    }.trim().ifBlank { null }
+        noUserInfo.startsWith("[") -> noUserInfo.substringAfter("[").substringBefore("]")
+        noUserInfo.count { it == ':' } > 1 -> noUserInfo
+        else -> noUserInfo.substringBefore(":")
+      }
+      .trim()
+      .ifBlank { null }
   }
 
   private fun normalizeHostForUri(host: String): String =
@@ -155,7 +155,7 @@ object DnsUriParser {
     return try {
       java.net.InetAddress.getByName(candidate)
       candidate
-    } catch (_: Throwable) {
+    } catch (_: UnknownHostException) {
       null
     }
   }

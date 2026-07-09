@@ -1,21 +1,20 @@
 package org.bepass.oblivion.dns
 
-import android.util.Log
 import java.net.InetAddress
+import java.net.UnknownHostException
 import java.util.concurrent.ConcurrentHashMap
 import okhttp3.Dns
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.dnsoverhttps.DnsOverHttps
+import org.bepass.oblivion.logging.SecureLog as Log
 
 object AppDnsResolverFactory {
   fun createAppHttpDns(): Dns = ConfigurableAppDns(DnsSection.APP_HTTP)
 
   fun createDiagnosticsDns(): Dns = ConfigurableAppDns(DnsSection.DIAGNOSTICS)
 
-  private class ConfigurableAppDns(
-    private val section: DnsSection,
-  ) : Dns {
+  private class ConfigurableAppDns(private val section: DnsSection) : Dns {
     private var lastRawConfigKey: String? = null
     private var lastDelegate: Dns? = null
 
@@ -32,7 +31,8 @@ object AppDnsResolverFactory {
           else -> runtime.appHttpConfig
         }
 
-      val configKey = "${config.mode}|${config.dohUrl.orEmpty()}|${config.bootstrapIps.joinToString(",")}"
+      val configKey =
+        "${config.mode}|${config.dohUrl.orEmpty()}|${config.bootstrapIps.joinToString(",")}"
       val delegate =
         if (configKey == lastRawConfigKey && lastDelegate != null) {
           lastDelegate!!
@@ -45,8 +45,12 @@ object AppDnsResolverFactory {
 
       return try {
         delegate.lookup(hostname)
-      } catch (e: Throwable) {
-        Log.w(TAG, "DNS lookup failed for ${section.name}; falling back to system DNS", e)
+      } catch (lookupFailure: UnknownHostException) {
+        Log.w(
+          TAG,
+          "DNS lookup failed for ${section.name}; falling back to system DNS",
+          lookupFailure,
+        )
         Dns.SYSTEM.lookup(hostname)
       }
     }
@@ -59,10 +63,7 @@ object AppDnsResolverFactory {
       val key = "${config.dohUrl}|${config.bootstrapIps.joinToString(",")}"
       return dohDelegates.getOrPut(key) {
         val dnsClient = OkHttpClient.Builder().build()
-        val builder =
-          DnsOverHttps.Builder()
-            .client(dnsClient)
-            .url(config.dohUrl.toHttpUrl())
+        val builder = DnsOverHttps.Builder().client(dnsClient).url(config.dohUrl.toHttpUrl())
 
         val bootstrapHosts =
           config.bootstrapIps

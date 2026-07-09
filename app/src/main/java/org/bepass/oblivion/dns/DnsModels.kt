@@ -64,13 +64,22 @@ data class DnsProvider(
   fun effectiveBootstrapIps(): List<String> = (bootstrapIps + plainIps).distinct()
 }
 
+data class DnsHealthResult(
+  val providerId: String,
+  val transport: DnsTransport,
+  val isAvailable: Boolean,
+  val latencyMs: Long? = null,
+  val errorMessage: String? = null,
+)
+
 data class DnsCatalog(
   val version: Int = 1,
   val updatedAt: String? = null,
   val providers: List<DnsProvider> = emptyList(),
 ) {
-  fun byId(providerId: String?): DnsProvider? =
-    providers.firstOrNull { it.providerId.equals(providerId, ignoreCase = true) }
+  fun byId(providerId: String?): DnsProvider? = providers.firstOrNull {
+    it.providerId.equals(providerId, ignoreCase = true)
+  }
 }
 
 data class DnsSelection(
@@ -82,7 +91,8 @@ data class DnsSelection(
   companion object {
     fun inherit(): DnsSelection = DnsSelection(mode = DnsSelectionMode.INHERIT)
 
-    fun system(): DnsSelection = DnsSelection(mode = DnsSelectionMode.SYSTEM, transport = DnsTransport.SYSTEM)
+    fun system(): DnsSelection =
+      DnsSelection(mode = DnsSelectionMode.SYSTEM, transport = DnsTransport.SYSTEM)
 
     fun provider(providerId: String, transport: DnsTransport? = null): DnsSelection =
       DnsSelection(

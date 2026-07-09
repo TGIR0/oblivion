@@ -12,7 +12,10 @@ data class DnsUiState(
     get() = runtimePlan.warnings
 
   val pinnedProviders: List<DnsProvider>
-    get() = catalog.providers.filter { provider -> provider.tags.any { it.equals("pinned", ignoreCase = true) } }
+    get() =
+      catalog.providers.filter { provider ->
+        provider.tags.any { it.equals("pinned", ignoreCase = true) }
+      }
 
   fun filteredProviders(filters: DnsUiCatalogFilters): List<DnsProvider> {
     val normalizedQuery = filters.query.trim().lowercase()
@@ -20,12 +23,16 @@ data class DnsUiState(
       val regionMatch =
         when (filters.region) {
           DnsCatalogRegionFilter.ALL -> true
-          DnsCatalogRegionFilter.IRAN -> provider.regionGroup.equals("Iran", ignoreCase = true) || provider.country.equals("IR", ignoreCase = true)
+          DnsCatalogRegionFilter.IRAN ->
+            provider.regionGroup.equals("Iran", ignoreCase = true) ||
+              provider.country.equals("IR", ignoreCase = true)
           DnsCatalogRegionFilter.INTERNATIONAL ->
-            !provider.regionGroup.equals("Iran", ignoreCase = true) && !provider.country.equals("IR", ignoreCase = true)
+            !provider.regionGroup.equals("Iran", ignoreCase = true) &&
+              !provider.country.equals("IR", ignoreCase = true)
         }
 
-      val transportMatch = filters.transport == null || provider.transports.contains(filters.transport)
+      val transportMatch =
+        filters.transport == null || provider.transports.contains(filters.transport)
 
       val queryMatch =
         normalizedQuery.isBlank() ||

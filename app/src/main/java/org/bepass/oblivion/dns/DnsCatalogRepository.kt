@@ -1,8 +1,6 @@
 package org.bepass.oblivion.dns
 
 import android.content.Context
-import android.util.Log
-import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -10,6 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.bepass.oblivion.logging.SecureLog as Log
 import org.bepass.oblivion.utils.FileManager
 
 object DnsCatalogRepository {
@@ -40,7 +39,7 @@ object DnsCatalogRepository {
     synchronized(initLock) {
       if (initialized) return
       FileManager.initialize(context.applicationContext)
-      _catalogFlow.value = loadBestCatalog(context.applicationContext)
+      _catalogFlow.value = applyLocalCatalogLayers(loadBestCatalog(context.applicationContext))
       val lastRefresh = FileManager.getLong(KEY_CATALOG_LAST_REFRESH_MS, 0L)
       _lastRefreshEpochMsFlow.value = lastRefresh.takeIf { it > 0L }
       initialized = true
@@ -62,7 +61,7 @@ object DnsCatalogRepository {
 
       return@withContext try {
         httpClient.newCall(requestBuilder.build()).execute().use { response ->
-          if (response.code == 304) {
+          if (response.code == HTTP_NOT_MODIFIED) {
             val now = System.currentTimeMillis()
             FileManager.set(KEY_CATALOG_LAST_REFRESH_MS, now)
             _lastRefreshEpochMsFlow.value = now
@@ -88,25 +87,30 @@ object DnsCatalogRepository {
             } else {
               val now = System.currentTimeMillis()
               FileManager.set(KEY_CATALOG_CACHE_JSON, body)
-              response.header("ETag")?.trim()?.takeIf { it.isNotBlank() }?.let {
-                FileManager.set(KEY_CATALOG_ETAG, it)
-              }
+              response
+                .header("ETag")
+                ?.trim()
+                ?.takeIf { it.isNotBlank() }
+                ?.let {
+                  FileManager.set(KEY_CATALOG_ETAG, it)
+                }
               FileManager.set(KEY_CATALOG_LAST_REFRESH_MS, now)
-              _catalogFlow.value = parsed
+              val effectiveCatalog = applyLocalCatalogLayers(parsed)
+              _catalogFlow.value = effectiveCatalog
               _lastRefreshEpochMsFlow.value = now
               DnsCatalogRefreshResult(
-                catalog = parsed,
+                catalog = effectiveCatalog,
                 updated = true,
               )
             }
           }
         }
-      } catch (e: Throwable) {
-        Log.w(TAG, "Catalog refresh failed", e)
+      } catch (refreshFailure: Exception) {
+        Log.w(TAG, "Catalog refresh failed", refreshFailure)
         DnsCatalogRefreshResult(
           catalog = existing,
           updated = false,
-          errorMessage = e.message ?: e::class.java.simpleName,
+          errorMessage = refreshFailure.message ?: refreshFailure::class.java.simpleName,
         )
       }
     }
@@ -137,6 +141,17 @@ object DnsCatalogRepository {
     return fallbackCatalog()
   }
 
+  internal fun withBuiltIns(catalog: DnsCatalog): DnsCatalog =
+    catalog.copy(
+      providers =
+        (catalog.providers + DnsBuiltInProviders.additional).distinctBy {
+          it.providerId.lowercase()
+        }
+    )
+
+  private fun applyLocalCatalogLayers(catalog: DnsCatalog): DnsCatalog =
+    DnsUserProviderRepository.applyTo(withBuiltIns(catalog))
+
   private fun fallbackCatalog(): DnsCatalog =
     DnsCatalog(
       version = 1,
@@ -147,20 +162,41 @@ object DnsCatalogRepository {
             providerId = "cloudflare",
             label = "Cloudflare",
             regionGroup = "International",
-            transports = setOf(DnsTransport.PLAIN, DnsTransport.UDP, DnsTransport.TCP, DnsTransport.DOH, DnsTransport.DOT, DnsTransport.DOQ),
+            transports =
+              setOf(
+                DnsTransport.PLAIN,
+                DnsTransport.UDP,
+                DnsTransport.TCP,
+                DnsTransport.DOH,
+                DnsTransport.DOT,
+                DnsTransport.DOQ,
+              ),
             plainIps = listOf("1.1.1.1", "1.0.0.1"),
             bootstrapIps = listOf("1.1.1.1", "1.0.0.1"),
             dohUrl = "https://cloudflare-dns.com/dns-query",
             dotHost = "1dot1dot1dot1.cloudflare-dns.com",
             doqHost = "1dot1dot1dot1.cloudflare-dns.com",
-            ports = mapOf(DnsTransport.DOT to 853, DnsTransport.DOQ to 853, DnsTransport.DOH to 443),
+            ports =
+              mapOf(
+                DnsTransport.DOT to DNS_TLS_PORT,
+                DnsTransport.DOQ to DNS_TLS_PORT,
+                DnsTransport.DOH to DNS_HTTPS_PORT,
+              ),
             tags = listOf("fast", "default", "global"),
           ),
           DnsProvider(
             providerId = "adguard-unfiltered",
             label = "AdGuard Unfiltered",
             regionGroup = "International",
-            transports = setOf(DnsTransport.PLAIN, DnsTransport.UDP, DnsTransport.TCP, DnsTransport.DOH, DnsTransport.DOT, DnsTransport.DOQ),
+            transports =
+              setOf(
+                DnsTransport.PLAIN,
+                DnsTransport.UDP,
+                DnsTransport.TCP,
+                DnsTransport.DOH,
+                DnsTransport.DOT,
+                DnsTransport.DOQ,
+              ),
             plainIps = listOf("94.140.14.140", "94.140.14.141"),
             bootstrapIps = listOf("94.140.14.140", "94.140.14.141"),
             dohUrl = "https://unfiltered.adguard-dns.com/dns-query",
@@ -190,4 +226,6 @@ object DnsCatalogRepository {
           ),
         ),
     )
+
+  private const val HTTP_NOT_MODIFIED = 304
 }

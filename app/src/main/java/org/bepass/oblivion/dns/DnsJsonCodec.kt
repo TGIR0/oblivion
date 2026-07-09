@@ -33,7 +33,8 @@ object DnsJsonCodec {
 
     return DnsProfile(
       version = root.optInt("version", DnsProfile.CURRENT_VERSION),
-      global = root.optJSONObject("global")?.let(::selectionFromJson) ?: DnsProfile.defaults().global,
+      global =
+        root.optJSONObject("global")?.let(::selectionFromJson) ?: DnsProfile.defaults().global,
       overrides = overrides,
     )
   }
@@ -54,12 +55,15 @@ object DnsJsonCodec {
               .put("dohUrl", provider.dohUrl)
               .put("dotHost", provider.dotHost)
               .put("doqHost", provider.doqHost)
-              .put("ports", JSONObject().apply { provider.ports.forEach { (k, v) -> put(k.name, v) } })
+              .put(
+                "ports",
+                JSONObject().apply { provider.ports.forEach { (k, v) -> put(k.name, v) } },
+              )
               .put("tags", JSONArray(provider.tags))
               .put("sourceUrl", provider.sourceUrl)
               .put("verifiedAt", provider.verifiedAt)
               .put("supportsInLayers", JSONArray(provider.supportsInLayers.map { it.name }))
-              .put("unverified", provider.unverified),
+              .put("unverified", provider.unverified)
           )
         }
       }
@@ -74,13 +78,12 @@ object DnsJsonCodec {
   fun catalogFromJson(raw: String): DnsCatalog {
     val root = JSONObject(raw)
     val providersJson = root.optJSONArray("providers") ?: JSONArray()
-    val providers =
-      buildList {
-        for (i in 0 until providersJson.length()) {
-          val item = providersJson.optJSONObject(i) ?: continue
-          add(providerFromJson(item))
-        }
+    val providers = buildList {
+      for (i in 0 until providersJson.length()) {
+        val item = providersJson.optJSONObject(i) ?: continue
+        add(providerFromJson(item))
       }
+    }
 
     return DnsCatalog(
       version = root.optInt("version", 1),
@@ -168,7 +171,11 @@ object DnsJsonCodec {
       country = json.nullableString("country"),
       regionGroup = json.optString("regionGroup", "International"),
       transports =
-        json.optJSONArray("transports").toStringList().mapNotNull { enumOrNull<DnsTransport>(it) }.toSet(),
+        json
+          .optJSONArray("transports")
+          .toStringList()
+          .mapNotNull { enumOrNull<DnsTransport>(it) }
+          .toSet(),
       plainIps = json.optJSONArray("plainIps").toStringList(),
       bootstrapIps = json.optJSONArray("bootstrapIps").toStringList(),
       dohUrl = json.nullableString("dohUrl"),
@@ -186,7 +193,8 @@ object DnsJsonCodec {
       sourceUrl = json.nullableString("sourceUrl"),
       verifiedAt = json.nullableString("verifiedAt"),
       supportsInLayers =
-        json.optJSONArray("supportsInLayers")
+        json
+          .optJSONArray("supportsInLayers")
           .toStringList()
           .mapNotNull { enumOrNull<DnsSection>(it) }
           .toSet()

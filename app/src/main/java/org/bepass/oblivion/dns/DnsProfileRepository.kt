@@ -1,10 +1,10 @@
 package org.bepass.oblivion.dns
 
 import android.content.Context
-import android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import org.bepass.oblivion.logging.SecureLog as Log
 import org.bepass.oblivion.utils.FileManager
 
 object DnsProfileRepository {
@@ -102,7 +102,9 @@ object DnsProfileRepository {
     val parsed =
       if (raw.isNotBlank()) {
         runCatching { DnsJsonCodec.profileFromJson(raw) }
-          .onFailure { Log.w(TAG, "Failed to parse DNS profile JSON; migrating from legacy setting", it) }
+          .onFailure {
+            Log.w(TAG, "Failed to parse DNS profile JSON; migrating from legacy setting", it)
+          }
           .getOrNull()
       } else {
         null
@@ -121,9 +123,10 @@ object DnsProfileRepository {
     if (validation.endpoints.isEmpty()) return DnsProfile.defaults()
 
     val selection =
-      if (validation.endpoints.size == 1 &&
-        validation.endpoints.first().transport == DnsTransport.PLAIN &&
-        validation.endpoints.first().host == "1.1.1.1"
+      if (
+        validation.endpoints.size == 1 &&
+          validation.endpoints.first().transport == DnsTransport.PLAIN &&
+          validation.endpoints.first().host == "1.1.1.1"
       ) {
         DnsSelection.provider(DnsProfile.DEFAULT_PROVIDER_ID, DnsTransport.PLAIN)
       } else {
@@ -150,7 +153,8 @@ object DnsProfileRepository {
       normalizedOverrides[section] = overrides[section] ?: DnsSelection.inherit()
     }
     val normalizedGlobal =
-      if (global.mode == DnsSelectionMode.INHERIT) DnsSelection.provider(DnsProfile.DEFAULT_PROVIDER_ID, DnsTransport.PLAIN)
+      if (global.mode == DnsSelectionMode.INHERIT)
+        DnsSelection.provider(DnsProfile.DEFAULT_PROVIDER_ID, DnsTransport.PLAIN)
       else global
     return copy(
       version = DnsProfile.CURRENT_VERSION,
