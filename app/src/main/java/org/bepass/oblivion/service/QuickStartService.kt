@@ -10,10 +10,10 @@ import android.os.IBinder
 import android.os.Messenger
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import android.util.Log
 import android.widget.Toast
 import org.bepass.oblivion.R
 import org.bepass.oblivion.enums.ConnectionState
+import org.bepass.oblivion.logging.SecureLog as Log
 import org.bepass.oblivion.ui.MainActivity
 
 class QuickStartService : TileService() {
