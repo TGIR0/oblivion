@@ -48,6 +48,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlin.math.roundToInt
 import org.bepass.oblivion.R
 import org.bepass.oblivion.enums.ConnectionState
+import org.bepass.oblivion.enums.VpnCoreType
 import org.bepass.oblivion.ui.theme.OblivionV7Tokens
 import org.bepass.oblivion.ui.viewmodel.MainViewModel
 import org.bepass.oblivion.utils.FileManager
@@ -65,6 +66,8 @@ fun HomeScreen(
   val state by viewModel.connectionState.collectAsStateWithLifecycle()
   val publicIpDetails by viewModel.publicIpDetails.collectAsStateWithLifecycle()
   val loadingIp by viewModel.isFetchingPublicIp.collectAsStateWithLifecycle()
+  val selectedCore = VpnCoreType.getCurrent()
+  val canToggleVpn = canToggleVpn(state, selectedCore.isReady)
   val fontScale =
     org.bepass.oblivion.utils.FontSizeHelper.fontSizeFlow.collectAsStateWithLifecycle().value.scale
   var showLanguageDialog by remember { mutableStateOf(false) }
@@ -153,9 +156,11 @@ fun HomeScreen(
         modifier =
           Modifier.width(160.dp)
             .height(75.dp)
+            .testTag(UiTestTags.VPN_SWITCH)
             .clip(RoundedCornerShape(37.5.dp))
             .background(backgroundColor)
             .clickable(
+              enabled = canToggleVpn,
               interactionSource = remember { MutableInteractionSource() },
               indication = null,
             ) {
@@ -180,7 +185,12 @@ fun HomeScreen(
       Spacer(Modifier.height(96.dp))
 
       Text(
-        text = connectionTitle(context, state),
+        text =
+          if (state == ConnectionState.DISCONNECTED && !selectedCore.isReady) {
+            stringResource(selectedCore.availabilityReasonRes)
+          } else {
+            connectionTitle(context, state)
+          },
         style =
           MaterialTheme.typography.titleLarge.copy(
             fontSize = (24 * fontScale).sp,
@@ -257,3 +267,6 @@ private fun connectionTitle(context: Context, state: ConnectionState): String =
       }
     }
   }
+
+internal fun canToggleVpn(state: ConnectionState, selectedCoreReady: Boolean): Boolean =
+  state != ConnectionState.DISCONNECTED || selectedCoreReady
