@@ -25,7 +25,17 @@ enum class VWarpPolicy {
 @Serializable
 data class TunnelAccountConfig(
   val identityKeyRef: String = "warp.identity.v2",
+  val masqueIdentityKeyRef: String = "masque.identity.v2",
   val licenseKeyRef: String = "warp.license.v2",
+  val acceptCloudflareTos: Boolean = false,
+)
+
+@Serializable
+data class RemotePolicyConfigV2(
+  val required: Boolean = true,
+  val envelopePath: String = "",
+  val publicKeysJson: String = "",
+  val stateKeyRef: String = "feature.manifest.state.v1",
 )
 
 @Serializable
@@ -40,6 +50,7 @@ data class PsiphonConfigV2(
 data class WireGuardConfigV2(
   val profilePath: String = "",
   val privateKeyRef: String = "",
+  val presharedKeyRefs: List<String> = emptyList(),
 )
 
 @Serializable
@@ -53,6 +64,7 @@ data class TunnelConfigV2(
   val endpoint: String = "",
   val vwarpPolicy: VWarpPolicy = VWarpPolicy.ADAPTIVE,
   val account: TunnelAccountConfig = TunnelAccountConfig(),
+  val remotePolicy: RemotePolicyConfigV2 = RemotePolicyConfigV2(),
   val psiphon: PsiphonConfigV2 = PsiphonConfigV2(),
   val wireGuard: WireGuardConfigV2 = WireGuardConfigV2(),
 )
