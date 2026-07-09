@@ -56,7 +56,9 @@ class AndroidSecureStore(context: Context) {
     require(file.length() in 1..MAX_SECRET_FILE_BYTES) { "Invalid encrypted payload size" }
     val buffer = ByteBuffer.wrap(file.readBytes())
     val ivSize = buffer.int
-    require(ivSize in 12..16 && buffer.remaining() > ivSize) { "Invalid encrypted payload" }
+    require(ivSize in MIN_GCM_IV_BYTES..MAX_GCM_IV_BYTES && buffer.remaining() > ivSize) {
+      "Invalid encrypted payload"
+    }
     val iv = ByteArray(ivSize).also(buffer::get)
     val ciphertext = ByteArray(buffer.remaining()).also(buffer::get)
     val cipher = Cipher.getInstance(TRANSFORMATION)
@@ -93,7 +95,7 @@ class AndroidSecureStore(context: Context) {
         )
         .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
         .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-        .setKeySize(256)
+        .setKeySize(AES_KEY_BITS)
         .setRandomizedEncryptionRequired(true)
         .build()
     )
@@ -109,6 +111,9 @@ class AndroidSecureStore(context: Context) {
     const val KEY_ALIAS = "oblivion.core.secrets.v2"
     const val TRANSFORMATION = "AES/GCM/NoPadding"
     const val GCM_TAG_BITS = 128
+    const val AES_KEY_BITS = 256
+    const val MIN_GCM_IV_BYTES = 12
+    const val MAX_GCM_IV_BYTES = 16
     const val MAX_SECRET_FILE_BYTES = 1024L * 1024L
     val KEY_PATTERN = Regex("[a-zA-Z0-9._-]{1,128}")
   }
