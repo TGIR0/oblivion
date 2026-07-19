@@ -70,7 +70,7 @@
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
 
-    </service>
+        </service>
 
         <activity
             android:name="org.bepass.oblivion.ui.MainActivity"
