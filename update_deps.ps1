@@ -107,14 +107,24 @@ function Set-TomlVersion {
 }
 
 function Get-MavenHighestVersion {
-  param([string]$BaseUrl, [string]$Group, [string]$Artifact)
+  param(
+    [string]$BaseUrl,
+    [string]$Group,
+    [string]$Artifact,
+    [switch]$IncludePrerelease
+  )
   $path = ($Group -replace '\.', '/') + "/$Artifact/maven-metadata.xml"
   $xml = Invoke-WithRetry "$BaseUrl/$path"
   $versions = $xml.metadata.versioning.versions.version
   if (-not $versions) { throw "No versions in metadata: ${Group}:${Artifact}" }
   if ($versions -is [string]) { $versions = @($versions) }
   $filtered = $versions | Where-Object { $_ -match '^[0-9]' }
-  if (-not $filtered) { throw "No numeric versions in metadata: ${Group}:${Artifact}" }
+  if (-not $IncludePrerelease) {
+    $filtered = $filtered | Where-Object {
+      $_ -notmatch '(?i)(alpha|beta|(^|[-.])rc[0-9]*|(^|[-.])m[0-9]+|eap|preview|dev|snapshot|milestone)'
+    }
+  }
+  if (-not $filtered) { throw "No eligible numeric versions in metadata: ${Group}:${Artifact}" }
   $max = $filtered[0]
   foreach ($v in $filtered) {
     if ((Compare-Version $v $max) -gt 0) { $max = $v }
@@ -165,7 +175,9 @@ $script:checkDefs = @(
   @{ key = "mmkv";               repo = "mavenCentral";  group = "com.tencent";                      artifact = "mmkv" }
   @{ key = "coroutines";         repo = "mavenCentral";  group = "org.jetbrains.kotlinx";            artifact = "kotlinx-coroutines-android" }
   @{ key = "hilt";               repo = "mavenCentral";  group = "com.google.dagger";                artifact = "hilt-android" }
-  @{ key = "detekt";             repo = "mavenCentral";  group = "dev.detekt";                       artifact = "detekt-gradle-plugin" }
+  # Detekt 2.x remains pre-release but is the AGP 9 built-in-Kotlin compatible line.
+  # This build-only exception is tracked by DETEKT-AGP9-001 in WARNING_WAIVERS.md.
+  @{ key = "detekt";             repo = "mavenCentral";  group = "dev.detekt";                       artifact = "detekt-gradle-plugin"; allowPreRelease = $true }
   @{ key = "spotless";           repo = "mavenCentral";  group = "com.diffplug.spotless";            artifact = "spotless-plugin-gradle" }
   @{ key = "dependencyAnalysis"; repo = "mavenCentral";  group = "com.autonomousapps";               artifact = "dependency-analysis-gradle-plugin" }
 )
@@ -182,6 +194,7 @@ if (-not (Test-Path $catalogPath)) { throw "Version catalog not found: $catalogP
 
 $current = Get-TomlVersions -Path $catalogPath
 $updates = [System.Collections.Generic.List[object]]::new()
+$queryErrors = 0
 
 # ── dependencies ──────────────────────────────────────────────────
 Assert-NotQuiet "`n=== Checking for updates ===`n" Cyan
@@ -191,9 +204,10 @@ foreach ($c in $checkDefs) {
   if (-not $have) { continue }
 
   try {
-    $latest = Get-MavenHighestVersion -BaseUrl $repos[$c.repo] -Group $c.group -Artifact $c.artifact
+    $latest = Get-MavenHighestVersion -BaseUrl $repos[$c.repo] -Group $c.group -Artifact $c.artifact -IncludePrerelease:($c.allowPreRelease -eq $true)
   } catch {
     Assert-NotQuiet ("  {0,-24} ERROR ($($_.Exception.Message))" -f "$($c.key) ...") Red
+    $queryErrors++
     continue
   }
 
@@ -224,6 +238,11 @@ if ($wrapperVer) {
 }
 
 # ── summary + apply ───────────────────────────────────────────────
+if ($queryErrors -gt 0) {
+  Write-Error "Dependency update check failed for $queryErrors package(s)."
+  exit 1
+}
+
 if ($updates.Count -eq 0) {
   Assert-NotQuiet "`nAll packages up to date." Green
   exit 0
