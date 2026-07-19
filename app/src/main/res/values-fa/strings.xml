@@ -66,6 +66,12 @@
 
     <string name="core_title">هسته VPN</string>
     <string name="core_title_desc">هسته VPN مورد نظر را انتخاب کنید</string>
+    <string name="core_aether">Aether</string>
+    <string name="core_aether_desc">کشف خودکار مسیر با MASQUE روی HTTP/3 و مسیر جایگزین HTTP/2</string>
+    <string name="aether_terms_title">فعال‌سازی Aether</string>
+    <string name="aether_terms_message">Aether به‌صورت خودکار یک هویت تونل اختصاصی Cloudflare می‌سازد. فقط در صورت پذیرش شرایط خدمات مربوط Cloudflare ادامه دهید.</string>
+    <string name="accept">می‌پذیرم</string>
+    <string name="view_terms">مشاهدهٔ شرایط</string>
     <string name="core_warp">Warp</string>
     <string name="core_warp_desc">اتصال استاندارد Cloudflare WARP</string>
     <string name="core_vwarp">VWarp</string>
@@ -81,6 +87,7 @@
     <string name="core_wireguard">WireGuard</string>
     <string name="core_wireguard_desc">پروفایل استاندارد WireGuard کاربر</string>
     <string name="core_gate_warp">غیرفعال تا زمان عبور از تست دستگاه واقعی، نشت و پایداری طولانی</string>
+    <string name="core_gate_aether">Aether توسط سیاست ایمنی امضاشده مسدود شده است</string>
     <string name="core_gate_masque">غیرفعال: آداپتور نهایی MASQUE هنوز یکپارچه نشده است</string>
     <string name="core_gate_psiphon">غیرفعال: مجوز کتبی و شناسه‌های معتبر Psiphon لازم است</string>
     <string name="core_gate_chain">غیرفعال: زنجیرهٔ کامل انتقال هنوز تست‌های انتشار را نگذرانده است</string>
@@ -98,4 +105,21 @@
     <string name="dnsTextDesc">DNS دلخواه خود را تنظیم کنید؛ برای نمونه 1.1.1.1</string>
     <string name="refresh_dns_catalog">به‌روزرسانی فهرست DNS</string>
     <string name="refreshing">در حال به‌روزرسانی…</string>
+    <string name="endpoint_automatic">کشف خودکار نقطهٔ پایانی</string>
+    <string name="endpoint_aether_seed">نقطهٔ آغاز Aether</string>
+    <string name="endpoint_aether_warning">پیشرفته: Aether فقط پورت ۴۴۳ را در بازه‌های کنترل‌شدهٔ MASQUE کلادفلر می‌پذیرد. کشف خودکار پیشنهاد می‌شود.</string>
+    <string name="split_tunneling">تونل‌سازی تفکیکی</string>
+    <string name="split_tunneling_desc">مشخص کنید کدام برنامه‌ها از VPN استفاده کنند یا آن را دور بزنند.</string>
+    <string name="split_disabled_desc">همهٔ برنامه‌ها از VPN استفاده می‌کنند.</string>
+    <string name="split_blacklist_desc">برنامه‌های انتخاب‌شده VPN را دور می‌زنند.</string>
+    <string name="split_whitelist_desc">فقط برنامه‌های انتخاب‌شده از VPN استفاده می‌کنند.</string>
+    <string name="aether_scanner_title">کشف نقطهٔ پایانی Aether</string>
+    <string name="aether_scanner_desc">شیوهٔ کشف Aether را برای شبکهٔ فعلی تنظیم کنید.</string>
+    <string name="aether_quick_reconnect">ابتدا آخرین نقطهٔ پایانی سالم امتحان شود</string>
+    <string name="aether_max_candidates">حداکثر گزینه‌ها</string>
+    <string name="aether_max_candidates_desc">برای پیش‌فرض حالت ۰، یا برای بازنویسی عددی از ۱ تا ۳۲ وارد کنید.</string>
+    <string name="aether_scan_turbo">سریع</string>
+    <string name="aether_scan_balanced">متعادل</string>
+    <string name="aether_scan_thorough">کامل</string>
+    <string name="aether_scan_stealth">مخفی</string>
 </resources>

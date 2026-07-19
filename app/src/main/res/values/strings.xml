@@ -78,6 +78,12 @@
   <string name="refreshing">Refreshing…</string>
   <string name="core_title">VPN Core</string>
   <string name="core_title_desc">Select the VPN core to use</string>
+  <string name="core_aether">Aether</string>
+  <string name="core_aether_desc">Automatic endpoint discovery with MASQUE HTTP/3 and HTTP/2 fallback</string>
+  <string name="aether_terms_title">Enable Aether</string>
+  <string name="aether_terms_message">Aether automatically creates a dedicated Cloudflare tunnel identity. Continue only if you accept the applicable Cloudflare service terms.</string>
+  <string name="accept">Accept</string>
+  <string name="view_terms">View terms</string>
   <string name="core_warp">Warp</string>
   <string name="core_warp_desc">Standard Cloudflare WARP connection</string>
   <string name="core_vwarp">VWarp</string>
@@ -93,6 +99,7 @@
   <string name="core_wireguard">WireGuard</string>
   <string name="core_wireguard_desc">Raw WireGuard config with private key and endpoint</string>
   <string name="core_gate_warp">Disabled until physical-device, leak and soak gates pass</string>
+  <string name="core_gate_aether">Aether is blocked by the signed safety policy</string>
   <string name="core_gate_masque">Disabled: production MASQUE adapter is not integrated</string>
   <string name="core_gate_psiphon">Disabled: written permission and valid Psiphon identifiers are required</string>
   <string name="core_gate_chain">Disabled: the complete chained transport has not passed release tests</string>
@@ -104,4 +111,21 @@
   <string name="endpoint_advanced_warning">Advanced: only official Cloudflare WARP address ranges and ports 500, 1701, 2408 or 4500 are accepted.</string>
   <string name="scanner_section_title">Clean IP Scanner</string>
   <string name="scanner_section_desc">Endpoint scanning stays disabled until an official signed provider manifest is available</string>
+  <string name="endpoint_automatic">Automatic endpoint discovery</string>
+  <string name="endpoint_aether_seed">Aether seed</string>
+  <string name="endpoint_aether_warning">Advanced: Aether accepts only port 443 in its controlled Cloudflare MASQUE ranges. Automatic discovery is recommended.</string>
+  <string name="split_tunneling">Split tunneling</string>
+  <string name="split_tunneling_desc">Choose which apps use or bypass the VPN.</string>
+  <string name="split_disabled_desc">All apps use the VPN.</string>
+  <string name="split_blacklist_desc">Selected apps bypass the VPN.</string>
+  <string name="split_whitelist_desc">Only selected apps use the VPN.</string>
+  <string name="aether_scanner_title">Aether endpoint discovery</string>
+  <string name="aether_scanner_desc">Tune Aether discovery for the current network.</string>
+  <string name="aether_quick_reconnect">Try the last working endpoint first</string>
+  <string name="aether_max_candidates">Maximum candidates</string>
+  <string name="aether_max_candidates_desc">Use 0 for the selected mode default, or 1–32 to override it.</string>
+  <string name="aether_scan_turbo">Turbo</string>
+  <string name="aether_scan_balanced">Balanced</string>
+  <string name="aether_scan_thorough">Thorough</string>
+  <string name="aether_scan_stealth">Stealth</string>
 </resources>
