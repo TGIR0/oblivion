@@ -1,12 +1,13 @@
 module github.com/bepass-org/oblivion/tun2socks
 
-go 1.26.4
+go 1.26.5
 
 tool golang.org/x/mobile/cmd/gobind
 
 require (
 	github.com/Diniboy1123/usque v4.2.0+incompatible
 	github.com/things-go/go-socks5 v0.1.1
+	golang.org/x/crypto v0.53.0
 	golang.zx2c4.com/wireguard v0.0.0-20260522210424-ecfc5a8d5446
 )
 
@@ -16,7 +17,8 @@ require (
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/noql-net/certpool v0.0.0-20250417123926-688b52c002ee // indirect
 	github.com/refraction-networking/utls v1.8.2 // indirect
-	golang.org/x/crypto v0.53.0 // indirect
+	github.com/sagernet/gvisor v0.0.0-20241123041152-536d05261cff // indirect
+	github.com/sagernet/sing v0.6.10 // indirect
 )
 
 require (
