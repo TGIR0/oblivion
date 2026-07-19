@@ -94,14 +94,24 @@ function Get-TomlVersions {
 }
 
 function Get-MavenHighestVersion {
-  param([string]$BaseUrl, [string]$Group, [string]$Artifact)
+  param(
+    [string]$BaseUrl,
+    [string]$Group,
+    [string]$Artifact,
+    [switch]$IncludePrerelease
+  )
   $path = ($Group -replace '\.', '/') + "/$Artifact/maven-metadata.xml"
   $xml = Invoke-WithRetry "$BaseUrl/$path"
   $versions = $xml.metadata.versioning.versions.version
   if (-not $versions) { throw "No versions in metadata: ${Group}:${Artifact}" }
   if ($versions -is [string]) { $versions = @($versions) }
   $filtered = $versions | Where-Object { $_ -match '^[0-9]' }
-  if (-not $filtered) { throw "No numeric versions in metadata: ${Group}:${Artifact}" }
+  if (-not $IncludePrerelease) {
+    $filtered = $filtered | Where-Object {
+      $_ -notmatch '(?i)(alpha|beta|(^|[-.])rc[0-9]*|(^|[-.])m[0-9]+|eap|preview|dev|snapshot|milestone)'
+    }
+  }
+  if (-not $filtered) { throw "No eligible numeric versions in metadata: ${Group}:${Artifact}" }
   $max = $filtered[0]
   foreach ($v in $filtered) {
     if ((Compare-Version $v $max) -gt 0) { $max = $v }
@@ -152,7 +162,9 @@ $script:checkDefs = @(
   @{ key = "mmkv";               repo = "mavenCentral";  group = "com.tencent";                      artifact = "mmkv" }
   @{ key = "coroutines";         repo = "mavenCentral";  group = "org.jetbrains.kotlinx";            artifact = "kotlinx-coroutines-android" }
   @{ key = "hilt";               repo = "mavenCentral";  group = "com.google.dagger";                artifact = "hilt-android" }
-  @{ key = "detekt";             repo = "mavenCentral";  group = "dev.detekt";                       artifact = "detekt-gradle-plugin" }
+  # Detekt 2.x remains pre-release but is the AGP 9 built-in-Kotlin compatible line.
+  # This build-only exception is tracked by DETEKT-AGP9-001 in WARNING_WAIVERS.md.
+  @{ key = "detekt";             repo = "mavenCentral";  group = "dev.detekt";                       artifact = "detekt-gradle-plugin"; allowPreRelease = $true }
   @{ key = "spotless";           repo = "mavenCentral";  group = "com.diffplug.spotless";            artifact = "spotless-plugin-gradle" }
   @{ key = "dependencyAnalysis"; repo = "mavenCentral";  group = "com.autonomousapps";               artifact = "dependency-analysis-gradle-plugin" }
 )
@@ -167,6 +179,7 @@ if (-not (Test-Path $catalogPath)) { throw "Version catalog not found: $catalogP
 
 $current = Get-TomlVersions -Path $catalogPath
 $outdated = [System.Collections.Generic.List[object]]::new()
+$auditErrors = [System.Collections.Generic.List[object]]::new()
 $results = [System.Collections.Generic.List[object]]::new()
 
 Assert-NotQuiet "`n  Checking $(@($checkDefs).Count) packages ...`n" Cyan
@@ -180,7 +193,7 @@ foreach ($c in $checkDefs) {
   $row = [PSCustomObject]@{ Key = $c.key; Current = $have; Latest = ""; Status = ""; Error = "" }
 
   try {
-    $latest = Get-MavenHighestVersion -BaseUrl $repos[$c.repo] -Group $c.group -Artifact $c.artifact
+    $latest = Get-MavenHighestVersion -BaseUrl $repos[$c.repo] -Group $c.group -Artifact $c.artifact -IncludePrerelease:($c.allowPreRelease -eq $true)
     $row.Latest = $latest
     $cmp = Compare-Version $have $latest
     if ($cmp -lt 0) {
@@ -195,6 +208,7 @@ foreach ($c in $checkDefs) {
     $row.Latest = "<?>"
     $row.Status = "ERR"
     $row.Error = $_.Exception.Message
+    $auditErrors.Add($row)
     Assert-NotQuiet ("  {0,-$padLen} {1,-12} ✗ {2}" -f $c.key, $have, $row.Error) Red
   }
   $results.Add($row)
@@ -256,15 +270,18 @@ $table = $results | Sort-Object Key | ForEach-Object {
 }
 $table | Format-Table -AutoSize -Property Package, Current, Latest, Status, Info
 
-if ($outdated.Count -gt 0) {
+if ($auditErrors.Count -gt 0) {
+  Assert-NotQuiet ("  $($auditErrors.Count) audit error(s); dependency freshness is unknown.") Red
+} elseif ($outdated.Count -gt 0) {
   Assert-NotQuiet ("  $($outdated.Count) outdated / $($results.Count) checked") Yellow
 } else {
   Assert-NotQuiet ("  All $($results.Count) dependencies up to date.") Green
 }
 
-if ($FailOnOutdated -and $outdated.Count -gt 0) {
-  $names = ($outdated | ForEach-Object { $_.Key }) -join ", "
-  Write-Error "Outdated: $names"
+if ($FailOnOutdated -and ($outdated.Count -gt 0 -or $auditErrors.Count -gt 0)) {
+  $outdatedNames = ($outdated | ForEach-Object { $_.Key }) -join ", "
+  $errorNames = ($auditErrors | ForEach-Object { $_.Key }) -join ", "
+  Write-Error "Dependency audit failed. Outdated: [$outdatedNames]. Errors: [$errorNames]."
   exit 1
 }
 
