@@ -4,7 +4,8 @@ import org.bepass.oblivion.utils.FileManager
 
 enum class SplitTunnelMode {
   DISABLED,
-  BLACKLIST;
+  BLACKLIST,
+  WHITELIST;
 
   companion object {
     @JvmStatic
