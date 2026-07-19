@@ -1,3 +1,7 @@
+import java.nio.file.Files
+import java.nio.file.attribute.DosFileAttributeView
+import org.gradle.api.tasks.Delete
+
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.compose.compiler) apply false
@@ -15,6 +19,27 @@ plugins {
 dependencyLocking {
     lockAllConfigurations()
     lockMode = LockMode.STRICT
+}
+
+// Go marks downloaded module-cache files read-only. Restore writability inside the
+// project build directory so `gradlew clean` remains reliable on Windows.
+val localGoModuleCache = layout.buildDirectory.dir("go-mod-cache")
+tasks.named<Delete>("clean") {
+    doFirst {
+        val cache = localGoModuleCache.get().asFile
+        if (cache.isDirectory) {
+            if (System.getProperty("os.name").contains("Windows", ignoreCase = true)) {
+                Files.walk(cache.toPath()).use { paths ->
+                    paths.forEach { path ->
+                        Files.getFileAttributeView(path, DosFileAttributeView::class.java)
+                            ?.setReadOnly(false)
+                    }
+                }
+            } else {
+                cache.walkBottomUp().forEach { entry -> entry.setWritable(true, false) }
+            }
+        }
+    }
 }
 
 // ── Spotless (code formatting) ────────────────────────────────
