@@ -11,7 +11,7 @@
     <uses-feature android:name="android.hardware.wifi" android:required="false" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"
         tools:ignore="ForegroundServicesPolicy" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
@@ -40,15 +40,18 @@
         tools:targetApi="CINNAMON_BUN"
         tools:ignore="DiscouragedApi">
 
+        <!-- VPN apps configured through Settings > Network &amp; Internet > VPN qualify for the
+             systemExempted foreground service type per the official FGS types documentation; the
+             lint permission model cannot see that criterion and demands exact-alarm permissions
+             this app must not declare. -->
         <service
             android:name=".service.OblivionVpnService"
             android:enabled="true"
             android:exported="true"
             android:permission="android.permission.BIND_VPN_SERVICE"
-            android:foregroundServiceType="specialUse"
+            android:foregroundServiceType="systemExempted"
             android:process=":vpn_background"
-            tools:ignore="VpnServicePolicy">
-            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="vpn" />
+            tools:ignore="ForegroundServicePermission">
             <intent-filter>
                 <action android:name="android.net.VpnService" />
             </intent-filter>
