@@ -192,24 +192,20 @@ val buildNativeCore =
   tasks.register<Exec>("buildNativeCore") {
     description = "Build the versioned native core AAR from pinned Go sources"
     group = "build"
-    val script = rootProject.layout.projectDirectory.file("tun2socks/build-aar.ps1")
+    val script = rootProject.layout.projectDirectory.file("warpplus/build-aar.ps1")
     val nativeSources =
-      rootProject.fileTree("tun2socks") {
+      rootProject.fileTree("warpplus") {
         include("**/*.go", "go.mod", "go.sum", "build-aar.ps1")
       }
-    val usqueInputs =
+    val warpPlusInputs =
       files(
         rootProject.layout.projectDirectory.file("native/core-upstreams.json"),
-        rootProject.layout.projectDirectory.file("native/usque/prepare-usque.ps1"),
-        rootProject.layout.projectDirectory.file("native/usque/oblivion-android.patch"),
-        rootProject.layout.projectDirectory.file("native/usque/oblivion-lifecycle.patch"),
-        rootProject.layout.projectDirectory.file("native/usque/oblivion-cloudflare-client.patch"),
-          rootProject.layout.projectDirectory.file("native/warp-plus/prepare-warp-plus.ps1"),
-          rootProject.layout.projectDirectory.file("native/warp-plus/oblivion-client.patch"),
-          rootProject.layout.projectDirectory.file("native/warp-plus/oblivion-dependencies.patch"),
-        )
-    inputs.files(nativeSources, usqueInputs)
-    outputs.file(layout.projectDirectory.file("libs/tun2socks.aar"))
+        rootProject.layout.projectDirectory.file("native/warp-plus/prepare-warp-plus.ps1"),
+        rootProject.layout.projectDirectory.file("native/warp-plus/oblivion-client.patch"),
+        rootProject.layout.projectDirectory.file("native/warp-plus/oblivion-dependencies.patch"),
+      )
+    inputs.files(nativeSources, warpPlusInputs)
+    outputs.file(layout.projectDirectory.file("libs/warpplus.aar"))
     workingDir = rootProject.projectDir
     commandLine(
       if (System.getProperty("os.name").lowercase().contains("win")) "powershell" else "pwsh",
@@ -321,7 +317,7 @@ configurations.configureEach {
 }
 
 dependencies {
-    implementation(files("libs/tun2socks.aar"))
+    implementation(files("libs/warpplus.aar"))
     implementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.compose)

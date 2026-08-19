@@ -12,8 +12,8 @@
 -keepattributes RuntimeVisibleTypeAnnotations,StackMapTable
 -renamesourcefileattribute SourceFile
 
-# ── tun2socks / Go JNI Bridge ─────────────────────────────────
--keep class tun2socks.** { *; }
+# ── warpplus / Go JNI Bridge ──────────────────────────────────
+-keep class warpplus.** { *; }
 -keep class go.** { *; }
 -keep class * implements go.Seq.Proxy { *; }
 -keepclassmembers class * {
@@ -21,7 +21,7 @@
     *** goSeqRef;
     *** ref;
 }
--dontwarn tun2socks.**
+-dontwarn warpplus.**
 -dontwarn go.**
 
 # ── hev-socks5-tunnel JNI bridge (name-based native binding) ──
