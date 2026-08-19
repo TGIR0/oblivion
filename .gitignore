@@ -69,15 +69,15 @@ google-services.json
 *.p12
 *.key
 
-# Go / Gomobile specific (tun2socks)
-tun2socks/tun2socks.aar
-tun2socks/tun2socks-sources.jar
+# Go / Gomobile specific (warpplus)
+warpplus/warpplus.aar
+warpplus/warpplus-sources.jar
 # Go build artifacts
 *.test
 *.out
 
 # App specific libraries (generated AARs)
-app/libs/tun2socks.aar
+app/libs/warpplus.aar
 app/libs/*.jar
 
 # OS specific files
@@ -112,3 +112,8 @@ buildSrc/.gradle/
 tmp/
 /buildSrc/build
 /buildSrc/build/kotlin
+# Rust rewrite workspace build output; Cargo.lock is intentionally tracked.
+rustcore/target*/
+rustcore/generated/
+/warpplus/.tmp-gocache
+/rustcore/target-android-bridge
